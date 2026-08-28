@@ -1,0 +1,3045 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTAF RCC — ระบบบรรยายสรุปการปฏิบัติงาน</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#00d4ff"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="RTAF RCC"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Share+Tech+Mono&display=swap');
+
+:root {
+  --navy: #0a1628; --navy2: #0f2144;
+  --accent: #00d4ff; --accent2: #0099cc;
+  --green: #00ff88; --yellow: #ffd700;
+  --red: #ff4444; --orange: #ff8800;
+  --white: #e8f4f8; --gray: #8899aa;
+}
+
+/* ── THEME: DARK (default) ── */
+body.theme-dark {
+  --bg: #0a1628; --bg2: #0f2144;
+  --card-bg: rgba(15,33,68,0.8);
+  --header-bg: rgba(15,33,68,0.97);
+  --text: #e8f4f8; --text2: #8899aa;
+  --border: rgba(0,212,255,0.2);
+  --accent: #00d4ff; --accent2: #0099cc;
+  --grid-line: rgba(0,212,255,0.03);
+}
+
+/* ── THEME: LIGHT ── */
+body.theme-light {
+  --bg: #f0f4f8; --bg2: #ffffff;
+  --card-bg: rgba(255,255,255,0.95);
+  --header-bg: rgba(255,255,255,0.98);
+  --text: #1a2a3a; --text2: #5a6a7a;
+  --border: rgba(0,100,180,0.2);
+  --accent: #0066cc; --accent2: #0044aa;
+  --grid-line: rgba(0,100,180,0.04);
+}
+body.theme-light { background: var(--bg) !important; color: var(--text) !important; }
+body.theme-light .app-header { background: var(--header-bg) !important; border-bottom: 1px solid rgba(0,100,180,0.2) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+body.theme-light .app-logo h1 { color: #0066cc !important; }
+body.theme-light .app-logo .sub { color: #5a6a7a !important; }
+body.theme-light .nav-tab { color: #5a6a7a !important; }
+body.theme-light .nav-tab:hover { background: rgba(0,100,180,0.08) !important; color: #1a2a3a !important; }
+body.theme-light .nav-tab.active { color: #0066cc !important; border-bottom-color: #0066cc !important; background: rgba(0,100,180,0.06) !important; }
+body.theme-light .card { background: #ffffff !important; border: 1px solid rgba(0,100,180,0.15) !important; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+body.theme-light .card-title { color: #0066cc !important; border-bottom-color: rgba(0,100,180,0.15) !important; }
+body.theme-light .data-table th { background: rgba(0,100,180,0.08) !important; color: #0066cc !important; border-bottom-color: rgba(0,100,180,0.2) !important; }
+body.theme-light .data-table td { color: #1a2a3a !important; border-bottom-color: rgba(0,0,0,0.06) !important; }
+body.theme-light .data-table tr:hover td { background: rgba(0,100,180,0.04) !important; }
+body.theme-light .loc { background: rgba(0,100,180,0.08) !important; color: #0055aa !important; border-color: rgba(0,100,180,0.2) !important; }
+body.theme-light .sum-card { background: #ffffff !important; border: 1px solid rgba(0,0,0,0.1) !important; }
+body.theme-light .page-scroll { background: var(--bg) !important; }
+body.theme-light body::before { background-image: linear-gradient(rgba(0,100,180,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,100,180,0.04) 1px, transparent 1px) !important; }
+body.theme-light .app-date { color: #0055aa !important; }
+body.theme-light .sub-tab { background: rgba(0,100,180,0.06) !important; border-color: rgba(0,100,180,0.2) !important; color: #5a6a7a !important; }
+body.theme-light .sub-tab.active { background: rgba(0,100,180,0.12) !important; border-color: #0066cc !important; color: #0066cc !important; }
+body.theme-light .duty-select { background: rgba(0,100,180,0.06) !important; border-color: rgba(0,100,180,0.3) !important; color: #1a2a3a !important; }
+body.theme-light .ac-input { background: rgba(0,100,180,0.04) !important; border-color: rgba(0,100,180,0.2) !important; color: #1a2a3a !important; }
+body.theme-light .mission-input { background: rgba(0,100,180,0.04) !important; border-color: rgba(0,100,180,0.15) !important; color: #1a2a3a !important; }
+body.theme-light .img-upload-area { border-color: rgba(0,100,180,0.25) !important; background: rgba(0,100,180,0.03) !important; }
+
+/* ── THEME: CAMO (Military) ── */
+body.theme-camo {
+  --bg: #2d3a1e; --bg2: #3a4a26;
+  --card-bg: rgba(40,52,28,0.9);
+  --header-bg: rgba(30,40,20,0.97);
+  --text: #d4e8b0; --text2: #8a9a6a;
+  --border: rgba(120,160,60,0.3);
+  --accent: #a8cc44; --accent2: #88aa33;
+  --grid-line: rgba(100,140,40,0.05);
+}
+body.theme-camo { background: var(--bg) !important; color: var(--text) !important;
+  background-image: repeating-linear-gradient(
+    45deg, transparent, transparent 20px,
+    rgba(0,0,0,0.03) 20px, rgba(0,0,0,0.03) 40px
+  ),
+  repeating-linear-gradient(
+    -45deg, transparent, transparent 30px,
+    rgba(60,80,20,0.08) 30px, rgba(60,80,20,0.08) 60px
+  ) !important;
+}
+body.theme-camo .app-header { background: rgba(25,35,15,0.97) !important; border-bottom: 1px solid rgba(120,160,60,0.3) !important; }
+body.theme-camo .app-logo h1 { color: #a8cc44 !important; }
+body.theme-camo .app-logo .sub { color: #8a9a6a !important; }
+body.theme-camo .nav-tab { color: #8a9a6a !important; }
+body.theme-camo .nav-tab:hover { background: rgba(120,160,60,0.1) !important; color: #d4e8b0 !important; }
+body.theme-camo .nav-tab.active { color: #a8cc44 !important; border-bottom-color: #a8cc44 !important; background: rgba(120,160,60,0.1) !important; }
+body.theme-camo .card { background: rgba(40,52,28,0.9) !important; border: 1px solid rgba(120,160,60,0.25) !important; }
+body.theme-camo .card-title { color: #a8cc44 !important; border-bottom-color: rgba(120,160,60,0.2) !important; }
+body.theme-camo .data-table th { background: rgba(60,80,30,0.6) !important; color: #a8cc44 !important; border-bottom-color: rgba(120,160,60,0.3) !important; }
+body.theme-camo .data-table td { color: #d4e8b0 !important; border-bottom-color: rgba(120,160,60,0.1) !important; }
+body.theme-camo .data-table tr:hover td { background: rgba(120,160,60,0.07) !important; }
+body.theme-camo .loc { background: rgba(120,160,60,0.1) !important; color: #a8cc44 !important; border-color: rgba(120,160,60,0.3) !important; }
+body.theme-camo .sum-card { background: rgba(40,52,28,0.9) !important; border: 1px solid rgba(120,160,60,0.2) !important; }
+body.theme-camo body::before { opacity:0 !important; }
+body.theme-camo .leaflet-tile { filter: brightness(0.5) saturate(0.5) hue-rotate(60deg) !important; }
+body.theme-camo .app-date { color: #c8e050 !important; }
+body.theme-camo .sub-tab { background: rgba(60,80,30,0.5) !important; border-color: rgba(120,160,60,0.2) !important; color: #8a9a6a !important; }
+body.theme-camo .sub-tab.active { background: rgba(120,160,60,0.15) !important; border-color: #a8cc44 !important; color: #a8cc44 !important; }
+body.theme-camo .ac-input { background: rgba(60,80,30,0.4) !important; border-color: rgba(120,160,60,0.25) !important; color: #d4e8b0 !important; }
+body.theme-camo .mission-input { background: rgba(60,80,30,0.4) !important; border-color: rgba(120,160,60,0.2) !important; color: #d4e8b0 !important; }
+body.theme-camo .img-upload-area { border-color: rgba(120,160,60,0.3) !important; background: rgba(60,80,30,0.2) !important; }
+
+/* Theme toggle button */
+.theme-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.3);
+  cursor: pointer;
+  font-size: 1.4rem;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9998;
+  transition: all 0.3s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+.theme-btn:hover { transform: scale(1.1); }
+body.theme-dark  .theme-btn { background: #0f2144; border-color: #00d4ff; }
+body.theme-light .theme-btn { background: #ffffff; border-color: #0066cc; box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+body.theme-camo  .theme-btn { background: #3a4a26; border-color: #a8cc44; }
+
+/* ── THEME: HEAVY METAL ── */
+body.theme-metal {
+  background: #111111 !important;
+  color: #cccccc !important;
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px, transparent 3px,
+      rgba(180,180,180,0.015) 3px, rgba(180,180,180,0.015) 4px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px, transparent 60px,
+      rgba(100,100,100,0.04) 60px, rgba(100,100,100,0.04) 61px
+    ) !important;
+}
+
+body.theme-metal .app-header {
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%) !important;
+  border-bottom: 2px solid #444 !important;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+body.theme-metal .app-logo h1 {
+  color: transparent !important;
+  background: linear-gradient(180deg, #ffffff 0%, #aaaaaa 40%, #666666 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+  letter-spacing: 2px !important;
+}
+body.theme-metal .app-logo .sub { color: #666 !important; letter-spacing: 1px !important; }
+
+body.theme-metal .nav-tab { color: #777 !important; letter-spacing: 0.5px !important; }
+body.theme-metal .nav-tab:hover { background: rgba(255,255,255,0.05) !important; color: #ccc !important; }
+body.theme-metal .nav-tab.active {
+  color: #ddd !important;
+  border-bottom: 2px solid #aaa !important;
+  background: rgba(255,255,255,0.04) !important;
+}
+
+body.theme-metal .card {
+  background: linear-gradient(180deg, #1c1c1c 0%, #161616 100%) !important;
+  border: 1px solid #333 !important;
+  border-top: 1px solid #444 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+body.theme-metal .card-title {
+  color: #bbb !important;
+  border-bottom: 1px solid #333 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  font-size: 0.82rem !important;
+}
+body.theme-metal .data-table th {
+  background: linear-gradient(180deg, #2a2a2a, #222) !important;
+  color: #999 !important;
+  border-bottom: 1px solid #444 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  font-size: 0.78rem !important;
+}
+body.theme-metal .data-table td { color: #bbb !important; border-bottom: 1px solid #222 !important; }
+body.theme-metal .data-table tr:hover td { background: rgba(255,255,255,0.03) !important; }
+body.theme-metal .loc {
+  background: rgba(255,255,255,0.05) !important;
+  color: #999 !important;
+  border: 1px solid #444 !important;
+}
+body.theme-metal .sum-card {
+  background: linear-gradient(180deg, #1c1c1c, #141414) !important;
+  border: 1px solid #333 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+body.theme-metal .sum-card .lbl { color: #555 !important; }
+
+body.theme-metal .app-date {
+  color: transparent !important;
+  background: linear-gradient(90deg, #aaa, #666) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+body.theme-metal .sub-tab {
+  background: linear-gradient(180deg, #1e1e1e, #181818) !important;
+  border: 1px solid #333 !important;
+  color: #666 !important;
+}
+body.theme-metal .sub-tab.active {
+  background: linear-gradient(180deg, #2a2a2a, #222) !important;
+  border-color: #666 !important;
+  color: #ccc !important;
+}
+body.theme-metal .sub-tab:hover { color: #aaa !important; }
+
+body.theme-metal .ac-input {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #bbb !important;
+}
+body.theme-metal .ac-input:focus { border-color: #666 !important; }
+body.theme-metal .mission-input {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #bbb !important;
+}
+body.theme-metal .duty-select {
+  background: #111 !important;
+  border: 1px solid #333 !important;
+  color: #bbb !important;
+}
+body.theme-metal .zone-card {
+  background: linear-gradient(180deg, #1c1c1c, #161616) !important;
+  border: 1px solid #333 !important;
+}
+body.theme-metal .zone-header { background: #222 !important; border-bottom: 1px solid #333 !important; }
+body.theme-metal .zone-name-input { color: #bbb !important; }
+body.theme-metal .zone-item-input { background: #111 !important; border-color: #333 !important; color: #bbb !important; }
+
+body.theme-metal .toggle-btn {
+  background: linear-gradient(180deg, #1e1e1e, #181818) !important;
+  border: 1px solid #333 !important;
+  color: #888 !important;
+}
+body.theme-metal .toggle-btn:hover { background: #222 !important; color: #bbb !important; }
+
+body.theme-metal .map-sidebar {
+  background: linear-gradient(180deg, #111 0%, #0d0d0d 100%) !important;
+  border-left: 1px solid #333 !important;
+}
+body.theme-metal .ms-unit-item { border-bottom: 1px solid #1a1a1a !important; }
+body.theme-metal .ms-unit-item:hover { background: rgba(255,255,255,0.03) !important; }
+body.theme-metal .ms-unit-item.sel { background: rgba(255,255,255,0.06) !important; border-left: 3px solid #888 !important; }
+body.theme-metal .ms-unit-name { color: #bbb !important; }
+body.theme-metal .ms-unit-loc { color: #555 !important; }
+body.theme-metal .ms-summary { border-bottom: 1px solid #333 !important; }
+body.theme-metal .ms-sum { border-right: 1px solid #222 !important; }
+body.theme-metal .ms-sum .l { color: #555 !important; }
+
+body.theme-metal .leaflet-tile { filter: brightness(0.35) saturate(0.2) !important; }
+body.theme-metal .leaflet-control-layers {
+  background: linear-gradient(180deg, #1c1c1c, #141414) !important;
+  border: 1px solid #444 !important;
+}
+body.theme-metal .leaflet-control-layers-list label { color: #aaa !important; }
+body.theme-metal .leaflet-control-layers-list label:hover { color: #fff !important; }
+
+body.theme-metal .theme-btn {
+  background: linear-gradient(180deg, #2a2a2a, #111) !important;
+  border: 1px solid #555 !important;
+  box-shadow: 0 0 8px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+}
+body.theme-metal .theme-btn:hover {
+  background: linear-gradient(180deg, #333, #1a1a1a) !important;
+  box-shadow: 0 0 16px rgba(200,200,200,0.1), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+}
+body.theme-metal #btn-save {
+  background: linear-gradient(180deg, #1e1e1e, #141414) !important;
+  border-color: #444 !important;
+  color: #aaa !important;
+}
+
+/* scrollbar metallic */
+body.theme-metal ::-webkit-scrollbar { width: 6px; }
+body.theme-metal ::-webkit-scrollbar-track { background: #111; }
+body.theme-metal ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #555, #333); border-radius: 0; }
+body.theme-metal ::-webkit-scrollbar-thumb:hover { background: #666; }
+
+/* ── THEME: RED ALERT ── */
+body.theme-redalert {
+  --bg: #0d0000; --bg2: #1a0000;
+  --card-bg: rgba(30,0,0,0.9);
+  --header-bg: rgba(20,0,0,0.97);
+  --text: #ffcccc; --text2: #aa6666;
+  --border: rgba(255,40,40,0.3);
+  --accent: #ff2222; --accent2: #cc0000;
+  --grid-line: rgba(255,0,0,0.05);
+}
+body.theme-redalert {
+  background: #0d0000 !important;
+  color: #ffcccc !important;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,0,0,0.03) 40px, rgba(255,0,0,0.03) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,0,0,0.03) 40px, rgba(255,0,0,0.03) 41px) !important;
+  animation: redpulse 3s ease-in-out infinite;
+}
+@keyframes redpulse {
+  0%,100% { box-shadow: inset 0 0 80px rgba(255,0,0,0.04); }
+  50%      { box-shadow: inset 0 0 80px rgba(255,0,0,0.10); }
+}
+body.theme-redalert::before {
+  background-image:
+    linear-gradient(rgba(255,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,0,0,0.04) 1px, transparent 1px) !important;
+}
+body.theme-redalert .app-header {
+  background: rgba(18,0,0,0.98) !important;
+  border-bottom: 1px solid rgba(255,40,40,0.4) !important;
+  box-shadow: 0 2px 20px rgba(255,0,0,0.2) !important;
+}
+body.theme-redalert .app-logo h1 { color: #ff2222 !important; text-shadow: 0 0 10px rgba(255,0,0,0.5) !important; }
+body.theme-redalert .app-logo .sub { color: #aa4444 !important; }
+body.theme-redalert .nav-tab { color: #aa4444 !important; }
+body.theme-redalert .nav-tab:hover { background: rgba(255,0,0,0.1) !important; color: #ffcccc !important; }
+body.theme-redalert .nav-tab.active { color: #ff2222 !important; border-bottom-color: #ff2222 !important; background: rgba(255,0,0,0.1) !important; }
+body.theme-redalert .card {
+  background: rgba(25,0,0,0.9) !important;
+  border: 1px solid rgba(255,40,40,0.25) !important;
+  box-shadow: 0 0 12px rgba(255,0,0,0.06) !important;
+}
+body.theme-redalert .card-title { color: #ff2222 !important; border-bottom-color: rgba(255,40,40,0.2) !important; text-shadow: 0 0 8px rgba(255,0,0,0.3) !important; }
+body.theme-redalert .data-table th { background: rgba(60,0,0,0.7) !important; color: #ff4444 !important; border-bottom-color: rgba(255,40,40,0.3) !important; }
+body.theme-redalert .data-table td { color: #ffcccc !important; border-bottom-color: rgba(255,0,0,0.08) !important; }
+body.theme-redalert .data-table tr:hover td { background: rgba(255,0,0,0.06) !important; }
+body.theme-redalert .loc { background: rgba(255,0,0,0.08) !important; color: #ff4444 !important; border-color: rgba(255,40,40,0.3) !important; }
+body.theme-redalert .sum-card { background: rgba(25,0,0,0.9) !important; border: 1px solid rgba(255,40,40,0.2) !important; }
+body.theme-redalert .app-date { color: #ff4444 !important; }
+body.theme-redalert .sub-tab { background: rgba(40,0,0,0.6) !important; border-color: rgba(255,40,40,0.2) !important; color: #aa4444 !important; }
+body.theme-redalert .sub-tab.active { background: rgba(255,0,0,0.15) !important; border-color: #ff2222 !important; color: #ff2222 !important; }
+body.theme-redalert .ac-input { background: rgba(40,0,0,0.5) !important; border-color: rgba(255,40,40,0.2) !important; color: #ffcccc !important; }
+body.theme-redalert .mission-input { background: rgba(40,0,0,0.5) !important; border-color: rgba(255,40,40,0.2) !important; color: #ffcccc !important; }
+body.theme-redalert .duty-select { background: rgba(40,0,0,0.5) !important; border-color: rgba(255,40,40,0.3) !important; color: #ffcccc !important; }
+body.theme-redalert .img-upload-area { border-color: rgba(255,40,40,0.3) !important; background: rgba(40,0,0,0.2) !important; }
+body.theme-redalert .toggle-btn { background: rgba(255,0,0,0.08) !important; border-color: rgba(255,40,40,0.25) !important; color: #ffaaaa !important; }
+body.theme-redalert .ms-unit-item:hover { background: rgba(255,0,0,0.07) !important; }
+body.theme-redalert .ms-unit-item.sel { background: rgba(255,0,0,0.12) !important; border-left-color: #ff2222 !important; }
+body.theme-redalert .map-sidebar { background: rgba(15,0,0,0.97) !important; border-left-color: rgba(255,40,40,0.2) !important; }
+body.theme-redalert .leaflet-tile { filter: brightness(0.4) saturate(0.5) hue-rotate(0deg) sepia(0.3) !important; }
+body.theme-redalert .leaflet-control-layers { background: rgba(15,0,0,0.97) !important; border-color: rgba(255,40,40,0.3) !important; }
+body.theme-redalert .leaflet-control-layers-list label { color: #ffcccc !important; }
+body.theme-redalert .leaflet-control-layers-list label:hover { color: #ff2222 !important; }
+body.theme-redalert .theme-btn { background: #1a0000; border-color: #ff2222; box-shadow: 0 0 12px rgba(255,0,0,0.3); animation: btnpulse 2s ease-in-out infinite; }
+@keyframes btnpulse {
+  0%,100% { box-shadow: 0 0 8px rgba(255,0,0,0.3); }
+  50%      { box-shadow: 0 0 20px rgba(255,0,0,0.7); }
+}
+body.theme-redalert #btn-save { background: rgba(255,0,0,0.12) !important; border-color: rgba(255,0,0,0.5) !important; color: #ff4444 !important; }
+body.theme-redalert .zone-card { background: rgba(25,0,0,0.9) !important; border-color: rgba(255,40,40,0.2) !important; }
+body.theme-redalert .zone-header { background: rgba(40,0,0,0.7) !important; border-bottom-color: rgba(255,40,40,0.15) !important; }
+body.theme-redalert .zone-name-input { color: #ff4444 !important; }
+body.theme-redalert .sum-grid .sum-card { background: rgba(25,0,0,0.9) !important; }
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--navy);
+  color: var(--white);
+  font-family: 'Sarabun', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index:0;
+}
+
+/* ── HEADER ── */
+.app-header {
+  position: relative; z-index: 1000;
+  background: rgba(15,33,68,0.97);
+  border-bottom: 1px solid rgba(0,212,255,0.3);
+  padding: 0 24px;
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+.app-logo {
+  padding: 12px 0;
+  margin-right: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.app-logo h1 { font-size:0.95rem; font-weight:700; color:var(--accent); white-space:nowrap; }
+.app-logo .sub { font-size:0.72rem; color:var(--gray); }
+
+/* NAV TABS */
+.nav-tabs { display:flex; align-items:stretch; gap:2px; flex:1; overflow-x:auto; scrollbar-width:none; }
+.nav-tabs::-webkit-scrollbar { display:none; }
+.nav-tab {
+  padding: 0 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--gray);
+  cursor: pointer;
+  font-family: 'Sarabun', sans-serif;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  transition: all 0.2s;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-tab:hover { color: var(--white); background: rgba(0,212,255,0.05); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(0,212,255,0.06); }
+
+.app-date {
+  padding: 12px 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--yellow);
+  white-space: nowrap;
+  display: flex; align-items: center;
+}
+
+/* ── PAGE CONTENT ── */
+.page { display:none; flex:1; overflow:hidden; position:relative; z-index:1; flex-direction:column; }
+.page.active { display:flex; }
+.page-scroll { flex:1; overflow-y:auto; padding:20px; }
+
+/* ── CARDS ── */
+.card {
+  background: rgba(15,33,68,0.8);
+  border: 1px solid rgba(0,212,255,0.2);
+  padding: 18px 22px;
+  margin-bottom: 14px;
+}
+.card-title {
+  font-size:0.95rem; font-weight:600; color:var(--accent);
+  margin-bottom:14px; padding-bottom:8px;
+  border-bottom:1px solid rgba(0,212,255,0.2);
+  display:flex; align-items:center; gap:8px;
+}
+
+/* ── TABLE ── */
+.data-table { width:100%; border-collapse:collapse; font-size:0.88rem; }
+.data-table th { background:rgba(0,212,255,0.1); color:var(--accent); padding:9px 11px; text-align:left; font-weight:600; border-bottom:1px solid rgba(0,212,255,0.3); white-space:nowrap; }
+.data-table td { padding:9px 11px; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--white); vertical-align:middle; }
+.data-table tr:hover td { background:rgba(0,212,255,0.05); }
+
+/* STATUS */
+.st { padding:3px 9px; font-size:0.78rem; font-weight:600; font-family:'Share Tech Mono',monospace; display:inline-block; }
+.st-fmc { background:rgba(0,255,136,0.15); color:var(--green); border:1px solid var(--green); }
+.st-pmc { background:rgba(255,215,0,0.15);  color:var(--yellow); border:1px solid var(--yellow); }
+.st-nmc { background:rgba(255,68,68,0.15);  color:var(--red);    border:1px solid var(--red); }
+
+/* SUMMARY GRID */
+.sum-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:14px; }
+.sum-card { background:rgba(15,33,68,0.8); border:1px solid rgba(0,212,255,0.2); padding:14px; text-align:center; }
+.sum-card .num { font-size:2.2rem; font-weight:700; font-family:'Share Tech Mono',monospace; line-height:1; }
+.sum-card .lbl { font-size:0.75rem; color:var(--gray); margin-top:3px; }
+.sum-card.t .num { color:var(--accent); }
+.sum-card.f .num { color:var(--green); }
+.sum-card.p .num { color:var(--yellow); }
+.sum-card.n .num { color:var(--red); }
+
+/* LOC TAG */
+.loc { background:rgba(0,212,255,0.08); color:var(--accent2); padding:2px 7px; font-size:0.78rem; border:1px solid rgba(0,212,255,0.2); display:inline-block; }
+
+/* DUTY */
+.duty-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+.duty-item:last-child { border-bottom:none; }
+.duty-num { width:26px; height:26px; background:rgba(0,212,255,0.1); border:1px solid var(--accent2); color:var(--accent); display:flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; font-size:0.82rem; flex-shrink:0; }
+.duty-info { flex:1; }
+.duty-name { font-weight:600; font-size:0.9rem; }
+.duty-role { color:var(--gray); font-size:0.76rem; margin-top:2px; }
+.duty-loc { color:var(--accent2); font-size:0.76rem; }
+.duty-tel { font-family:'Share Tech Mono',monospace; font-size:0.82rem; color:var(--yellow); white-space:nowrap; }
+
+.mission-none { color:var(--gray); font-style:italic; font-size:0.83rem; }
+.mission-text { color:var(--yellow); font-size:0.83rem; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.page.active .page-scroll { animation:fadeIn 0.25s ease; }
+
+/* ── MAP PAGE ── */
+.map-page { display:none; flex:1; flex-direction:row; min-height:0; }
+.map-page.active { display:flex; }
+
+#map { flex:1; min-height:0; z-index:1; }
+.leaflet-tile { filter:brightness(0.4) saturate(0.3) hue-rotate(180deg); }
+
+/* Layer Control Styling */
+.leaflet-control-layers {
+  background: rgba(10,22,40,0.95) !important;
+  border: 1px solid rgba(0,212,255,0.3) !important;
+  border-radius: 0 !important;
+  color: #e8f4f8 !important;
+  font-family: 'Sarabun', sans-serif !important;
+  font-size: 0.85rem !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+  padding: 10px 14px !important;
+  min-width: 200px !important;
+}
+.leaflet-control-layers-toggle {
+  background-color: rgba(10,22,40,0.95) !important;
+  border: 1px solid rgba(0,212,255,0.3) !important;
+}
+.leaflet-control-layers-list label {
+  color: #e8f4f8 !important;
+  font-family: 'Sarabun', sans-serif !important;
+  font-size: 0.85rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 5px 2px !important;
+  cursor: pointer !important;
+  transition: color 0.15s !important;
+}
+.leaflet-control-layers-list label:hover { color: #00d4ff !important; }
+.leaflet-control-layers-list label span { margin-left: 4px !important; }
+.leaflet-control-layers-separator { border-top: 1px solid rgba(0,212,255,0.15) !important; margin: 4px 0 !important; }
+
+.map-sidebar {
+  width:270px; flex-shrink:0;
+  background:rgba(10,22,40,0.97);
+  border-left:1px solid rgba(0,212,255,0.2);
+  display:flex; flex-direction:column;
+  overflow:hidden; z-index:1000;
+}
+.ms-legend { padding:12px 14px; border-bottom:1px solid rgba(0,212,255,0.1); flex-shrink:0; }
+.ms-legend-title { font-size:0.72rem; color:var(--gray); margin-bottom:7px; text-transform:uppercase; letter-spacing:1px; }
+.ms-legend-item { display:flex; align-items:center; gap:7px; font-size:0.8rem; margin-bottom:4px; }
+.ms-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+.ms-summary { display:grid; grid-template-columns:repeat(3,1fr); border-bottom:1px solid rgba(0,212,255,0.1); flex-shrink:0; }
+.ms-sum { padding:8px; text-align:center; border-right:1px solid rgba(0,212,255,0.1); }
+.ms-sum:last-child { border-right:none; }
+.ms-sum .n { font-size:1.4rem; font-weight:700; font-family:'Share Tech Mono',monospace; }
+.ms-sum .l { font-size:0.65rem; color:var(--gray); }
+
+.ms-toggle { padding:10px 12px; border-bottom:1px solid rgba(0,212,255,0.1); flex-shrink:0; display:flex; flex-direction:column; gap:4px; }
+.toggle-btn {
+  width:100%; padding:5px 8px;
+  background:rgba(0,212,255,0.07); border:1px solid rgba(0,212,255,0.25);
+  color:var(--white); font-family:'Sarabun',sans-serif; font-size:0.78rem;
+  cursor:pointer; text-align:left; transition:all 0.2s;
+}
+.toggle-btn:hover { background:rgba(0,212,255,0.14); }
+.toggle-btn.off { background:rgba(255,255,255,0.02); border-color:rgba(255,255,255,0.08); color:var(--gray); }
+.toggle-btn.all-btn { background:rgba(255,68,68,0.07); border-color:rgba(255,68,68,0.25); color:#ff9999; }
+
+.ms-unit-list { flex:1; overflow-y:auto; min-height:0; }
+.ms-unit-item {
+  padding:5px 10px; border-bottom:1px solid rgba(255,255,255,0.04);
+  cursor:pointer; transition:background 0.15s;
+  display:flex; align-items:center; gap:8px;
+}
+.ms-unit-item:hover { background:rgba(0,212,255,0.06); }
+.ms-unit-item.sel { background:rgba(0,212,255,0.11); border-left:3px solid var(--accent); }
+.ms-unit-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.ms-unit-info { flex:1; }
+.ms-unit-name { font-size:0.8rem; font-weight:600; }
+.ms-unit-loc { font-size:0.67rem; color:var(--gray); }
+
+.status-select {
+  font-family:'Share Tech Mono',monospace; font-size:0.68rem;
+  padding:2px 4px; border-radius:2px; cursor:pointer; outline:none; min-width:50px;
+}
+.status-select.sf { background:rgba(0,255,136,0.15); border:1px solid var(--green); color:var(--green); }
+.status-select.sp { background:rgba(255,215,0,0.15);  border:1px solid var(--yellow); color:var(--yellow); }
+.status-select.sn { background:rgba(255,68,68,0.15);  border:1px solid var(--red);  color:var(--red); }
+.status-select option { background:#0a1628; color:var(--white); }
+
+.ms-detail { border-top:1px solid rgba(0,212,255,0.2); padding:12px 14px; display:none; background:rgba(0,212,255,0.04); flex-shrink:0; }
+.ms-detail.show { display:block; }
+.ms-detail-title { font-size:0.9rem; font-weight:700; color:var(--accent); margin-bottom:8px; }
+.ms-detail-row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.78rem; }
+.ms-detail-label { color:var(--gray); }
+.ms-detail-val { font-weight:600; max-width:55%; text-align:right; font-size:0.75rem; }
+
+/* Leaflet popup */
+.leaflet-popup-content-wrapper { background:rgba(10,22,40,0.97)!important; border:1px solid rgba(0,212,255,0.4)!important; border-radius:0!important; color:var(--white)!important; box-shadow:0 0 20px rgba(0,212,255,0.2)!important; }
+.leaflet-popup-tip { background:rgba(10,22,40,0.97)!important; }
+.leaflet-popup-content { margin:10px 14px!important; font-family:'Sarabun',sans-serif!important; }
+.popup-title { font-size:0.95rem; font-weight:700; color:var(--accent); margin-bottom:7px; }
+.popup-row { display:flex; justify-content:space-between; gap:10px; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.8rem; }
+.popup-label { color:var(--gray); }
+.popup-val { font-weight:600; }
+
+.heli-marker { display:flex; flex-direction:column; align-items:center; cursor:pointer; }
+.heli-circle { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid; }
+.heli-label { font-family:'Share Tech Mono',monospace; font-size:9px; font-weight:700; margin-top:2px; padding:1px 4px; border-radius:2px; white-space:nowrap; }
+
+@media(max-width:700px){
+  .map-sidebar { width:100%; max-height:40vh; border-left:none; border-top:1px solid rgba(0,212,255,0.2); }
+  .map-page.active { flex-direction:column; }
+  #map { min-height:60vh; }
+  .duty-tel { display:none; }
+}
+.ac-select { font-family:'Share Tech Mono',monospace; font-size:0.78rem; padding:3px 6px; border-radius:2px; cursor:pointer; outline:none; min-width:62px; transition:all 0.2s; }
+.ac-select.sf { background:rgba(0,255,136,0.15); border:1px solid var(--green); color:var(--green); }
+.ac-select.sp { background:rgba(255,215,0,0.15); border:1px solid var(--yellow); color:var(--yellow); }
+.ac-select.sn { background:rgba(255,68,68,0.15); border:1px solid var(--red); color:var(--red); }
+.ac-select option { background:#0a1628; color:var(--white); }
+.ac-input { background:rgba(0,212,255,0.05); border:1px solid rgba(0,212,255,0.2); color:var(--white); font-family:'Sarabun',sans-serif; font-size:0.82rem; padding:4px 8px; width:100%; min-width:180px; outline:none; transition:border-color 0.2s; }
+.ac-input:focus { border-color:var(--accent); background:rgba(0,212,255,0.08); }
+
+/* Comm select */
+.comm-select {
+  font-family:'Sarabun',sans-serif; font-size:0.82rem;
+  padding:4px 8px; border-radius:2px; cursor:pointer; outline:none; min-width:120px;
+  transition:all 0.2s;
+}
+.comm-ok { background:rgba(0,255,136,0.12); border:1px solid var(--green); color:var(--green); }
+.comm-no { background:rgba(255,68,68,0.12); border:1px solid var(--red);   color:var(--red); }
+.comm-select option { background:#0a1628; color:var(--white); }
+
+/* Sub tabs */
+.sub-tab {
+  padding:8px 16px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(0,212,255,0.2);
+  color:var(--gray); cursor:pointer;
+  font-family:'Sarabun',sans-serif; font-size:0.85rem;
+  transition:all 0.2s; white-space:nowrap;
+}
+.sub-tab:hover { background:rgba(0,212,255,0.1); color:var(--white); }
+.sub-tab.active { background:rgba(0,212,255,0.15); border-color:var(--accent); color:var(--accent); }
+.sub-page { display:none; }
+.sub-page.active { display:block; animation:fadeIn 0.25s ease; }
+
+/* Image grid layouts */
+.img-grid-single { display:flex; flex-direction:column; gap:12px; }
+.img-grid-double { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+.img-card {
+  background:rgba(0,0,0,0.2);
+  border:1px solid rgba(0,212,255,0.15);
+  overflow:hidden;
+  position:relative;
+}
+.img-card-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 10px;
+  background:rgba(0,212,255,0.06);
+  border-bottom:1px solid rgba(0,212,255,0.1);
+  gap:6px; flex-wrap:wrap;
+}
+.img-card-num {
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.75rem; color:var(--accent); flex-shrink:0;
+}
+.img-card-body {
+  overflow:auto; max-height:75vh; text-align:center;
+  padding:8px; cursor:grab; background:rgba(0,0,0,0.2);
+}
+.img-card-body:active { cursor:grabbing; }
+.img-card-body img { 
+  transform-origin:top center; 
+  transition:transform 0.15s; 
+  max-width:100%; 
+  display:inline-block;
+  filter: contrast(1.15) saturate(1.05);
+}
+.img-upload-area {
+  border:2px dashed rgba(0,212,255,0.3);
+  background:rgba(0,212,255,0.03);
+  padding:60px 40px;
+  text-align:center;
+  cursor:pointer;
+  transition:all 0.2s;
+  min-height:240px;
+  display:flex; align-items:center; justify-content:center;
+}
+.img-upload-area:hover { border-color:var(--accent); background:rgba(0,212,255,0.07); }
+.img-placeholder { color:var(--gray); }
+.img-placeholder div:first-child { font-size:3.5rem; }
+
+/* Image viewer */
+.img-viewer {
+  overflow:auto;
+  max-height:70vh;
+  background:rgba(0,0,0,0.3);
+  border:1px solid rgba(0,212,255,0.2);
+  position:relative;
+  cursor:grab;
+  text-align:center;
+  padding:16px;
+}
+.img-viewer:active { cursor:grabbing; }
+.img-viewer img {
+  transform-origin: top center;
+  transition:transform 0.2s;
+  max-width:100%;
+  display:inline-block;
+}
+
+/* Image controls */
+.img-controls {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 0;
+  flex-wrap:wrap;
+}
+.img-controls button {
+  background:rgba(0,212,255,0.08);
+  border:1px solid rgba(0,212,255,0.25);
+  color:var(--white);
+  padding:5px 12px;
+  cursor:pointer;
+  font-family:'Sarabun',sans-serif;
+  font-size:0.82rem;
+  transition:all 0.15s;
+}
+.img-controls button:hover { background:rgba(0,212,255,0.18); }
+.img-controls span {
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.82rem;
+  color:var(--accent);
+  min-width:45px;
+  text-align:center;
+}
+
+.ac-input-wrap { display:flex; align-items:center; gap:4px; }
+.ac-clear {
+  background: rgba(255,68,68,0.1);
+  border: 1px solid rgba(255,68,68,0.3);
+  color: #ff6666;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  font-size: 0.75rem; font-weight: 700;
+  transition: all 0.15s;
+  line-height: 1;
+}
+.ac-clear:hover { background:rgba(255,68,68,0.25); border-color:#ff4444; color:#ff4444; }
+
+/* Duty dropdown */
+.duty-select {
+  background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.25);
+  color: var(--white);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 0.85rem;
+  padding: 5px 8px;
+  width: 100%;
+  min-width: 200px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.duty-select:focus { border-color: var(--accent); }
+.duty-select option { background: #0a1628; color: var(--white); }
+.duty-tel-cell { font-family:'Share Tech Mono',monospace; font-size:0.82rem; color:var(--yellow); white-space:nowrap; }
+
+/* Mission editable */
+.mission-wrap { display:flex; align-items:center; gap:4px; }
+.mission-input {
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.15);
+  color: var(--white);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  width: 100%;
+  min-width: 160px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.mission-input:focus { border-color: var(--accent); background: rgba(0,212,255,0.08); }
+.mission-input::placeholder { color: var(--gray); font-style: italic; }
+.mission-clear {
+  background: rgba(255,68,68,0.1);
+  border: 1px solid rgba(255,68,68,0.3);
+  color: #ff6666;
+  width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  font-size: 0.75rem; font-weight: 700;
+  transition: all 0.15s;
+}
+.mission-clear:hover { background:rgba(255,68,68,0.25); border-color:#ff4444; color:#ff4444; }
+
+/* Zone editor */
+.zone-card {
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.zone-header {
+  display: flex; align-items: center; gap:8px;
+  padding: 10px 14px;
+  background: rgba(0,212,255,0.06);
+  border-bottom: 1px solid rgba(0,212,255,0.15);
+}
+.zone-name-input {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+}
+.zone-name-input::placeholder { color: rgba(0,212,255,0.4); }
+.zone-del-btn {
+  background: rgba(255,68,68,0.1);
+  border: 1px solid rgba(255,68,68,0.3);
+  color: #ff6666;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-family: 'Sarabun', sans-serif;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.zone-del-btn:hover { background:rgba(255,68,68,0.2); color:#ff4444; }
+.zone-body { padding: 12px 14px; display:flex; flex-direction:column; gap:8px; }
+.zone-item { display:flex; align-items:center; gap:6px; }
+.zone-item-input {
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.15);
+  color: var(--white);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 0.85rem;
+  padding: 5px 10px;
+  flex: 1;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.zone-item-input:focus { border-color: var(--accent); background: rgba(0,212,255,0.08); }
+.zone-item-input::placeholder { color: var(--gray); font-style: italic; }
+.zone-item-clear {
+  background: rgba(255,68,68,0.1);
+  border: 1px solid rgba(255,68,68,0.3);
+  color: #ff6666;
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  font-size: 0.75rem; font-weight: 700;
+  transition: all 0.15s;
+}
+.zone-item-clear:hover { background:rgba(255,68,68,0.25); color:#ff4444; }
+.zone-add-item {
+  background: rgba(0,212,255,0.06);
+  border: 1px dashed rgba(0,212,255,0.25);
+  color: var(--accent2);
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: 'Sarabun', sans-serif;
+  text-align: left;
+  transition: all 0.15s;
+  width: fit-content;
+}
+.zone-add-item:hover { background: rgba(0,212,255,0.12); border-color: var(--accent); color: var(--accent); }
+
+/* ── PRINT / PDF ── */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { background: #0a1628 !important; height: auto !important; overflow: visible !important; }
+  body::before { display: none; }
+  .app-header { position: relative !important; break-inside: avoid; }
+  .nav-tabs, #btn-save, button[onclick="exportPDF()"] { display: none !important; }
+  .page { display: flex !important; flex-direction: column !important; break-inside: avoid; }
+  .page:not(.print-active) { display: none !important; }
+  .page-scroll { overflow: visible !important; height: auto !important; }
+  .map-page { display: none !important; }
+  .card { break-inside: avoid; margin-bottom: 12px; }
+  .print-section-title {
+    font-size: 1.1rem; font-weight: 700; color: #00d4ff;
+    padding: 8px 0; margin: 16px 0 8px;
+    border-bottom: 1px solid rgba(0,212,255,0.3);
+  }
+  #print-all-pages { display: block !important; }
+}
+</style>
+</head>
+<body class="theme-dark">
+
+<!-- Theme Toggle Button (ขวาล่าง) -->
+<button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="เปลี่ยนธีม">🌙</button>
+
+<!-- HEADER + NAV -->
+<div class="app-header">
+  <div class="app-logo">
+    <h1>🚁 RTAF RCC</h1>
+    <div class="sub">ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.</div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('duty',this)">👮 เจ้าหน้าที่เวร</button>
+    <button class="nav-tab" onclick="showPage('aircraft',this)">🚁 สถานภาพอากาศยาน</button>
+    <button class="nav-tab" onclick="showPage('mission',this)">📋 ภารกิจประจำวัน</button>
+    <button class="nav-tab" onclick="showPage('training',this)">🗺️ แผนการฝึกบิน</button>
+    <button class="nav-tab" onclick="showPage('map',this)">🗺️ แผนที่ Coverage</button>
+    <button class="nav-tab" onclick="showPage('others',this)">📎 อื่นๆ</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;padding:0 8px;flex-shrink:0;position:relative;">
+    <!-- ปุ่มบันทึก + dropdown -->
+    <div style="position:relative;" id="save-menu-wrap">
+      <div style="display:flex;">
+        <button id="btn-save" onclick="saveAll()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);border-right:none;color:#00ff88;padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;">💾 บันทึก</button>
+        <button onclick="toggleSaveMenu()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);color:#00ff88;padding:5px 8px;cursor:pointer;font-size:0.7rem;border-left:1px solid rgba(0,255,136,0.2);">▼</button>
+      </div>
+      <div id="save-dropdown" style="display:none;position:absolute;top:100%;right:0;min-width:180px;background:rgba(10,22,40,0.98);border:1px solid rgba(0,212,255,0.3);z-index:9999;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
+        <div onclick="exportJSON();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#00d4ff;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(0,212,255,0.1)'" onmouseout="this.style.background='transparent'">📥 Export JSON</div>
+        <div style="padding:0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <label style="display:block;padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">
+            📤 Import JSON<input type="file" accept=".json" onchange="importJSON(this);toggleSaveMenu()" style="display:none"/>
+          </label>
+        </div>
+        <div onclick="exportWord();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#6495ed;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(100,149,237,0.1)'" onmouseout="this.style.background='transparent'">📝 Export Word</div>
+        <div onclick="exportPDF();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">🖨️ Export PDF (บรรยายสรุป)</div>
+        <div onclick="captureAllPages();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ff69b4;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,105,180,0.1)'" onmouseout="this.style.background='transparent'">📸 แคปทุกหน้า → PDF</div>
+      </div>
+    </div>
+  </div>
+  <div class="app-date">📅 <span id="header-date">7 เม.ย. 2569</span></div>
+  <div id="server-status" style="font-size:0.72rem;padding:0 10px;white-space:nowrap;color:#8899aa;flex-shrink:0;">☁️ กำลังเชื่อมต่อ...</div>
+  <!-- PWA Install Button (จะแสดงเมื่อติดตั้งได้) -->
+  <button id="pwa-install-btn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;flex-shrink:0;">
+    📲 ติดตั้งแอป
+  </button>
+</div>
+
+<!-- ── PAGE: เจ้าหน้าที่เวร ── -->
+<div class="page active" id="page-duty">
+  <div class="page-scroll">
+
+    <!-- CLOCK BAR -->
+    <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);padding:12px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div>
+        <div id="clock-date" style="font-size:1rem;font-weight:700;color:var(--accent);font-family:'Share Tech Mono',monospace;"></div>
+        <div id="clock-time" style="font-size:1.8rem;font-weight:700;color:var(--white);font-family:'Share Tech Mono',monospace;line-height:1.1;"></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:0.75rem;color:var(--gray);">🌐 Bangkok Time (UTC+7) — realtime</div>
+        <div id="clock-day" style="font-size:0.85rem;color:var(--yellow);margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <!-- DUTY TABLE -->
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        <span>เจ้าหน้าที่เวร ประจำวันที่ <span id="duty-date-label"></span></span>
+        <button onclick="saveDuty()" style="background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;">✅ บันทึกเวร</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40px">ลำดับ</th>
+              <th>ตำแหน่ง</th>
+              <th>สถานที่</th>
+              <th style="min-width:220px">ชื่อ-นามสกุล (เลือกจากฐานข้อมูล)</th>
+              <th>เบอร์โทร</th>
+            </tr>
+          </thead>
+          <tbody id="duty-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CSV UPLOAD (ด้านล่าง) -->
+    <div class="card" style="margin-top:14px;">
+      <div class="card-title">📂 นำเข้าฐานข้อมูลเจ้าหน้าที่ (CSV/Excel)</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <label style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:7px 16px;cursor:pointer;font-size:0.85rem;white-space:nowrap;">
+          📁 เลือกไฟล์ CSV
+          <input type="file" id="csv-upload" accept=".csv,.xlsx,.xls" style="display:none" onchange="loadCSV(this)"/>
+        </label>
+        <span id="csv-status"></span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── PAGE: สถานภาพอากาศยาน ── -->
+<div class="page" id="page-aircraft">
+  <div class="page-scroll">
+    <div class="sum-grid">
+      <div class="sum-card t"><div class="num">9</div><div class="lbl">หน่วยบินทั้งหมด</div></div>
+      <div class="sum-card f"><div class="num" id="ac-sum-f">1</div><div class="lbl">FMC พร้อมปฏิบัติ</div></div>
+      <div class="sum-card p"><div class="num" id="ac-sum-p">5</div><div class="lbl">PMC บางส่วน</div></div>
+      <div class="sum-card n"><div class="num" id="ac-sum-n">3</div><div class="lbl">NMC ไม่พร้อม</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between">
+        <span>สถานภาพอากาศยานหน่วยบินค้นหาและช่วยชีวิต</span>
+        <button onclick="applyAndGoMap()" style="background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:5px;">
+          🗺️ บันทึก &amp; ดูแผนที่
+        </button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table" id="ac-table">
+          <thead>
+            <tr>
+              <th>หน่วยบิน</th>
+              <th>ที่ตั้ง</th>
+              <th>แบบเครื่อง</th>
+              <th>สถานภาพ</th>
+              <th>การติดต่อสื่อสาร</th>
+              <th>สาเหตุ (แก้ไขได้)</th>
+            </tr>
+          </thead>
+          <tbody id="ac-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: ภารกิจประจำวัน ── -->
+<div class="page" id="page-mission">
+  <div class="page-scroll">
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between;">
+        <span>ภารกิจประจำวันหน่วยบินค้นหาและช่วยชีวิต — <span id="mission-date"></span></span>
+        <div style="font-size:0.75rem;color:var(--gray);">🔄 สถานภาพ sync จากหน้าสถานภาพอากาศยานอัตโนมัติ</div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>หน่วยบิน</th>
+              <th>ที่ตั้ง</th>
+              <th>แบบเครื่อง</th>
+              <th>สถานภาพ</th>
+              <th>ภารกิจประจำวัน</th>
+            </tr>
+          </thead>
+          <tbody id="mission-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: แผนการฝึกบิน ── -->
+<div class="page" id="page-training">
+  <div class="page-scroll">
+    <div class="card">
+      <div class="card-title">
+        <span>แผนการฝึกบินประจำวัน</span>
+      </div>
+      <div id="zone-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: อื่นๆ ── -->
+<div class="page" id="page-others">
+  <div class="page-scroll">
+
+    <!-- SUB TABS -->
+    <div style="display:flex;gap:4px;margin-bottom:16px;flex-wrap:wrap;">
+      <button class="sub-tab active" onclick="showSub('sub1',this)">1. แผนการปฏิบัติทางอากาศ</button>
+      <button class="sub-tab" onclick="showSub('sub2',this)">2. ภารกิจติดตามอากาศยาน</button>
+      <button class="sub-tab" onclick="showSub('sub3',this)">3. OSCAR</button>
+      <button class="sub-tab" onclick="showSub('sub4',this)">4. FOCAL</button>
+      <button class="sub-tab" onclick="showSub('sub5',this)">5. BIGSHELL</button>
+    </div>
+
+    <!-- SUB 1 --><div class="sub-page active" id="sub1"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการปฏิบัติทางอากาศประจำวัน</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-1" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('1')" id="view-btn-1" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('1',this)"/></label></div></div><div id="img-grid-1" class="img-grid-single"></div><div id="img-empty-1" class="img-upload-area" onclick="document.querySelector('#sub1 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 2 --><div class="sub-page" id="sub2"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>ภารกิจการติดตามอากาศยานที่สำคัญ</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-2" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('2')" id="view-btn-2" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('2',this)"/></label></div></div><div id="img-grid-2" class="img-grid-single"></div><div id="img-empty-2" class="img-upload-area" onclick="document.querySelector('#sub2 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 3 --><div class="sub-page" id="sub3"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ OSCAR</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-3" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('3')" id="view-btn-3" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('3',this)"/></label></div></div><div id="img-grid-3" class="img-grid-single"></div><div id="img-empty-3" class="img-upload-area" onclick="document.querySelector('#sub3 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 4 --><div class="sub-page" id="sub4"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ FOCAL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-4" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('4')" id="view-btn-4" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('4',this)"/></label></div></div><div id="img-grid-4" class="img-grid-single"></div><div id="img-empty-4" class="img-upload-area" onclick="document.querySelector('#sub4 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 5 --><div class="sub-page" id="sub5"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ BIGSHELL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-5" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('5')" id="view-btn-5" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('5',this)"/></label></div></div><div id="img-grid-5" class="img-grid-single"></div><div id="img-empty-5" class="img-upload-area" onclick="document.querySelector('#sub5 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+
+  </div>
+</div>
+
+<!-- ── PAGE: แผนที่ Coverage ── -->
+<div class="page map-page" id="page-map" style="display:none;flex-direction:row;">
+  <div id="map" style="flex:1;min-height:0;"></div>
+  <div class="map-sidebar">
+    <!-- Summary ย่อๆ ด้านบน -->
+    <div class="ms-summary">
+      <div class="ms-sum"><div class="n" id="msum-f" style="color:#00ff88">1</div><div class="l">FMC</div></div>
+      <div class="ms-sum"><div class="n" id="msum-p" style="color:#ffd700">5</div><div class="l">PMC</div></div>
+      <div class="ms-sum"><div class="n" id="msum-n" style="color:#ff4444">3</div><div class="l">NMC</div></div>
+    </div>
+
+    <!-- รายการหน่วยบิน อยู่บน เห็นทุกหน่วยโดยไม่เลื่อน -->
+    <div class="ms-unit-list" id="ms-unit-list"></div>
+
+    <!-- Legend + Toggle ลงมาด้านล่างสุด -->
+    <div class="ms-legend" style="border-top:1px solid rgba(0,212,255,0.1);border-bottom:none;margin-top:auto;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div class="ms-legend-title" style="margin-bottom:0;">สัญลักษณ์สถานภาพ</div>
+      <div id="api-status" style="font-size:0.7rem;color:var(--gray);margin-bottom:6px;"></div>
+      <div class="ms-legend-item"><div class="ms-dot" style="background:#00ff88"></div><span style="color:#00ff88">FMC — พร้อมปฏิบัติเต็มที่</span></div>
+      <div class="ms-legend-item"><div class="ms-dot" style="background:#ffd700"></div><span style="color:#ffd700">PMC — พร้อมปฏิบัติบางส่วน</span></div>
+      <div class="ms-legend-item"><div class="ms-dot" style="background:#ff4444"></div><span style="color:#ff4444">NMC — ไม่พร้อมปฏิบัติ</span></div>
+      <div style="margin-top:6px;font-size:0.72rem;color:var(--gray)">⭕ วงกลม = Coverage <span style="color:var(--accent);font-family:'Share Tech Mono',monospace">150 NM</span></div>
+    </div>
+    <div class="ms-toggle">
+      <button id="btn-FMC" class="toggle-btn" onclick="toggleCov('FMC')">👁 FMC Coverage</button>
+      <button id="btn-PMC" class="toggle-btn" onclick="toggleCov('PMC')">👁 PMC Coverage</button>
+      <button id="btn-NMC" class="toggle-btn" onclick="toggleCov('NMC')">👁 NMC Coverage</button>
+      <button id="btn-all" class="toggle-btn all-btn" onclick="toggleAll()">🚫 ปิดทั้งหมด</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── THEME CYCLE ──
+const themes = [
+  { cls:'theme-dark',  icon:'🌙', label:'Dark' },
+  { cls:'theme-light', icon:'☀️', label:'Light' },
+  { cls:'theme-camo',  icon:'🪖', label:'Camo' },
+  { cls:'theme-metal', icon:'🤘', label:'Heavy Metal' },
+];
+let themeIdx = 0;
+
+function cycleTheme() {
+  themeIdx = (themeIdx + 1) % themes.length;
+  applyTheme(themeIdx);
+  try { localStorage.setItem('rtaf_theme', themeIdx); } catch(e) {}
+}
+
+function applyTheme(idx) {
+  const body = document.body;
+  themes.forEach(t => body.classList.remove(t.cls));
+  body.classList.add(themes[idx].cls);
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.textContent = themes[idx].icon;
+  showToast(`🎨 ธีม: ${themes[idx].label}`, idx === 0 ? 'cyan' : idx === 1 ? 'green' : 'green');
+}
+
+// โหลดธีมที่บันทึกไว้
+try {
+  const saved = localStorage.getItem('rtaf_theme');
+  if (saved !== null) { themeIdx = parseInt(saved); applyTheme(themeIdx); }
+} catch(e) {}
+
+// ── MULTI-IMAGE SYSTEM ──
+const imgStore = { '1':[], '2':[], '3':[], '4':[], '5':[] }; // array of {src, zoom}
+const viewMode = { '1':'single', '2':'single', '3':'single', '4':'single', '5':'single' };
+const MAX_IMGS = 10;
+
+function addImages(n, input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const remaining = MAX_IMGS - imgStore[n].length;
+  if (remaining <= 0) { showToast('⚠️ แนบภาพได้สูงสุด 10 ภาพ', 'red'); return; }
+  const toLoad = files.slice(0, remaining);
+  if (files.length > remaining) showToast(`⚠️ โหลดได้อีก ${remaining} ภาพ`, 'red');
+
+  toLoad.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      imgStore[n].push({ src: e.target.result, zoom: 1, name: file.name });
+      renderImgGrid(n);
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function renderImgGrid(n) {
+  const grid   = document.getElementById('img-grid-' + n);
+  const empty  = document.getElementById('img-empty-' + n);
+  const count  = document.getElementById('img-count-' + n);
+  const imgs   = imgStore[n];
+
+  if (!imgs.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'flex';
+    if (count) count.textContent = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  if (count) count.textContent = `${imgs.length}/${MAX_IMGS} ภาพ`;
+
+  grid.className = viewMode[n] === 'double' ? 'img-grid-double' : 'img-grid-single';
+
+  grid.innerHTML = imgs.map((img, i) => `
+    <div class="img-card" id="img-card-${n}-${i}">
+      <div class="img-card-header">
+        <span class="img-card-num">ภาพ ${i+1}/${imgs.length}</span>
+        <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+          <button onclick="zoomImgNew('${n}',${i},-0.2)" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--white);padding:2px 8px;cursor:pointer;font-size:0.75rem;">−</button>
+          <span id="zoom-lbl-${n}-${i}" style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent);min-width:36px;text-align:center;">${Math.round(img.zoom*100)}%</span>
+          <button onclick="zoomImgNew('${n}',${i},0.2)" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--white);padding:2px 8px;cursor:pointer;font-size:0.75rem;">+</button>
+          <button onclick="resetZoomNew('${n}',${i})" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--gray);padding:2px 8px;cursor:pointer;font-size:0.75rem;">↺</button>
+          <button onclick="removeImg('${n}',${i})" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff6666;padding:2px 8px;cursor:pointer;font-size:0.75rem;">✕</button>
+        </div>
+      </div>
+      <div class="img-card-body" id="img-body-${n}-${i}">
+        <img id="img-el-${n}-${i}" src="${img.src}" style="transform:scale(${img.zoom});" alt="ภาพ ${i+1}"/>
+      </div>
+    </div>`).join('');
+}
+
+function zoomImgNew(n, i, delta) {
+  imgStore[n][i].zoom = Math.min(5, Math.max(0.2, imgStore[n][i].zoom + delta));
+  const el = document.getElementById('img-el-' + n + '-' + i);
+  const lb = document.getElementById('zoom-lbl-' + n + '-' + i);
+  if (el) el.style.transform = `scale(${imgStore[n][i].zoom})`;
+  if (lb) lb.textContent = Math.round(imgStore[n][i].zoom * 100) + '%';
+}
+
+function resetZoomNew(n, i) {
+  imgStore[n][i].zoom = 1;
+  const el = document.getElementById('img-el-' + n + '-' + i);
+  const lb = document.getElementById('zoom-lbl-' + n + '-' + i);
+  if (el) el.style.transform = 'scale(1)';
+  if (lb) lb.textContent = '100%';
+}
+
+function removeImg(n, i) {
+  imgStore[n].splice(i, 1);
+  renderImgGrid(n);
+}
+
+function toggleView(n) {
+  viewMode[n] = viewMode[n] === 'single' ? 'double' : 'single';
+  const btn = document.getElementById('view-btn-' + n);
+  if (btn) btn.textContent = viewMode[n] === 'double' ? '⊞ 1 คอลัมน์' : '⊟ 2 คอลัมน์';
+  renderImgGrid(n);
+}
+
+// scroll wheel zoom on img-card-body
+document.addEventListener('wheel', e => {
+  const body = e.target.closest('.img-card-body');
+  if (!body) return;
+  e.preventDefault();
+  const id = body.id.replace('img-body-','').split('-');
+  const n = id[0], i = parseInt(id[1]);
+  zoomImgNew(n, i, e.deltaY < 0 ? 0.1 : -0.1);
+}, { passive: false });
+
+// ── SUB TAB ──
+function showSub(id, btn) {
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── IMAGE VIEWER ──
+const zoomLevels = { '1':1, '2':1, '3':1, '4':1, '5':1 };
+
+function loadImage(n, input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const area = document.getElementById('img-area-' + n);
+    const viewer = document.getElementById('img-viewer-' + n);
+    const controls = document.getElementById('img-controls-' + n);
+
+    area.style.display = 'none';
+    viewer.style.display = 'block';
+    controls.style.display = 'flex';
+
+    if (file.type === 'application/pdf') {
+      viewer.innerHTML = `<iframe src="${e.target.result}" style="width:100%;height:70vh;border:none;"></iframe>`;
+    } else {
+      viewer.innerHTML = `<img id="img-${n}" src="${e.target.result}" style="transform:scale(1);"/>`;
+    }
+    zoomLevels[n] = 1;
+    document.getElementById('zoom-label-' + n).textContent = '100%';
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function zoomImg(n, delta) {
+  zoomLevels[n] = Math.min(5, Math.max(0.2, zoomLevels[n] + delta));
+  const img = document.getElementById('img-' + n);
+  if (img) img.style.transform = `scale(${zoomLevels[n]})`;
+  document.getElementById('zoom-label-' + n).textContent = Math.round(zoomLevels[n] * 100) + '%';
+}
+
+function resetZoom(n) {
+  zoomLevels[n] = 1;
+  const img = document.getElementById('img-' + n);
+  if (img) img.style.transform = 'scale(1)';
+  document.getElementById('zoom-label-' + n).textContent = '100%';
+}
+
+function clearImage(n) {
+  document.getElementById('img-area-' + n).style.display = 'flex';
+  document.getElementById('img-viewer-' + n).style.display = 'none';
+  document.getElementById('img-controls-' + n).style.display = 'none';
+  document.getElementById('img-viewer-' + n).innerHTML = '';
+  zoomLevels[n] = 1;
+}
+
+// ── SUB TAB SCROLL ZOOM ──
+document.addEventListener('wheel', e => {
+  const viewer = e.target.closest('.img-viewer');
+  if (!viewer) return;
+  e.preventDefault();
+  const n = viewer.id.replace('img-viewer-','');
+  zoomImg(n, e.deltaY < 0 ? 0.1 : -0.1);
+}, { passive:false });
+
+// ── BUILD MISSION TABLE (sync status from units) ──
+function buildMissionTable() {
+  const tbody = document.getElementById('mission-tbody');
+  if (!tbody) return;
+
+  // Set date label
+  const dateEl = document.getElementById('mission-date');
+  if (dateEl && document.getElementById('clock-date')) {
+    dateEl.textContent = document.getElementById('clock-date').textContent;
+  }
+
+  tbody.innerHTML = '';
+  units.forEach(u => {
+    const sc = u.status.toLowerCase();
+    const stClass = sc === 'fmc' ? 'st-fmc' : sc === 'pmc' ? 'st-pmc' : 'st-nmc';
+    tbody.innerHTML += `
+      <tr>
+        <td><strong>${u.name}</strong></td>
+        <td><span class="loc">${u.loc}</span></td>
+        <td>${u.type}</td>
+        <td><span class="st ${stClass}" id="m-status-${u.id}">${u.status}</span></td>
+        <td>
+          <div class="mission-wrap">
+            <input class="mission-input" id="m-inp-${u.id}"
+              value="${u.mission !== '—' ? u.mission : ''}"
+              placeholder="ระบุภารกิจประจำวัน..."/>
+            <button class="mission-clear" onclick="clearMission('${u.id}')" title="ล้างภารกิจ">✕</button>
+          </div>
+        </td>
+      </tr>`;
+  });
+}
+
+function clearMission(id) {
+  const inp = document.getElementById('m-inp-' + id);
+  if (inp) { inp.value = ''; inp.focus(); }
+  const u = units.find(x => x.id === id);
+  if (u) u.mission = '—';
+}
+
+// ── PAGE SWITCHING ──
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const pg = document.getElementById('page-' + id);
+  pg.classList.add('active');
+  pg.style.display = 'flex';
+  btn.classList.add('active');
+
+  // sync status from aircraft table before showing mission page
+  if (id === 'mission') {
+    units.forEach(u => {
+      const sel = document.getElementById('ac-sel-' + u.id);
+      if (sel) u.status = sel.value;
+      const inp = document.getElementById('ac-inp-' + u.id);
+      if (inp) u.reason = inp.value || '—';
+      // save mission text back
+      const minp = document.getElementById('m-inp-' + u.id);
+      if (minp) u.mission = minp.value || '—';
+    });
+    buildMissionTable();
+  }
+
+  if (id === 'map' && !mapInit) initMap();
+  if (id === 'map' && mapInit) {
+    // sync สถานภาพล่าสุดจากหน้าสถานภาพอากาศยาน
+    units.forEach(u => {
+      const sel = document.getElementById('ac-sel-' + u.id);
+      if (sel && sel.value !== u.status) updateStatus(u.id, sel.value);
+    });
+    setTimeout(() => map.invalidateSize(), 50);
+  }
+}
+
+// ── ZONE EDITOR (Training page) ──
+let zones = [
+  { id:'z1', name:'เขตพื้นที่ OSCAR',    items:['แผนการฝึกบินในเขตพื้นที่ OSCAR'] },
+  { id:'z2', name:'เขตพื้นที่ FOCAL',    items:['แผนการฝึกบินในเขตพื้นที่ FOCAL'] },
+  { id:'z3', name:'เขตพื้นที่ BIGSHELL', items:['แผนการฝึกบินในเขตพื้นที่ BIGSHELL'] },
+];
+let zoneCounter = 4;
+
+function renderZones() {
+  const container = document.getElementById('zone-list');
+  if (!container) return;
+  container.innerHTML = '';
+  zones.forEach(z => {
+    const validItems = z.items.filter(item => item.trim() !== '');
+    const count = validItems.length;
+
+    const itemsHTML = z.items.map((item, i) => {
+      const num = z.items.slice(0, i).filter(x => x.trim() !== '').length + (item.trim() !== '' ? 1 : 0);
+      const showNum = item.trim() !== '';
+      return `
+        <div class="zone-item" id="zi-${z.id}-${i}">
+          <div style="width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:${showNum ? 'var(--accent)' : 'var(--gray)'};background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.15);">
+            ${showNum ? num : ''}
+          </div>
+          <input class="zone-item-input" value="${item}" placeholder="ระบุแผนการฝึกบิน..."
+            oninput="updateZoneItem('${z.id}',${i},this.value);rerenderSummary('${z.id}')"/>
+          <button class="zone-item-clear" onclick="clearZoneItem('${z.id}',${i})" title="ล้างข้อความ">✕</button>
+          <button class="zone-item-clear" onclick="removeZoneItem('${z.id}',${i})"
+            style="background:rgba(100,100,100,0.1);border-color:rgba(255,255,255,0.15);color:var(--gray);"
+            title="ลบรายการ">🗑</button>
+        </div>`;
+    }).join('');
+
+    container.innerHTML += `
+      <div class="zone-card" id="zc-${z.id}">
+        <div class="zone-header">
+          <span style="color:var(--accent);font-size:1rem;">🗺️</span>
+          <input class="zone-name-input" value="${z.name}" placeholder="ชื่อเขตพื้นที่..."
+            onchange="updateZoneName('${z.id}',this.value)"/>
+          <div id="zone-summary-${z.id}" style="background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:0.75rem;padding:2px 10px;white-space:nowrap;flex-shrink:0;">
+            📋 ${count} ภารกิจ
+          </div>
+        </div>
+        <div class="zone-body" id="zb-${z.id}">
+          ${itemsHTML}
+          <button class="zone-add-item" onclick="addZoneItem('${z.id}')">+ เพิ่มรายการ</button>
+        </div>
+      </div>`;
+  });
+}
+
+function rerenderSummary(zid) {
+  const z = zones.find(z => z.id === zid);
+  if (!z) return;
+  // update items from current inputs
+  const body = document.getElementById('zb-' + zid);
+  if (body) {
+    const inputs = body.querySelectorAll('.zone-item-input');
+    inputs.forEach((inp, i) => { z.items[i] = inp.value; });
+  }
+  const count = z.items.filter(item => item.trim() !== '').length;
+  const sumEl = document.getElementById('zone-summary-' + zid);
+  if (sumEl) sumEl.textContent = `📋 ${count} ภารกิจ`;
+
+  // re-number all items
+  let num = 1;
+  const body2 = document.getElementById('zb-' + zid);
+  if (body2) {
+    const items = body2.querySelectorAll('.zone-item');
+    items.forEach((row, i) => {
+      const numEl = row.querySelector('div');
+      const val = z.items[i] ? z.items[i].trim() : '';
+      if (numEl) {
+        numEl.textContent = val ? num : '';
+        numEl.style.color = val ? 'var(--accent)' : 'var(--gray)';
+        if (val) num++;
+      }
+    });
+  }
+}
+
+function addZone() {
+  const id = 'z' + zoneCounter++;
+  zones.push({ id, name:'เขตพื้นที่ใหม่', items:[''] });
+  renderZones();
+  // focus on new zone name
+  setTimeout(() => {
+    const inp = document.querySelector(`#zc-${id} .zone-name-input`);
+    if (inp) { inp.select(); inp.focus(); }
+  }, 50);
+}
+
+function deleteZone(zid) {
+  zones = zones.filter(z => z.id !== zid);
+  renderZones();
+}
+
+function updateZoneName(zid, val) {
+  const z = zones.find(z => z.id === zid);
+  if (z) z.name = val;
+}
+
+function addZoneItem(zid) {
+  const z = zones.find(z => z.id === zid);
+  if (z) { z.items.push(''); renderZones();
+    setTimeout(() => {
+      const inputs = document.querySelectorAll(`#zb-${zid} .zone-item-input`);
+      if (inputs.length) inputs[inputs.length-1].focus();
+    }, 50);
+  }
+}
+
+function updateZoneItem(zid, idx, val) {
+  const z = zones.find(z => z.id === zid);
+  if (z) z.items[idx] = val;
+}
+
+function clearZoneItem(zid, idx) {
+  const z = zones.find(z => z.id === zid);
+  if (z) { z.items[idx] = ''; renderZones();
+    setTimeout(() => {
+      const inputs = document.querySelectorAll(`#zb-${zid} .zone-item-input`);
+      if (inputs[idx]) inputs[idx].focus();
+    }, 50);
+  }
+}
+
+function removeZoneItem(zid, idx) {
+  const z = zones.find(z => z.id === zid);
+  if (z) { z.items.splice(idx, 1); if (z.items.length === 0) z.items.push(''); renderZones(); }
+}
+
+// init zones on load
+renderZones();
+
+// ── REALTIME CLOCK (Bangkok UTC+7) ──
+const thDays = ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const thMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+function updateClock() {
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone:'Asia/Bangkok' }));
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const d = now.getDate();
+  const mo = now.getMonth();
+  const y = now.getFullYear() + 543;
+  const day = thDays[now.getDay()];
+  document.getElementById('clock-time').textContent = `${h}:${m}:${s}`;
+  document.getElementById('clock-date').textContent = `${d} ${thMonths[mo]} ${y}`;
+  document.getElementById('clock-day').textContent = `วัน${day}`;
+  document.getElementById('duty-date-label').textContent = `${d} ${thMonths[mo]} ${y}`;
+  const hd = document.getElementById('header-date');
+  if (hd) hd.textContent = `${d} ${thMonths[mo]} ${y}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── STAFF DATABASE ──
+let staffDB = [
+  { name:'น.อ.นิธิศ แสวงสุข',          tel:'0645545245' },
+  { name:'น.อ.เพ็ญ นันทสิงห์',          tel:'0924846336' },
+  { name:'น.ท.อิศรายุทธ แสงจันทร์',     tel:'0932635935' },
+  { name:'น.อ.พรรณเชษฐ จำเริญสาร',      tel:'0841916391' },
+  { name:'น.อ.ประกิจ หงษ์วิเศษ',        tel:'0936614562' },
+  { name:'ร.ท.นิรุต สุขมี',             tel:'0992622424' },
+  { name:'พ.อ.อ.อนุชา ตาสี',           tel:'0889953989' },
+  { name:'น.ท.สมบูรณ์ สัมฤทธิ์',       tel:'0991146969' },
+  { name:'พ.อ.อ.ภานุวัฒน์ บาลี',       tel:'0618749991' },
+  { name:'ร.ท.อาทิตย์ คงสถาน',         tel:'0967072433' },
+  { name:'พ.อ.อ.อรงกรณ์ ปานดำ',        tel:'0982735856' },
+  { name:'ร.อ.บรรจง นุชอยู่',           tel:'0923367305' },
+  { name:'พ.อ.อ.ประภาส ทองนาค',        tel:'0958219137' },
+  { name:'ร.ท.วีระชัย สายสุด',          tel:'0864154492' },
+  { name:'พ.อ.อ.วุฒิชัย สุดสิ้น',      tel:'0865136280' },
+  { name:'น.ต.นุกูล ปลั่งกลาง',         tel:'0969693311' },
+  { name:'พ.อ.อ.วีระชัย นาคอร่าม',     tel:'0984967847' },
+  { name:'ร.อ.อุดมศักดิ์ เชาวลิต',     tel:'0949193295' },
+  { name:'พ.อ.อ.สันติ มณีสุขโรจน์',    tel:'0646395790' },
+  { name:'ร.ต.เพลิง พรมเทียน',          tel:'0849963765' },
+  { name:'พ.อ.ต.วิริศ แสนเวียน',        tel:'0642869111' },
+  { name:'พ.อ.อ.วิศณุกร ยศศรีใจ',      tel:'0820891594' },
+  { name:'พ.อ.ต.ณัฐพงศ์ ศรีเพชร',      tel:'0944031047' },
+  { name:'พ.อ.อ.เชิดวงศ์ ดุลยกนิษฐ',   tel:'0994041188' },
+  { name:'พ.อ.อ.รวีกานต์ โพธิ์กลางดอน',tel:'0803955453' },
+  { name:'พ.อ.อ.สถาพร บุราญรัตน์',     tel:'0996277663' },
+  { name:'พ.อ.ต.ภูมิ แสงนาโก',         tel:'0970368185' },
+  { name:'จ.อ.เดชาวัต ตรีสาตร์',        tel:'0952168880' },
+];
+
+const dutySlots = [
+  { role:'น.ควบคุมการปฏิบัติ',    loc:'RTAF RCC.', selected:-1 },
+  { role:'น.ค้นหาและช่วยชีวิต',   loc:'RTAF RCC.', selected:-1 },
+  { role:'จนท.ค้นหาและช่วยชีวิต', loc:'RTAF RCC.', selected:-1 },
+  { role:'จนท.สื่อสาร',            loc:'AOC.',      selected:-1 },
+  { role:'จนท.ค้นหาและช่วยชีวิต', loc:'AOC.',      selected:-1 },
+];
+
+// ── FIX TEL — เติม 0 นำหน้าเบอร์โทรเสมอ ──
+function fixTel(tel) {
+  if (!tel || tel === '—') return '—';
+  const d = String(tel).replace(/\D/g, '');
+  if (d.length === 9) return '0' + d;
+  return d || '—';
+}
+
+function buildDutyTable() {
+  const tbody = document.getElementById('duty-tbody');
+  tbody.innerHTML = '';
+  dutySlots.forEach((slot, i) => {
+    const opts = [
+      `<option value="-1">— ไม่มี —</option>`,
+      ...staffDB.map((s,j) =>
+        `<option value="${j}" ${slot.selected===j?'selected':''}>${s.name}</option>`)
+    ].join('');
+    const tel = slot.selected >= 0 && staffDB[slot.selected] ? fixTel(staffDB[slot.selected].tel) : '—';
+    tbody.innerHTML += `
+      <tr>
+        <td style="text-align:center;font-family:'Share Tech Mono',monospace;">${i+1}</td>
+        <td style="font-weight:600;color:var(--accent);">${slot.role}</td>
+        <td><span style="color:var(--accent2);font-size:0.82rem;">${slot.loc}</span></td>
+        <td>
+          <select class="duty-select" id="duty-sel-${i}" onchange="dutyChanged(${i},this.value)">
+            ${opts}
+          </select>
+        </td>
+        <td class="duty-tel-cell" id="duty-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">📞</span> ${tel}` : '—'}</td>
+      </tr>`;
+  });
+}
+
+function dutyChanged(idx, val) {
+  const i = parseInt(val);
+  dutySlots[idx].selected = i;
+  const tel = (i >= 0 && staffDB[i]) ? fixTel(staffDB[i].tel) : '—';
+  const telEl = document.getElementById('duty-tel-' + idx);
+  telEl.innerHTML = tel !== '—'
+    ? `<span style="color:#ff69b4">📞</span> ${tel}`
+    : '—';
+  autoSaveLocal();
+}
+
+function saveDuty() {
+  const btn = event.target;
+  btn.textContent = '✅ บันทึกแล้ว!';
+  btn.style.background = 'rgba(0,255,136,0.2)';
+  setTimeout(() => { btn.textContent = '✅ บันทึกเวร'; btn.style.background = 'rgba(0,255,136,0.1)'; }, 2000);
+}
+
+function loadCSV(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    const newStaff = [];
+
+    lines.forEach((line, i) => {
+      // Skip header row
+      if (i === 0 && (line.includes('ยศ') || line.includes('ชื่อ') || line.includes('name'))) return;
+
+      const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g,''));
+      if (cols.length === 0 || !cols[0]) return;
+
+      let name = '', tel = '';
+
+      if (cols.length >= 5) {
+        // รูปแบบ: ยศ, ชื่อ, นามสกุล, ตำแหน่ง, เบอร์โทร
+        name = `${cols[0]} ${cols[1]} ${cols[2]}`.trim();
+        tel  = cols[4].replace(/\D/g,'') || '—';
+      } else if (cols.length === 4) {
+        // รูปแบบ: ยศ, ชื่อ, นามสกุล, เบอร์โทร
+        name = `${cols[0]} ${cols[1]} ${cols[2]}`.trim();
+        tel  = cols[3].replace(/\D/g,'') || '—';
+      } else if (cols.length === 3) {
+        // รูปแบบ: ชื่อเต็ม, ตำแหน่ง, เบอร์โทร
+        name = cols[0];
+        tel  = cols[2].replace(/\D/g,'') || '—';
+      } else if (cols.length === 2) {
+        // รูปแบบ: ชื่อเต็ม, เบอร์โทร
+        name = cols[0];
+        tel  = cols[1].replace(/\D/g,'') || '—';
+      } else {
+        name = cols[0];
+        tel  = '—';
+      }
+
+      if (name) {
+        // เติม 0 นำหน้าเบอร์โทรถ้าขาด
+        const fixedTel = (tel && tel !== '—' && tel.length === 9) ? '0' + tel : tel;
+        newStaff.push({ name: name.trim(), tel: fixedTel.trim() });
+      }
+    });
+
+    if (newStaff.length > 0) {
+      staffDB = newStaff;
+      document.getElementById('csv-status').textContent = `✅ โหลดแล้ว ${newStaff.length} คน จาก ${file.name}`;
+      document.getElementById('csv-status').style.color = 'var(--green)';
+      // Reset all slots to first person
+      dutySlots.forEach(s => s.selected = 0);
+      buildDutyTable();
+      // บันทึกลง LocalStorage ทันทีหลังโหลด CSV
+      setTimeout(autoSaveLocal, 200);
+    } else {
+      document.getElementById('csv-status').textContent = '❌ ไม่พบข้อมูล กรุณาตรวจสอบรูปแบบ CSV';
+      document.getElementById('csv-status').style.color = 'var(--red)';
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+buildDutyTable();
+
+// ── BUILD AIRCRAFT TABLE ──
+function buildAircraftTable() {
+  const tbody = document.getElementById('ac-tbody');
+  tbody.innerHTML = '';
+  units.forEach(u => {
+    if (!u.comm) u.comm = 'ok'; // default ติดต่อได้
+    const sc = scClass[u.status];
+    const commClass = u.comm === 'ok' ? 'comm-ok' : 'comm-no';
+    tbody.innerHTML += `
+      <tr id="ac-row-${u.id}">
+        <td><strong>${u.name}</strong></td>
+        <td><span class="loc">${u.loc}</span></td>
+        <td>${u.type}</td>
+        <td>
+          <select class="ac-select ${sc}" id="ac-sel-${u.id}"
+            onchange="acChangeStatus('${u.id}',this)">
+            <option value="FMC" ${u.status==='FMC'?'selected':''}>FMC</option>
+            <option value="PMC" ${u.status==='PMC'?'selected':''}>PMC</option>
+            <option value="NMC" ${u.status==='NMC'?'selected':''}>NMC</option>
+          </select>
+        </td>
+        <td>
+          <select class="comm-select ${commClass}" id="comm-sel-${u.id}"
+            onchange="commChanged('${u.id}',this)">
+            <option value="ok"  ${u.comm==='ok' ?'selected':''}>✅ ติดต่อได้</option>
+            <option value="no"  ${u.comm==='no' ?'selected':''}>❌ ติดต่อไม่ได้</option>
+          </select>
+        </td>
+        <td><div class="ac-input-wrap"><input class="ac-input" id="ac-inp-${u.id}" value="${u.reason}" placeholder="ระบุสาเหตุ..."/><button class="ac-clear" onclick="clearReason('${u.id}')" title="ล้างข้อความ">✕</button></div></td>
+      </tr>`;
+  });
+  updateAcSummary();
+}
+
+function acChangeStatus(id, sel) {
+  const sc = { FMC:'sf', PMC:'sp', NMC:'sn' };
+  sel.className = 'ac-select ' + sc[sel.value];
+  const u = units.find(x => x.id === id);
+  if (u) { u.status = sel.value; u.userEdited = true; } // ← mark ว่าผู้ใช้แก้แล้ว
+  updateAcSummary();
+  if (mapInit) updateStatus(id, sel.value);
+}
+
+function commChanged(id, sel) {
+  const u = units.find(x => x.id === id);
+  if (u) u.comm = sel.value;
+  sel.className = 'comm-select ' + (sel.value === 'ok' ? 'comm-ok' : 'comm-no');
+}
+
+function updateAcSummary() {
+  document.getElementById('ac-sum-f').textContent = units.filter(u=>u.status==='FMC').length;
+  document.getElementById('ac-sum-p').textContent = units.filter(u=>u.status==='PMC').length;
+  document.getElementById('ac-sum-n').textContent = units.filter(u=>u.status==='NMC').length;
+}
+
+function clearReason(id) {
+  const inp = document.getElementById('ac-inp-' + id);
+  if (inp) { inp.value = ''; inp.focus(); }
+  const u = units.find(x => x.id === id);
+  if (u) u.reason = '—';
+}
+
+function applyAndGoMap() {
+  // sync reason from inputs to units data
+  units.forEach(u => {
+    const inp = document.getElementById('ac-inp-' + u.id);
+    if (inp) u.reason = inp.value || '—';
+    const sel = document.getElementById('ac-sel-' + u.id);
+    if (sel) u.status = sel.value;
+  });
+
+  // go to map tab
+  const mapBtn = document.querySelector('.nav-tab:last-child');
+  showPage('map', mapBtn);
+
+  // if map already init → refresh all markers/circles
+  if (mapInit) {
+    units.forEach(u => {
+      updateStatus(u.id, u.status);
+      // rebuild unit list to reflect new reason
+    });
+    buildUnitList();
+  }
+}
+
+// ── MAP DATA ──
+// ── LOCATION MAP (id → ชื่อจังหวัด) ──
+const locMap = {
+  '2031':'นครราชสีมา', '2032':'ลพบุรี', '2033':'เชียงใหม่',
+  '2034':'ดอนเมือง',   '2035':'ลพบุรี', '2037':'สุราษฎร์ธานี',
+  '2038':'อุดรธานี',   '2021':'ลพบุรี', '9203':'หาดใหญ่'
+};
+
+// ข้อมูล default (ใช้ระหว่างโหลด API)
+let units = [
+  { id:'2031', name:'หน่วยบิน 2031', loc:'นครราชสีมา',   lat:14.94, lng:102.09, type:'H225M',      status:'PMC', mission:'—', reason:'—', comm:'ok' },
+  { id:'2032', name:'หน่วยบิน 2032', loc:'ลพบุรี',       lat:14.88, lng:100.66, type:'H225M',      status:'NMC', mission:'—', reason:'—', comm:'ok' },
+  { id:'2033', name:'หน่วยบิน 2033', loc:'เชียงใหม่',    lat:18.79, lng:98.98,  type:'H225M',      status:'PMC', mission:'—', reason:'—', comm:'ok' },
+  { id:'2034', name:'หน่วยบิน 2034', loc:'ดอนเมือง',     lat:13.90, lng:100.60, type:'H225M',      status:'NMC', mission:'—', reason:'—', comm:'ok' },
+  { id:'2035', name:'หน่วยบิน 2035', loc:'ลพบุรี',       lat:14.88, lng:100.66, type:'H225M',      status:'NMC', mission:'—', reason:'—', comm:'ok' },
+  { id:'2037', name:'หน่วยบิน 2037', loc:'สุราษฎร์ธานี', lat:9.14,  lng:99.13,  type:'H225M',      status:'PMC', mission:'—', reason:'—', comm:'ok' },
+  { id:'2038', name:'หน่วยบิน 2038', loc:'อุดรธานี',     lat:17.41, lng:102.79, type:'H225M',      status:'NMC', mission:'—', reason:'—', comm:'ok' },
+  { id:'2021', name:'หน่วยบิน 2021', loc:'ลพบุรี',       lat:14.88, lng:100.66, type:'BELL-412 EP', status:'FMC', mission:'—', reason:'—', comm:'ok', radius:100 },
+  { id:'9203', name:'หน่วยบิน 9203', loc:'หาดใหญ่',      lat:6.79,  lng:101.15, type:'H225M', status:'PMC', mission:'—', reason:'—', comm:'ok' },
+];
+
+
+
+// ── FETCH ข้อมูลจาก API ──
+// ── ไม่ใช้ API ── ข้อมูลมาจาก LocalStorage อย่างเดียว
+
+const colors  = { FMC:'#00ff88', PMC:'#ffd700', NMC:'#ff4444' };
+const statusTh = { FMC:'พร้อมปฏิบัติเต็มที่', PMC:'พร้อมปฏิบัติบางส่วน', NMC:'ไม่พร้อมปฏิบัติ' };
+const scClass  = { FMC:'sf', PMC:'sp', NMC:'sn' };
+
+let mapInit = false, map, markers = {}, circles = {};
+const covState = { FMC:true, PMC:true, NMC:true };
+
+function initMap() {
+  mapInit = true;
+  map = L.map('map', { center:[13.0,101.5], zoom:6, zoomControl:true, attributionControl:true });
+
+  // ── BASE LAYERS ──
+  const osmTH = L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { maxZoom:19, attribution:'© <a href="https://www.openstreetmap.org">OpenStreetMap</a>' }
+  );
+
+  const googleStreet = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=m&hl=th&x={x}&y={y}&z={z}',
+    { maxZoom:20, attribution:'© Google Maps' }
+  );
+
+  const googleSat = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=s&hl=th&x={x}&y={y}&z={z}',
+    { maxZoom:20, attribution:'© Google Satellite' }
+  );
+
+  const googleHybrid = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=y&hl=th&x={x}&y={y}&z={z}',
+    { maxZoom:20, attribution:'© Google Hybrid' }
+  );
+
+  const googleTerrain = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=p&hl=th&x={x}&y={y}&z={z}',
+    { maxZoom:20, attribution:'© Google Terrain' }
+  );
+
+  // เริ่มต้นด้วย Google Street ภาษาไทย
+  googleStreet.addTo(map);
+
+  // ── LAYER CONTROL ──
+  const baseLayers = {
+    '🗺️ Google Maps (ภาษาไทย)':     googleStreet,
+    '🛰️ Google Satellite (ดาวเทียม)': googleSat,
+    '🌐 Google Hybrid (ดาวเทียม+ถนน)': googleHybrid,
+    '🏔️ Google Terrain (ภูมิประเทศ)': googleTerrain,
+    '📍 OSM ภาษาไทย':                 osmTH,
+  };
+
+  L.control.layers(baseLayers, null, {
+    position: 'topleft',
+    collapsed: false
+  }).addTo(map);
+
+  // Style ปุ่ม layer control ให้เข้ากับธีม
+  map.on('baselayerchange', e => {
+    // ปรับ filter แผนที่ตาม layer ที่เลือก
+    const tiles = document.querySelectorAll('.leaflet-tile');
+    if (e.name.includes('Satellite') || e.name.includes('Hybrid')) {
+      tiles.forEach(t => t.style.filter = 'brightness(0.85) saturate(0.9)');
+    } else if (e.name.includes('Terrain')) {
+      tiles.forEach(t => t.style.filter = 'brightness(0.7) saturate(0.7)');
+    } else {
+      tiles.forEach(t => t.style.filter = 'brightness(0.5) saturate(0.4) hue-rotate(180deg)');
+    }
+  });
+
+  units.forEach(u => {
+    const c = colors[u.status];
+    const mk = makeMarker(u); mk.addTo(map).bindPopup(makePopup(u), { maxWidth:280 });
+    mk.on('click', () => selectUnit(u.id));
+    markers[u.id] = mk;
+
+    const ci = L.circle([u.lat,u.lng], {
+      radius: (u.radius || 150)*1852, color:c, fillColor:c, fillOpacity:0.04, weight:1.5,
+      dashArray: u.status==='NMC'?'6,6':u.status==='PMC'?'4,3':null,
+      opacity: u.status==='NMC'?0.4:0.7
+    }).addTo(map);
+    circles[u.id] = { layer:ci, status:u.status };
+  });
+
+  buildUnitList();
+
+  // Style layer control ให้เข้ากับธีม dark
+  setTimeout(() => {
+    const lc = document.querySelector('.leaflet-control-layers');
+    if (lc) {
+      lc.style.cssText += `
+        background:rgba(10,22,40,0.95)!important;
+        border:1px solid rgba(0,212,255,0.3)!important;
+        color:#e8f4f8!important;
+        font-family:'Sarabun',sans-serif!important;
+        font-size:0.85rem!important;
+        padding:8px 12px!important;
+        max-height:80vh!important;
+        overflow-y:auto!important;
+      `;
+      lc.querySelectorAll('label').forEach(l => l.style.color = '#e8f4f8');
+      const form = lc.querySelector('.leaflet-control-layers-list');
+      if (form) form.style.marginTop = '4px';
+    }
+  }, 300);
+}
+
+function makeMarker(u) {
+  const c = colors[u.status];
+  return L.marker([u.lat,u.lng], { icon: L.divIcon({
+    className:'',
+    html:`<div class="heli-marker">
+      <div class="heli-circle" style="background:rgba(10,22,40,0.9);border-color:${c};box-shadow:0 0 10px ${c}44"><span style="font-size:16px">🚁</span></div>
+      <div class="heli-label" style="background:rgba(10,22,40,0.9);color:${c};border:1px solid ${c}44">${u.id}</div>
+    </div>`,
+    iconSize:[48,50], iconAnchor:[24,17], popupAnchor:[0,-18]
+  })});
+}
+
+function makePopup(u) {
+  const c = colors[u.status];
+  const locOpts = locations.map(l =>
+    `<option value="${l.name}" data-lat="${l.lat}" data-lng="${l.lng}" ${u.loc===l.name?'selected':''}>${l.name}</option>`
+  ).join('');
+  return `
+    <div class="popup-title">🚁 ${u.name}</div>
+    <div class="popup-row"><span class="popup-label">แบบเครื่อง</span><span class="popup-val">${u.type}</span></div>
+    <div class="popup-row"><span class="popup-label">สถานภาพ</span><span class="popup-val" style="color:${c}">${u.status} — ${statusTh[u.status]}</span></div>
+    <div class="popup-row"><span class="popup-label">ภารกิจ</span><span class="popup-val">${u.mission}</span></div>
+    <div class="popup-row"><span class="popup-label">สาเหตุ</span><span class="popup-val" style="font-size:0.72rem">${u.reason}</span></div>
+    <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,212,255,0.15);">
+      <div style="font-size:0.72rem;color:#8899aa;margin-bottom:4px;">📍 ย้ายที่ตั้ง</div>
+      <select onchange="moveUnit('${u.id}',this)" style="width:100%;background:#0a1628;border:1px solid rgba(0,212,255,0.3);color:#e8f4f8;font-family:'Sarabun',sans-serif;font-size:0.82rem;padding:4px 8px;cursor:pointer;outline:none;">
+        ${locOpts}
+      </select>
+    </div>`;
+}
+
+// ── LOCATIONS DATABASE ──
+const locations = [
+  { name:'นครราชสีมา',  lat:14.9400, lng:102.0900 },
+  { name:'ลพบุรี',       lat:14.8828, lng:100.6565 },
+  { name:'เชียงใหม่',    lat:18.7936, lng:98.9853  },
+  { name:'ดอนเมือง',    lat:13.9020, lng:100.6048  },
+  { name:'สุราษฎร์ธานี', lat:9.1359,  lng:99.1336  },
+  { name:'อุดรธานี',     lat:17.3915, lng:102.7816 },
+  { name:'อุบลราชธานี',  lat:15.2448, lng:104.8473 },
+  { name:'หาดใหญ่',     lat:6.7875,  lng:101.1476  },
+  { name:'ลพบุรี (บน.2)',lat:14.8796, lng:100.6575 },
+];
+
+function buildUnitList() {
+  const list = document.getElementById('ms-unit-list');
+  list.innerHTML = '';
+  units.forEach(u => {
+    const sc = scClass[u.status];
+    const dc = u.status === 'FMC' ? '#00ff88' : u.status === 'PMC' ? '#ffd700' : '#ff4444';
+    list.innerHTML += `
+      <div class="ms-unit-item" id="mitem-${u.id}" onclick="selectUnit('${u.id}')">
+        <div class="ms-unit-dot" id="mdot-${u.id}" style="background:${dc}"></div>
+        <div class="ms-unit-info">
+          <div class="ms-unit-name">${u.name}</div>
+          <div class="ms-unit-loc">📍 ${u.loc} — ${u.type}</div>
+        </div>
+        <select class="status-select ${sc}" id="msel-${u.id}"
+          onclick="event.stopPropagation()"
+          onchange="updateStatus('${u.id}',this.value)">
+          <option value="FMC" ${u.status==='FMC'?'selected':''}>FMC</option>
+          <option value="PMC" ${u.status==='PMC'?'selected':''}>PMC</option>
+          <option value="NMC" ${u.status==='NMC'?'selected':''}>NMC</option>
+        </select>
+      </div>`;
+  });
+}
+
+function moveUnit(id, sel) {
+  const u = units.find(x => x.id === id); if (!u) return;
+  const opt = sel.options[sel.selectedIndex];
+  const newLat = parseFloat(opt.dataset.lat);
+  const newLng = parseFloat(opt.dataset.lng);
+  const newLoc = opt.value;
+
+  // อัปเดตข้อมูล
+  u.lat = newLat;
+  u.lng = newLng;
+  u.loc = newLoc;
+
+  // ย้าย marker บนแผนที่
+  if (markers[id]) {
+    const newMk = makeMarker(u);
+    newMk.addTo(map).bindPopup(makePopup(u), { maxWidth:280 });
+    newMk.on('click', () => selectUnit(id));
+    map.removeLayer(markers[id]);
+    markers[id] = newMk;
+  }
+
+  // ย้าย coverage circle
+  if (circles[id]) {
+    circles[id].layer.setLatLng([newLat, newLng]);
+  }
+
+  // อัปเดต loc ในหน้าสถานภาพอากาศยาน
+  const locEl = document.querySelector(`#ac-row-${id} .loc`);
+  if (locEl) locEl.textContent = newLoc;
+
+  // fly to ตำแหน่งใหม่
+  map.flyTo([newLat, newLng], 9, { duration:1 });
+
+  // อัปเดต unit loc ใน sidebar
+  const locText = document.querySelector(`#mitem-${id} .ms-unit-loc`);
+  if (locText) locText.textContent = `📡 ${u.type}`;
+
+  showToast(`📍 ${u.name}\nย้ายไป ${newLoc} แล้ว`, 'cyan');
+  autoSaveLocal();
+}
+
+function selectUnit(id) {
+  document.querySelectorAll('.ms-unit-item').forEach(e => e.classList.remove('sel'));
+  const item = document.getElementById('mitem-' + id);
+  if (item) { item.classList.add('sel'); item.scrollIntoView({ block:'nearest' }); }
+  const u = units.find(x => x.id === id); if (!u) return;
+  map.flyTo([u.lat, u.lng], 9, { duration:1 });
+  markers[id].openPopup();
+}
+
+function updateStatus(id, ns) {
+  const u = units.find(x => x.id === id); if (!u) return;
+  u.status = ns;
+  u.userEdited = true; // ← mark ว่าผู้ใช้แก้แล้ว
+  const c = colors[ns]; const sc = scClass[ns];
+
+  // sync กลับหน้าสถานภาพอากาศยาน
+  const acSel = document.getElementById('ac-sel-' + id);
+  if (acSel) {
+    acSel.value = ns;
+    acSel.className = 'ac-select ' + sc;
+  }
+  updateAcSummary();
+  document.getElementById('mdot-' + id).style.background = c;
+  const sel = document.getElementById('msel-' + id);
+  sel.className = 'status-select ' + sc;
+  const newMk = makeMarker(u);
+  newMk.addTo(map).bindPopup(makePopup(u), { maxWidth:280 });
+  newMk.on('click', () => selectUnit(id));
+  map.removeLayer(markers[id]); markers[id] = newMk;
+  circles[id].layer.setStyle({
+    color:c, fillColor:c,
+    dashArray: ns==='NMC'?'6,6':ns==='PMC'?'4,3':null,
+    opacity: ns==='NMC'?0.4:0.7
+  });
+  circles[id].status = ns;
+  updateMapSummary();
+}
+
+function updateMapSummary() {
+  document.getElementById('msum-f').textContent = units.filter(u=>u.status==='FMC').length;
+  document.getElementById('msum-p').textContent = units.filter(u=>u.status==='PMC').length;
+  document.getElementById('msum-n').textContent = units.filter(u=>u.status==='NMC').length;
+}
+
+function toggleCov(s) {
+  covState[s] = !covState[s];
+  Object.values(circles).forEach(c => { if (c.status===s) { covState[s]?map.addLayer(c.layer):map.removeLayer(c.layer); } });
+  const btn = document.getElementById('btn-'+s);
+  btn.classList.toggle('off', !covState[s]);
+  btn.textContent = (covState[s]?'👁 ':'🚫 ') + s + ' Coverage';
+}
+
+function toggleAll() {
+  const allOn = Object.values(covState).every(v=>v);
+  ['FMC','PMC','NMC'].forEach(s => {
+    covState[s] = !allOn;
+    Object.values(circles).forEach(c => { if(c.status===s){ !allOn?map.addLayer(c.layer):map.removeLayer(c.layer); } });
+    const btn = document.getElementById('btn-'+s);
+    btn.classList.toggle('off', allOn);
+    btn.textContent = (!allOn?'👁 ':'🚫 ') + s + ' Coverage';
+  });
+  document.getElementById('btn-all').textContent = allOn?'👁 เปิดทั้งหมด':'🚫 ปิดทั้งหมด';
+}
+
+// Init aircraft table on load
+buildAircraftTable();
+
+// ── SERVER SYNC ──
+const SERVER_API = 'https://sarmanagement.rtafsar.com/rtaf_rcc_api.php';
+let lastServerSync = 0;
+
+function setServerStatus(msg, color) {
+  const el = document.getElementById('server-status');
+  if (el) el.innerHTML = `☁️ <span style="color:${color}">${msg}</span>`;
+}
+
+async function saveToServer(data) {
+  try {
+    const res = await fetch(SERVER_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const r = await res.json();
+    if (r.status === 'ok') {
+      lastServerSync = Date.now();
+      setServerStatus(`บันทึกแล้ว ${r.savedAt}`, '#00ff88');
+      return true;
+    }
+  } catch(e) {
+    setServerStatus('Server ไม่ตอบสนอง (ใช้ Local)', '#ff4444');
+  }
+  return false;
+}
+
+async function loadFromServer() {
+  try {
+    setServerStatus('กำลังโหลด...', '#ffd700');
+    const res = await fetch(SERVER_API + '?t=' + Date.now());
+    const d = await res.json();
+    if (d.status === 'empty' || (!d.units && !d.data)) {
+      setServerStatus('ยังไม่มีข้อมูลบน Server', '#8899aa');
+      return false;
+    }
+    const data = d.data || d;
+    if (data.units) data.units.forEach(saved => {
+      const u = units.find(x => x.id === saved.id);
+      if (u) {
+        u.status     = saved.status;
+        u.reason     = saved.reason;
+        u.mission    = saved.mission;
+        u.comm       = saved.comm || 'ok';
+        u.userEdited = true; // ← ป้องกัน API ทับหลังโหลด
+      }
+    });
+    if (data.staffDB?.length > 0) staffDB = data.staffDB.map(s => ({ ...s, tel: fixTel(s.tel) }));
+    if (data.dutySlots) data.dutySlots.forEach((s,i) => { if (dutySlots[i]) dutySlots[i].selected = s.selected; });
+    if (data.zones?.length > 0) zones = data.zones;
+    buildAircraftTable(); buildDutyTable(); renderZones();
+    setServerStatus(`โหลดแล้ว: ${data.savedAtTH || ''}`, '#00d4ff');
+    return true;
+  } catch(e) {
+    setServerStatus('เชื่อมต่อ Server ไม่ได้', '#ff4444');
+    return false;
+  }
+}
+
+// ── LOCAL STORAGE ──
+const STORAGE_KEY = 'rtaf_rcc_data';
+
+// ── SYNC ALL DATA ──
+function syncAllData() {
+  units.forEach(u => {
+    const sel = document.getElementById('ac-sel-' + u.id);
+    if (sel) u.status = sel.value;
+    const inp = document.getElementById('ac-inp-' + u.id);
+    if (inp) u.reason = inp.value || '—';
+    const minp = document.getElementById('m-inp-' + u.id);
+    if (minp) u.mission = minp.value || '—';
+    const csel = document.getElementById('comm-sel-' + u.id);
+    if (csel) u.comm = csel.value;
+  });
+  dutySlots.forEach((slot, i) => {
+    const sel = document.getElementById('duty-sel-' + i);
+    if (sel) slot.selected = parseInt(sel.value);
+  });
+  zones.forEach(z => {
+    const body = document.getElementById('zb-' + z.id);
+    if (body) {
+      const inputs = body.querySelectorAll('.zone-item-input');
+      inputs.forEach((inp, i) => { z.items[i] = inp.value; });
+    }
+  });
+}
+
+function saveAll() {
+  syncAllData();
+  const data = {
+    savedAt: new Date().toISOString(),
+    units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
+    dutySlots: dutySlots.map(s => ({ selected:s.selected })),
+    staffDB, zones
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  exportWord(true);
+}
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+
+    if (data.units) {
+      data.units.forEach(saved => {
+        const u = units.find(x => x.id === saved.id);
+        if (u) {
+          u.status     = saved.status;
+          u.reason     = saved.reason;
+          u.mission    = saved.mission;
+          u.comm       = saved.comm || 'ok';
+          u.userEdited = true; // ← ป้องกัน API ทับหลังโหลด
+        }
+      });
+    }
+
+    // restore staffDB — สำคัญมาก ต้องโหลดก่อน buildDutyTable
+    if (data.staffDB && data.staffDB.length > 0) {
+      staffDB = data.staffDB.map(s => ({ ...s, tel: fixTel(s.tel) }));
+    }
+
+    // restore duty slots
+    if (data.dutySlots) {
+      data.dutySlots.forEach((s, i) => { if (dutySlots[i]) dutySlots[i].selected = s.selected; });
+    }
+
+    // restore zones
+    if (data.zones && data.zones.length > 0) zones = data.zones;
+
+    // rebuild UI
+    buildAircraftTable();
+    buildDutyTable();
+    renderZones();
+
+    if (data.savedAt) {
+      const d = new Date(data.savedAt);
+      const h = d.getHours().toString().padStart(2,'0');
+      const m = d.getMinutes().toString().padStart(2,'0');
+      console.log(`✅ โหลดข้อมูลที่บันทึกไว้เมื่อ ${h}:${m}`);
+    }
+  } catch(e) {
+    console.warn('ไม่สามารถโหลดข้อมูลได้:', e);
+  }
+}
+
+// ── AUTO-SAVE TO LOCALSTORAGE (ทุกครั้งที่มีการเปลี่ยนแปลง) ──
+function autoSaveLocal() {
+  syncAllData();
+  const data = {
+    savedAt: new Date().toISOString(),
+    units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
+    dutySlots: dutySlots.map(s => ({ selected:s.selected })),
+    staffDB, zones
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+// Auto-save ทุก 30 วินาที
+setInterval(autoSaveLocal, 30000);
+
+// Auto-save เมื่อปิดหน้าต่าง/เปลี่ยนหน้า
+window.addEventListener('beforeunload', autoSaveLocal);
+
+// ── STARTUP: โหลดจาก LocalStorage อย่างเดียว ──
+loadSaved();
+
+// ── SAVE DROPDOWN MENU ──
+function toggleSaveMenu() {
+  const dd = document.getElementById('save-dropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+// ปิด dropdown เมื่อคลิกที่อื่น
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('save-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('save-dropdown').style.display = 'none';
+  }
+});
+
+// ── EXPORT JSON → Downloads ──
+function exportJSON() {
+  // sync ข้อมูลล่าสุดก่อน
+  units.forEach(u => {
+    const sel = document.getElementById('ac-sel-' + u.id);
+    if (sel) u.status = sel.value;
+    const inp = document.getElementById('ac-inp-' + u.id);
+    if (inp) u.reason = inp.value || '—';
+    const minp = document.getElementById('m-inp-' + u.id);
+    if (minp) u.mission = minp.value || '—';
+    const csel = document.getElementById('comm-sel-' + u.id);
+    if (csel) u.comm = csel.value;
+  });
+  dutySlots.forEach((slot, i) => {
+    const sel = document.getElementById('duty-sel-' + i);
+    if (sel) slot.selected = parseInt(sel.value);
+  });
+  zones.forEach(z => {
+    const body = document.getElementById('zb-' + z.id);
+    if (body) {
+      const inputs = body.querySelectorAll('.zone-item-input');
+      inputs.forEach((inp, i) => { z.items[i] = inp.value; });
+    }
+  });
+
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone:'Asia/Bangkok' }));
+  const d = now.getDate().toString().padStart(2,'0');
+  const mo = (now.getMonth()+1).toString().padStart(2,'0');
+  const y = now.getFullYear() + 543;
+  const h = now.getHours().toString().padStart(2,'0');
+  const m = now.getMinutes().toString().padStart(2,'0');
+  const filename = `RTAF_RCC_${d}${mo}${y}_${h}${m}.json`;
+
+  const data = {
+    savedAt: new Date().toISOString(),
+    dateLabel: `${d}/${mo}/${y} ${h}:${m}`,
+    units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
+    dutySlots: dutySlots.map(s => ({ selected:s.selected })),
+    staffDB,
+    zones
+  };
+
+  // สร้าง download link
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  // แสดง popup แจ้งผล
+  showToast(`✅ บันทึกไฟล์ลง Downloads แล้ว\n📄 ${filename}`, 'green', filename);
+}
+
+// ── IMPORT JSON ──
+function importJSON(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.units) {
+        data.units.forEach(saved => {
+          const u = units.find(x => x.id === saved.id);
+          if (u) { u.status = saved.status; u.reason = saved.reason; u.mission = saved.mission; }
+        });
+      }
+      if (data.staffDB && data.staffDB.length > 0) staffDB = data.staffDB;
+      if (data.dutySlots) {
+        data.dutySlots.forEach((s, i) => { if (dutySlots[i]) dutySlots[i].selected = s.selected; });
+      }
+      if (data.zones && data.zones.length > 0) zones = data.zones;
+
+      buildAircraftTable();
+      buildDutyTable();
+      renderZones();
+
+      showToast(`✅ โหลดข้อมูลจาก ${file.name} แล้ว\n📅 บันทึกเมื่อ: ${data.dateLabel || '—'}`, 'cyan');
+    } catch(err) {
+      showToast('❌ ไม่สามารถโหลดไฟล์ได้ กรุณาตรวจสอบไฟล์', 'red');
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+  input.value = '';
+}
+
+// ── TOAST NOTIFICATION ──
+function showToast(msg, color = 'green', filename = null) {
+  // ลบ toast เก่าถ้ามี
+  const old = document.getElementById('rcc-toast');
+  if (old) old.remove();
+
+  const colorMap = {
+    green: { bg:'rgba(0,255,136,0.12)', border:'rgba(0,255,136,0.5)', text:'#00ff88' },
+    cyan:  { bg:'rgba(0,212,255,0.12)', border:'rgba(0,212,255,0.5)', text:'#00d4ff' },
+    red:   { bg:'rgba(255,68,68,0.12)', border:'rgba(255,68,68,0.5)', text:'#ff6666' },
+  };
+  const c = colorMap[color] || colorMap.green;
+
+  const toast = document.createElement('div');
+  toast.id = 'rcc-toast';
+  toast.style.cssText = `
+    position:fixed; top:70px; right:20px; z-index:9999;
+    background:${c.bg}; border:1px solid ${c.border};
+    backdrop-filter:blur(10px);
+    padding:14px 18px; min-width:280px; max-width:360px;
+    font-family:'Sarabun',sans-serif; font-size:0.88rem;
+    color:${c.text}; line-height:1.5;
+    box-shadow:0 4px 24px rgba(0,0,0,0.4);
+    animation: slideIn 0.25s ease;
+  `;
+
+  const lines = msg.split('\n').join('<br>');
+  toast.innerHTML = `<div>${lines}</div>`;
+
+  // ถ้ามี filename → เพิ่มปุ่มเปิด Downloads folder
+  if (filename) {
+    const hint = document.createElement('div');
+    hint.style.cssText = `margin-top:10px;padding-top:8px;border-top:1px solid ${c.border};font-size:0.78rem;color:#8899aa;`;
+    hint.innerHTML = `📂 ไฟล์อยู่ใน <strong style="color:${c.text}">Downloads</strong> ของเครื่องคุณ<br>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;opacity:0.8;">${filename}</span>`;
+    toast.appendChild(hint);
+  }
+
+  // ปุ่มปิด
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = `
+    position:absolute; top:8px; right:10px;
+    background:none; border:none; color:${c.text};
+    cursor:pointer; font-size:0.9rem; opacity:0.7;
+  `;
+  closeBtn.onclick = () => toast.remove();
+  toast.appendChild(closeBtn);
+
+  // style animation
+  const style = document.createElement('style');
+  style.textContent = `@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}`;
+  toast.appendChild(style);
+
+  document.body.appendChild(toast);
+
+  // ปิดอัตโนมัติหลัง 5 วินาที
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+}
+
+// ── EXPORT WORD (.doc) ──
+function exportWord(fromSave = false) {
+  // sync ข้อมูลล่าสุด
+  units.forEach(u => {
+    const sel = document.getElementById('ac-sel-' + u.id);
+    if (sel) u.status = sel.value;
+    const inp = document.getElementById('ac-inp-' + u.id);
+    if (inp) u.reason = inp.value || '—';
+    const minp = document.getElementById('m-inp-' + u.id);
+    if (minp) u.mission = minp.value || '—';
+  });
+  dutySlots.forEach((slot, i) => {
+    const sel = document.getElementById('duty-sel-' + i);
+    if (sel) slot.selected = parseInt(sel.value);
+  });
+  zones.forEach(z => {
+    const body = document.getElementById('zb-' + z.id);
+    if (body) {
+      const inputs = body.querySelectorAll('.zone-item-input');
+      inputs.forEach((inp, i) => { z.items[i] = inp.value; });
+    }
+  });
+
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone:'Asia/Bangkok' }));
+  const d  = now.getDate().toString().padStart(2,'0');
+  const mo = (now.getMonth()+1).toString().padStart(2,'0');
+  const y  = now.getFullYear() + 543;
+  const h  = now.getHours().toString().padStart(2,'0');
+  const m  = now.getMinutes().toString().padStart(2,'0');
+  const dateStr = document.getElementById('clock-date')?.textContent || `${d}/${mo}/${y}`;
+  const filename = `RTAF_RCC_${d}${mo}${y}_${h}${m}.doc`;
+  const statusColors = { FMC:'#00AA44', PMC:'#CC8800', NMC:'#CC2222' };
+
+  const dutyRows = dutySlots.map((slot, i) => {
+    const staff = staffDB[slot.selected] || {};
+    return `<tr>
+      <td style="border:1px solid #ccc;padding:5px 8px;text-align:center;">${i+1}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-weight:bold;color:#003366;">${slot.role}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;color:#0066aa;">${slot.loc}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-weight:bold;">${staff.name || '—'}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-family:monospace;">${staff.tel || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const acRows = units.map(u => {
+    const c = statusColors[u.status];
+    const commTxt = u.comm === 'ok' ? '✅ ติดต่อได้' : '❌ ติดต่อไม่ได้';
+    const commColor = u.comm === 'ok' ? '#00AA44' : '#CC2222';
+    return `<tr>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-weight:bold;">${u.name}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;color:#0066aa;">${u.loc}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;">${u.type}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-weight:bold;color:${c};">${u.status}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-weight:bold;color:${commColor};">${commTxt}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-size:11px;">${u.reason}</td>
+    </tr>`;
+  }).join('');
+
+  const missionRows = units.map(u => {
+    const c = statusColors[u.status];
+    return `<tr>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-weight:bold;">${u.name}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;color:#0066aa;">${u.loc}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;">${u.type}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;font-weight:bold;color:${c};">${u.status}</td>
+      <td style="border:1px solid #ccc;padding:5px 8px;color:#885500;">${u.mission !== '—' ? u.mission : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const zoneHTML = zones.map(z => {
+    const items = z.items.filter(x => x.trim());
+    const itemList = items.map((item, i) =>
+      `<tr><td style="border:1px solid #ccc;padding:4px 8px;text-align:center;color:#003366;font-weight:bold;">${i+1}</td>
+       <td style="border:1px solid #ccc;padding:4px 8px;">${item}</td></tr>`
+    ).join('');
+    return `
+      <h3 style="color:#003366;font-size:13px;margin:14px 0 6px;">🗺️ ${z.name}
+        <span style="font-size:11px;font-weight:normal;color:#666;margin-left:8px;">📋 ${items.length} ภารกิจ</span>
+      </h3>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+        <thead><tr>
+          <th style="border:1px solid #ccc;padding:5px 8px;background:#e8f0fe;color:#003366;width:40px;">ลำดับ</th>
+          <th style="border:1px solid #ccc;padding:5px 8px;background:#e8f0fe;color:#003366;">รายการ</th>
+        </tr></thead>
+        <tbody>${itemList || '<tr><td colspan="2" style="border:1px solid #ccc;padding:5px 8px;color:#999;font-style:italic;">ไม่มีรายการ</td></tr>'}</tbody>
+      </table>`;
+  }).join('');
+
+  const wordHTML = `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:w="urn:schemas-microsoft-com:office:word"
+          xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+      <meta charset="UTF-8"/>
+      <meta name="ProgId" content="Word.Document"/>
+      <meta name="Generator" content="Microsoft Word 15"/>
+      <style>
+        @page { size:A4; margin:2cm; }
+        body { font-family:'Sarabun','TH SarabunPSK',sans-serif; font-size:13px; color:#111; line-height:1.5; }
+        h1 { font-size:16px; color:#003366; text-align:center; margin-bottom:4px; }
+        h2 { font-size:14px; color:#003366; border-bottom:2px solid #003366; padding-bottom:4px; margin:18px 0 8px; }
+        h3 { font-size:13px; color:#003366; margin:12px 0 5px; }
+        table { width:100%; border-collapse:collapse; margin-bottom:12px; font-size:12px; }
+        th { background:#dce8ff; color:#003366; border:1px solid #aac; padding:6px 8px; text-align:left; }
+        td { border:1px solid #ccc; padding:5px 8px; }
+        .cover { text-align:center; padding:20px; border:2px solid #003366; margin-bottom:20px; }
+        .sum-table td { text-align:center; font-size:20px; font-weight:bold; }
+        .sum-label { font-size:11px; color:#666; }
+        .page-break { page-break-before:always; }
+      </style>
+    </head>
+    <body>
+      <div class="cover">
+        <div style="font-size:11px;color:#666;letter-spacing:1px;">ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.</div>
+        <h1>บรรยายสรุปการปฏิบัติงาน RTAF RCC</h1>
+        <div style="font-size:14px;font-weight:bold;color:#880000;">📅 ${dateStr}</div>
+        <div style="font-size:11px;color:#666;margin-top:4px;">พิมพ์เมื่อ ${h}:${m} น.</div>
+      </div>
+
+      <h2>1. เจ้าหน้าที่เวร ประจำวันที่ ${dateStr}</h2>
+      <table>
+        <thead><tr>
+          <th style="width:40px;">ลำดับ</th>
+          <th>ตำแหน่ง</th><th>สถานที่</th><th>ชื่อ-นามสกุล</th><th>เบอร์โทร</th>
+        </tr></thead>
+        <tbody>${dutyRows}</tbody>
+      </table>
+
+      <div class="page-break"></div>
+      <h2>2. สถานภาพอากาศยานหน่วยบินค้นหาและช่วยชีวิต</h2>
+      <table class="sum-table" style="margin-bottom:12px;">
+        <tr>
+          <td style="color:#00AA44;border:1px solid #ccc;padding:8px;">${units.filter(u=>u.status==='FMC').length}</td>
+          <td style="color:#CC8800;border:1px solid #ccc;padding:8px;">${units.filter(u=>u.status==='PMC').length}</td>
+          <td style="color:#CC2222;border:1px solid #ccc;padding:8px;">${units.filter(u=>u.status==='NMC').length}</td>
+        </tr>
+        <tr>
+          <td class="sum-label" style="border:1px solid #ccc;padding:4px;">FMC พร้อมปฏิบัติ</td>
+          <td class="sum-label" style="border:1px solid #ccc;padding:4px;">PMC บางส่วน</td>
+          <td class="sum-label" style="border:1px solid #ccc;padding:4px;">NMC ไม่พร้อม</td>
+        </tr>
+      </table>
+      <table>
+        <thead><tr><th>หน่วยบิน</th><th>ที่ตั้ง</th><th>แบบเครื่อง</th><th>สถานภาพ</th><th>สาเหตุ</th></tr></thead>
+        <tbody>${acRows}</tbody>
+      </table>
+
+      <div class="page-break"></div>
+      <h2>3. ภารกิจประจำวัน</h2>
+      <table>
+        <thead><tr><th>หน่วยบิน</th><th>ที่ตั้ง</th><th>แบบเครื่อง</th><th>สถานภาพ</th><th>ภารกิจ</th></tr></thead>
+        <tbody>${missionRows}</tbody>
+      </table>
+
+      <div class="page-break"></div>
+      <h2>4. แผนการฝึกบินประจำวัน</h2>
+      ${zoneHTML}
+    </body>
+    </html>`;
+
+  const blob = new Blob(['\ufeff' + wordHTML], { type:'application/msword;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`✅ บันทึก Word แล้ว\n📄 ${filename}\n💡 กด Ctrl+J เพื่อเปิด Downloads`, 'cyan', filename);
+
+  if (fromSave) {
+    const btn = document.getElementById('btn-save');
+    if (btn) { btn.textContent = '✅ บันทึกแล้ว!'; setTimeout(() => { btn.textContent = '💾 บันทึก'; }, 2000); }
+  }
+}
+
+// ── CAPTURE ALL PAGES → PDF ──
+async function captureAllPages() {
+  const { jsPDF } = window.jspdf;
+
+  const mainPages = [
+    { id:'page-duty',     label:'เจ้าหน้าที่เวร',   navIdx:0 },
+    { id:'page-aircraft', label:'สถานภาพอากาศยาน',  navIdx:1 },
+    { id:'page-mission',  label:'ภารกิจประจำวัน',    navIdx:2 },
+    { id:'page-training', label:'แผนการฝึกบิน',      navIdx:3 },
+    { id:'page-map',      label:'แผนที่ Coverage',    navIdx:4 },
+  ];
+  const subPages = [
+    { subId:'sub1', label:'อื่นๆ — แผนการปฏิบัติทางอากาศ' },
+    { subId:'sub2', label:'อื่นๆ — ภารกิจติดตามอากาศยาน' },
+    { subId:'sub3', label:'อื่นๆ — OSCAR' },
+    { subId:'sub4', label:'อื่นๆ — FOCAL' },
+    { subId:'sub5', label:'อื่นๆ — BIGSHELL' },
+  ];
+  const totalPages = mainPages.length + subPages.length;
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:'Sarabun',sans-serif;color:#e8f4f8;";
+  overlay.innerHTML = `
+    <div style="font-size:1.2rem;font-weight:700;color:#00d4ff;">📸 กำลังแคปหน้าจอ...</div>
+    <div id="cap-status" style="font-size:0.9rem;color:#aaa;">เตรียมการ...</div>
+    <div style="width:300px;background:#1a1a1a;height:8px;border-radius:4px;overflow:hidden;">
+      <div id="cap-bar" style="height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);width:0%;transition:width 0.3s;border-radius:4px;"></div>
+    </div>
+    <div style="font-size:0.78rem;color:#556;">กรุณาอย่าคลิกระหว่างดำเนินการ</div>`;
+  document.body.appendChild(overlay);
+
+  const setStatus = (txt, pct) => {
+    document.getElementById('cap-status').textContent = txt;
+    document.getElementById('cap-bar').style.width = pct + '%';
+  };
+
+  // capEl: ดึงสี bg จาก body จริง → ไม่มีฝ้า ตรงกับที่เห็นบนจอ
+  const getBodyBg = () => {
+    const b = document.body;
+    if (b.classList.contains('theme-dark'))  return '#0a1628';
+    if (b.classList.contains('theme-light')) return '#f0f4f8';
+    if (b.classList.contains('theme-camo'))  return '#2d3a1e';
+    if (b.classList.contains('theme-metal')) return '#111111';
+    return '#0a1628';
+  };
+
+  const capEl = async (el) => {
+    return await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: getBodyBg(),
+      scrollX: 0,
+      scrollY: -window.scrollY,
+      logging: false,
+      imageTimeout: 15000,
+      removeContainer: true,
+      onclone: (doc) => {
+        // ลบ transition ทั้งหมดเพื่อให้แคปได้ชัด
+        const style = doc.createElement('style');
+        style.textContent = '* { transition: none !important; animation: none !important; }';
+        doc.head.appendChild(style);
+      }
+    });
+  };
+
+  const addToPDF = (pdf, canvas, W, H, label, pageNum, total) => {
+    // เต็ม frame เลย ไม่มีขอบ
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, W, H, undefined, 'NONE');
+    // label บาง overlay ด้านบน
+    pdf.setFillColor(0,0,0);
+    pdf.rect(0, 0, W, 7, 'F');
+    pdf.setFontSize(8); pdf.setTextColor(0,212,255);
+    pdf.setFont('helvetica','bold');
+    pdf.text(`RTAF RCC — ${label}`, 4, 5);
+    pdf.setFont('helvetica','normal');
+    pdf.setTextColor(150,180,200);
+    pdf.text(`หน้า ${pageNum}/${total}`, W-20, 5);
+  };
+
+  const prevThemeIdx = themeIdx;
+
+  try {
+    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+    const W = 297, H = 210;
+    const navBtns = document.querySelectorAll('.nav-tab');
+    syncAllData();
+    let pageNum = 0;
+
+    // แคปหน้าหลัก
+    for (let i = 0; i < mainPages.length; i++) {
+      const pg = mainPages[i];
+      setStatus(`แคป: ${pg.label} (${i+1}/${totalPages})`, Math.round((i/totalPages)*88));
+      if (navBtns[pg.navIdx]) navBtns[pg.navIdx].click();
+      await new Promise(r => setTimeout(r, pg.id==='page-map' ? 1400 : 700));
+      if (pg.id==='page-map' && mapInit) { map.invalidateSize(); await new Promise(r=>setTimeout(r,600)); }
+      const el = document.getElementById(pg.id);
+      if (!el) continue;
+      const canvas = await capEl(el);
+      if (pageNum > 0) pdf.addPage();
+      addToPDF(pdf, canvas, W, H, pg.label, pageNum+1, totalPages);
+      pageNum++;
+    }
+
+    // แคป sub-tabs
+    if (navBtns[5]) navBtns[5].click();
+    await new Promise(r => setTimeout(r, 600));
+    const subTabBtns = document.querySelectorAll('.sub-tab');
+
+    for (let i = 0; i < subPages.length; i++) {
+      const sp = subPages[i];
+      setStatus(`แคป: ${sp.label} (${mainPages.length+i+1}/${totalPages})`, Math.round(((mainPages.length+i)/totalPages)*88));
+      if (subTabBtns[i]) subTabBtns[i].click();
+      await new Promise(r => setTimeout(r, 600));
+      const subEl = document.getElementById(sp.subId);
+      if (!subEl) continue;
+      const canvas = await capEl(subEl);
+      pdf.addPage();
+      addToPDF(pdf, canvas, W, H, sp.label, pageNum+1, totalPages);
+      pageNum++;
+    }
+
+    setStatus('กำลังบันทึกไฟล์...', 95);
+    await new Promise(r => setTimeout(r, 300));
+
+    const now = new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Bangkok'}));
+    const fn = `RTAF_RCC_${String(now.getDate()).padStart(2,'0')}${String(now.getMonth()+1).padStart(2,'0')}${now.getFullYear()+543}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}.pdf`;
+    pdf.save(fn);
+
+    setStatus('✅ สำเร็จ!', 100);
+    await new Promise(r => setTimeout(r, 1000));
+    showToast(`✅ แคปครบ ${totalPages} หน้าแล้ว\n📄 ${fn}\n💡 กด Ctrl+J เพื่อเปิด Downloads`, 'cyan', fn);
+
+  } catch(err) {
+    console.error(err);
+    showToast('❌ เกิดข้อผิดพลาด: '+err.message, 'red');
+  } finally {
+    document.body.removeChild(overlay);
+  }
+}
+
+// ── EXPORT PDF — บทบรรยายประจำวัน (9 หน้า) ──
+async function exportPDF() {
+  syncAllData();
+
+  const dateStr   = document.getElementById('clock-date')?.textContent || '';
+  const dayStr    = document.getElementById('clock-day')?.textContent  || '';
+  const fmc = units.filter(u=>u.status==='FMC').length;
+  const pmc = units.filter(u=>u.status==='PMC').length;
+  const nmc = units.filter(u=>u.status==='NMC').length;
+
+  // ── เจ้าหน้าที่เวร ──
+  const dutyList = dutySlots.map((slot,i) => {
+    const s = staffDB[slot.selected] || {};
+    return `${s.name || '—'} ปฏิบัติหน้าที่ ${slot.role}`;
+  });
+
+  // ── สถานภาพอากาศยาน ──
+  const acRows = units.map(u => {
+    const stTh = {FMC:'พร้อมปฏิบัติ', PMC:'พร้อมปฏิบัติบางส่วน', NMC:'ไม่พร้อมปฏิบัติ'};
+    const commTh = u.comm==='ok' ? 'ติดต่อได้' : 'ติดต่อไม่ได้';
+    const stColor = {FMC:'#007700', PMC:'#886600', NMC:'#aa0000'};
+    return `<tr>
+      <td>${u.name}</td><td>${u.loc}</td><td>${u.type}</td>
+      <td style="font-weight:700;color:${stColor[u.status]}">${stTh[u.status]}</td>
+      <td>${commTh}</td>
+      <td style="font-size:11px;">${u.reason||'—'}</td>
+    </tr>`;
+  }).join('');
+
+  // ── ภารกิจประจำวัน ──
+  const missionUnits = units.filter(u => u.mission && u.mission !== '—');
+  const missionList = missionUnits.length > 0
+    ? missionUnits.map(u => `- หน่วยบิน ${u.id} ${u.mission}`).join('<br>')
+    : '- ไม่มีภารกิจประจำวัน';
+
+  // ── แผนฝึกบิน zones ──
+  const zoneOSCAR   = zones.find(z => z.name.includes('OSCAR'));
+  const zoneFOCAL   = zones.find(z => z.name.includes('FOCAL'));
+  const zoneBIG     = zones.find(z => z.name.includes('BIGSHELL'));
+
+  const zoneItems = (z) => {
+    if (!z) return '<p style="color:#999;">ไม่มีรายการ</p>';
+    const items = z.items.filter(x=>x.trim());
+    return items.length
+      ? items.map((x,i)=>`<div style="padding:2px 0;">${i+1}. ${x}</div>`).join('')
+      : '<p style="color:#999;">ไม่มีรายการ</p>';
+  };
+
+  // ── ดึงภาพจาก TAB อื่นๆ + OCR ──
+  async function getImgText(n) {
+    const viewer = document.getElementById('img-viewer-' + n);
+    if (!viewer) return null;
+    const img = viewer.querySelector('img');
+    if (!img) return null;
+    // ส่งภาพไป Claude API เพื่อ OCR
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model:'claude-sonnet-4-20250514', max_tokens:1000,
+          messages:[{ role:'user', content:[
+            { type:'image', source:{ type:'base64', media_type:'image/jpeg', data:b64 }},
+            { type:'text',  text:'กรุณาถอดข้อความทั้งหมดในภาพนี้ออกมาเป็นข้อความ ถ้าเป็นตาราง ให้ถอดเป็นข้อความธรรมดา ไม่ต้องใส่ markdown' }
+          ]}]
+        })
+      });
+      const d = await res.json();
+      return d.content?.[0]?.text || null;
+    } catch(e) { return null; }
+  }
+
+  // OCR ทั้ง 5 หัวข้อพร้อมกัน
+  showToast('⏳ กำลังประมวลผลภาพ กรุณารอสักครู่...', 'cyan');
+  const [ocr1,ocr2,ocr3,ocr4,ocr5] = await Promise.all([
+    getImgText('1'), getImgText('2'), getImgText('3'), getImgText('4'), getImgText('5')
+  ]);
+
+  const imgSection = (n, title, ocrText) => {
+    if (!ocrText) return `<p style="color:#888;font-style:italic;">ไม่มีเอกสารแนบ</p>`;
+    return `<div style="background:#f8f8f8;border:1px solid #ddd;padding:12px;white-space:pre-wrap;font-size:12px;line-height:1.7;">${ocrText}</div>`;
+  };
+
+  // ── สร้าง PDF window ──
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html lang="th"><head>
+  <meta charset="UTF-8"/>
+  <title>บทบรรยายประจำวัน RTAF RCC — ${dateStr}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Sarabun',sans-serif;font-size:14px;color:#111;background:#fff;padding:0;}
+    .page{width:210mm;min-height:297mm;margin:0 auto;padding:20mm 25mm;position:relative;page-break-after:always;}
+    .page:last-child{page-break-after:avoid;}
+    .page-num{position:absolute;top:12mm;right:20mm;font-size:13px;color:#333;}
+    .header-line{border-bottom:2px solid #333;padding-bottom:6px;margin-bottom:16px;}
+    .header-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:4px;}
+    .header-sub{font-size:13px;text-align:center;color:#555;margin-bottom:8px;}
+    .section-title{font-size:15px;font-weight:700;margin:16px 0 10px;color:#003366;}
+    p{line-height:1.8;margin-bottom:6px;}
+    table{width:100%;border-collapse:collapse;margin:10px 0;}
+    th{background:#003366;color:#fff;padding:7px 10px;text-align:left;font-size:13px;}
+    td{padding:6px 10px;border-bottom:1px solid #ddd;font-size:13px;}
+    tr:nth-child(even) td{background:#f5f8ff;}
+    .badge-fmc{color:#007700;font-weight:700;}
+    .badge-pmc{color:#886600;font-weight:700;}
+    .badge-nmc{color:#aa0000;font-weight:700;}
+    .sum-row{display:flex;gap:12px;margin:10px 0;}
+    .sum-box{flex:1;border:1px solid #ccc;padding:10px;text-align:center;border-radius:2px;}
+    .sum-num{font-size:28px;font-weight:700;}
+    .sum-lbl{font-size:11px;color:#666;margin-top:2px;}
+    .closing{margin-top:40px;text-align:center;font-size:14px;}
+    .no-print{background:#003366;color:#fff;padding:12px 20px;display:flex;gap:10px;position:fixed;top:0;left:0;right:0;z-index:999;align-items:center;}
+    .no-print button{padding:6px 18px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:14px;border-radius:2px;}
+    @page{size:A4;margin:0;}
+    @media print{
+      .no-print{display:none!important;}
+      *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+    }
+    body{padding-top:56px;}
+    @media print{body{padding-top:0;}}
+  </style>
+</head><body>
+
+<div class="no-print">
+  <span style="font-weight:700;font-size:15px;">🖨️ บทบรรยายประจำวัน RTAF RCC</span>
+  <button onclick="window.print()" style="background:#00d4ff;border:none;color:#000;">พิมพ์ / บันทึก PDF</button>
+  <button onclick="window.close()" style="background:rgba(255,255,255,0.2);border:1px solid #fff;color:#fff;">✕ ปิด</button>
+  <span style="font-size:12px;opacity:0.8;margin-left:8px;">Chrome: กด Ctrl+P → Save as PDF</span>
+</div>
+
+<!-- หน้า ๑ : ปกและคำขึ้นต้น -->
+<div class="page">
+  <div class="page-num">หน้า ๑</div>
+  <div style="text-align:center;margin-bottom:30px;">
+    <div style="font-size:16px;font-weight:700;letter-spacing:2px;">บทบรรยายประจำวัน</div>
+    <div style="font-size:13px;color:#555;margin-top:4px;">ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.</div>
+  </div>
+  <div class="header-line"></div>
+  <p>เรียน ผู้บังคับบัญชา</p>
+  <p style="margin-top:12px;">
+    กระผม <strong>${dutySlots[0] ? (staffDB[dutySlots[0].selected]?.name || '...') : '...'}</strong>
+    ขออนุญาต บรรยายสรุปการปฏิบัติงาน ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.
+    ประจำ<strong>${dayStr}</strong> วันที่ <strong>${dateStr}</strong>
+    รายละเอียด ดังนี้
+  </p>
+  <div style="margin-top:30px;text-align:right;font-size:13px;color:#555;">
+    <div>วันที่บรรยาย: ${dateStr}</div>
+  </div>
+</div>
+
+<!-- หน้า ๒ : เจ้าหน้าที่เวร -->
+<div class="page">
+  <div class="page-num">หน้า ๒</div>
+  <div class="section-title">เจ้าหน้าที่เวร ประจำวันที่ ${dateStr} จำนวน ${dutySlots.length} คน ประกอบด้วย</div>
+  <div class="header-line"></div>
+  ${dutySlots.map((slot,i) => {
+    const s = staffDB[slot.selected] || {};
+    return `<p>${i+1}. <strong>${s.name||'—'}</strong> ปฏิบัติหน้าที่ ${slot.role} (${slot.loc}) ${s.tel ? '📞 '+s.tel : ''}</p>`;
+  }).join('')}
+</div>
+
+<!-- หน้า ๓ : สถานภาพอากาศยาน -->
+<div class="page">
+  <div class="page-num">หน้า ๓</div>
+  <div class="section-title">สถานภาพอากาศยานหน่วยบินค้นหาและช่วยชีวิต จำนวน ${units.length} หน่วยบิน</div>
+  <div class="header-line"></div>
+  <div class="sum-row">
+    <div class="sum-box"><div class="sum-num" style="color:#007700;">${fmc}</div><div class="sum-lbl">พร้อมปฏิบัติ (FMC)</div></div>
+    <div class="sum-box"><div class="sum-num" style="color:#886600;">${pmc}</div><div class="sum-lbl">พร้อมปฏิบัติบางส่วน (PMC)</div></div>
+    <div class="sum-box"><div class="sum-num" style="color:#aa0000;">${nmc}</div><div class="sum-lbl">ไม่พร้อมปฏิบัติ (NMC)</div></div>
+  </div>
+  <table>
+    <thead><tr><th>หน่วยบิน</th><th>ที่ตั้ง</th><th>แบบเครื่อง</th><th>สถานภาพ</th><th>การติดต่อ</th><th>สาเหตุ</th></tr></thead>
+    <tbody>${acRows}</tbody>
+  </table>
+</div>
+
+<!-- หน้า ๔ : ภารกิจการบินประจำวัน -->
+<div class="page">
+  <div class="page-num">หน้า ๔</div>
+  <div class="section-title">ภารกิจการบินประจำวันของหน่วยบินค้นหาและช่วยชีวิต</div>
+  <div class="header-line"></div>
+  ${missionUnits.length > 0
+    ? `<p>มีการบิน ${missionUnits.length} หน่วยบิน ได้แก่</p>
+       ${missionUnits.map(u=>`<p style="margin-left:20px;">- หน่วยบิน ${u.id} (${u.loc}) ${u.mission}</p>`).join('')}`
+    : `<p>ไม่มีภารกิจการบินประจำวัน</p>`
+  }
+</div>
+
+<!-- หน้า ๕ : แผนการปฏิบัติทางอากาศ -->
+<div class="page">
+  <div class="page-num">หน้า ๕</div>
+  <div class="section-title">แผนการปฏิบัติทางอากาศประจำวัน</div>
+  <div class="header-line"></div>
+  ${imgSection('1', 'แผนการปฏิบัติทางอากาศ', ocr1)}
+</div>
+
+<!-- หน้า ๖ : ภารกิจติดตามอากาศยาน -->
+<div class="page">
+  <div class="page-num">หน้า ๖</div>
+  <div class="section-title">ภารกิจการติดตามอากาศยานที่สำคัญ</div>
+  <div class="header-line"></div>
+  ${imgSection('2', 'ภารกิจติดตามอากาศยาน', ocr2)}
+</div>
+
+<!-- หน้า ๗ : OSCAR -->
+<div class="page">
+  <div class="page-num">หน้า ๗</div>
+  <div class="section-title">แผนการฝึกบินในเขตพื้นที่รับผิดชอบของ OSCAR
+    ${zoneOSCAR ? `<span style="font-size:13px;font-weight:400;"> จำนวน ${zoneOSCAR.items.filter(x=>x.trim()).length} ภารกิจ</span>` : ''}
+  </div>
+  <div class="header-line"></div>
+  ${zoneItems(zoneOSCAR)}
+  ${ocr3 ? `<div style="margin-top:16px;"><strong>รายละเอียดเพิ่มเติม (จากเอกสารแนบ):</strong><br>${imgSection('3','',ocr3)}</div>` : ''}
+</div>
+
+<!-- หน้า ๘ : FOCAL -->
+<div class="page">
+  <div class="page-num">หน้า ๘</div>
+  <div class="section-title">แผนการฝึกบินในเขตพื้นที่รับผิดชอบของ FOCAL
+    ${zoneFOCAL ? `<span style="font-size:13px;font-weight:400;"> จำนวน ${zoneFOCAL.items.filter(x=>x.trim()).length} ภารกิจ</span>` : ''}
+  </div>
+  <div class="header-line"></div>
+  ${zoneItems(zoneFOCAL)}
+  ${ocr4 ? `<div style="margin-top:16px;"><strong>รายละเอียดเพิ่มเติม (จากเอกสารแนบ):</strong><br>${imgSection('4','',ocr4)}</div>` : ''}
+</div>
+
+<!-- หน้า ๙ : BIGSHELL + ปิด -->
+<div class="page">
+  <div class="page-num">หน้า ๙</div>
+  <div class="section-title">แผนการฝึกบินในเขตพื้นที่รับผิดชอบของ BIGSHELL
+    ${zoneBIG ? `<span style="font-size:13px;font-weight:400;"> จำนวน ${zoneBIG.items.filter(x=>x.trim()).length} ภารกิจ</span>` : ''}
+  </div>
+  <div class="header-line"></div>
+  ${zoneItems(zoneBIG)}
+  ${ocr5 ? `<div style="margin-top:16px;"><strong>รายละเอียดเพิ่มเติม (จากเอกสารแนบ):</strong><br>${imgSection('5','',ocr5)}</div>` : ''}
+
+  <div class="closing">
+    <p>กระผมขอจบการบรรยายสรุปการปฏิบัติงาน</p>
+    <p>ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.</p>
+    <p>ประจำ${dayStr} วันที่ <strong>${dateStr}</strong> เพียงเท่านี้ ครับ</p>
+  </div>
+</div>
+
+</body></html>`);
+  win.document.close();
+}
+
+</script>
+
+<!-- PWA Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('✅ SW registered:', reg.scope))
+      .catch(err => console.warn('SW error:', err));
+  });
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) btn.style.display = 'flex';
+});
+
+function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(result => {
+    if (result.outcome === 'accepted') {
+      showToast('✅ ติดตั้งแอปสำเร็จ!\n🖥️ ค้นหา RTAF RCC บน Desktop ได้เลย', 'green');
+    }
+    deferredPrompt = null;
+    const btn = document.getElementById('pwa-install-btn');
+    if (btn) btn.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>
