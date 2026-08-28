@@ -1282,6 +1282,7 @@ function addImages(n, input) {
     reader.onload = e => {
       imgStore[n].push({ src: e.target.result, zoom: 1, name: file.name });
       renderImgGrid(n);
+      autoSaveLocal();
     };
     reader.readAsDataURL(file);
   });
@@ -1343,6 +1344,7 @@ function resetZoomNew(n, i) {
 function removeImg(n, i) {
   imgStore[n].splice(i, 1);
   renderImgGrid(n);
+  autoSaveLocal();
 }
 
 function toggleView(n) {
@@ -2302,9 +2304,13 @@ function saveAll() {
     savedAt: new Date().toISOString(),
     units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
     dutySlots: dutySlots.map(s => ({ selected:s.selected })),
-    staffDB, zones
+    staffDB, zones, imgStore, viewMode
   };
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    showToast('⚠️ บันทึกรูปภาพไม่สำเร็จ (พื้นที่จัดเก็บเต็ม) กรุณา Export JSON เพื่อสำรองข้อมูล', 'red');
+  }
   exportWord(true);
 }
 
@@ -2340,10 +2346,23 @@ function loadSaved() {
     // restore zones
     if (data.zones && data.zones.length > 0) zones = data.zones;
 
+    // restore attached images (5 sub-tabs ในหน้า "อื่นๆ")
+    if (data.imgStore) {
+      Object.keys(imgStore).forEach(n => {
+        if (Array.isArray(data.imgStore[n])) imgStore[n] = data.imgStore[n];
+      });
+    }
+    if (data.viewMode) {
+      Object.keys(viewMode).forEach(n => {
+        if (data.viewMode[n]) viewMode[n] = data.viewMode[n];
+      });
+    }
+
     // rebuild UI
     buildAircraftTable();
     buildDutyTable();
     renderZones();
+    Object.keys(imgStore).forEach(n => renderImgGrid(n));
 
     if (data.savedAt) {
       const d = new Date(data.savedAt);
@@ -2363,9 +2382,13 @@ function autoSaveLocal() {
     savedAt: new Date().toISOString(),
     units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
     dutySlots: dutySlots.map(s => ({ selected:s.selected })),
-    staffDB, zones
+    staffDB, zones, imgStore, viewMode
   };
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {
+    console.warn('Auto-save ล้มเหลว (พื้นที่จัดเก็บอาจเต็มจากรูปภาพ):', e);
+  }
 }
 
 // Auto-save ทุก 30 วินาที
