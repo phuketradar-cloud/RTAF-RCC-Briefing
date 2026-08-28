@@ -1070,19 +1070,19 @@ body::before {
 
     <!-- DUTY TABLE + STANDBY TABLE (แถวเดียวกัน) -->
     <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
-      <div class="card" style="flex:0 0 auto;">
+      <div class="card" style="flex:1 1 0;min-width:360px;">
         <div class="card-title" style="justify-content:space-between;">
           <span>เจ้าหน้าที่เวร ประจำวันที่ <span id="duty-date-label"></span></span>
           <button onclick="saveDuty()" style="background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;">✅ บันทึกเวร</button>
         </div>
         <div style="overflow-x:auto;">
-          <table class="data-table" style="width:auto;min-width:0;">
+          <table class="data-table">
             <thead>
               <tr>
                 <th style="width:40px">ลำดับ</th>
                 <th style="width:190px">ตำแหน่ง</th>
                 <th style="width:90px">สถานที่</th>
-                <th style="width:300px">ชื่อ-นามสกุล (เลือกจากฐานข้อมูล)</th>
+                <th style="min-width:160px">ชื่อ-นามสกุล (เลือกจากฐานข้อมูล)</th>
                 <th style="width:150px;white-space:nowrap;">เบอร์โทร</th>
               </tr>
             </thead>
@@ -1092,16 +1092,16 @@ body::before {
       </div>
 
       <!-- STANDBY TABLE -->
-      <div class="card" style="flex:0 0 auto;">
+      <div class="card" style="flex:1 1 0;min-width:360px;">
         <div class="card-title">
           <span>เจ้าหน้าที่สำรอง (Standby)</span>
         </div>
         <div style="overflow-x:auto;">
-          <table class="data-table" style="width:auto;min-width:0;">
+          <table class="data-table">
             <thead>
               <tr>
                 <th style="width:40px">ลำดับ</th>
-                <th style="width:300px">ชื่อ-นามสกุล (เลือกจากฐานข้อมูล)</th>
+                <th style="min-width:160px">ชื่อ-นามสกุล (เลือกจากฐานข้อมูล)</th>
                 <th style="width:150px;white-space:nowrap;">เบอร์โทร</th>
               </tr>
             </thead>
