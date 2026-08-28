@@ -1079,13 +1079,32 @@ body::before {
           <thead>
             <tr>
               <th style="width:40px">ลำดับ</th>
-              <th>ตำแหน่ง</th>
-              <th>สถานที่</th>
+              <th style="width:190px">ตำแหน่ง</th>
+              <th style="width:90px">สถานที่</th>
               <th style="min-width:220px">ชื่อ-นามสกุล (เลือกจากฐานข้อมูล)</th>
-              <th>เบอร์โทร</th>
+              <th style="width:150px;white-space:nowrap;">เบอร์โทร</th>
             </tr>
           </thead>
           <tbody id="duty-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- STANDBY TABLE -->
+    <div class="card">
+      <div class="card-title">
+        <span>เจ้าหน้าที่สำรอง (Standby)</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:40px">ลำดับ</th>
+              <th style="min-width:220px">ชื่อ-นามสกุล (เลือกจากฐานข้อมูล)</th>
+              <th style="width:150px;white-space:nowrap;">เบอร์โทร</th>
+            </tr>
+          </thead>
+          <tbody id="standby-tbody"></tbody>
         </table>
       </div>
     </div>
@@ -1705,6 +1724,12 @@ const dutySlots = [
   { role:'จนท.ค้นหาและช่วยชีวิต', loc:'AOC.',      selected:-1 },
 ];
 
+const standbySlots = [
+  { selected:-1 },
+  { selected:-1 },
+  { selected:-1 },
+];
+
 // ── FIX TEL — เติม 0 นำหน้าเบอร์โทรเสมอ ──
 function fixTel(tel) {
   if (!tel || tel === '—') return '—';
@@ -1743,6 +1768,41 @@ function dutyChanged(idx, val) {
   dutySlots[idx].selected = i;
   const tel = (i >= 0 && staffDB[i]) ? fixTel(staffDB[i].tel) : '—';
   const telEl = document.getElementById('duty-tel-' + idx);
+  telEl.innerHTML = tel !== '—'
+    ? `<span style="color:#ff69b4">📞</span> ${tel}`
+    : '—';
+  autoSaveLocal();
+}
+
+function buildStandbyTable() {
+  const tbody = document.getElementById('standby-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  standbySlots.forEach((slot, i) => {
+    const opts = [
+      `<option value="-1">— ไม่มี —</option>`,
+      ...staffDB.map((s,j) =>
+        `<option value="${j}" ${slot.selected===j?'selected':''}>${s.name}</option>`)
+    ].join('');
+    const tel = slot.selected >= 0 && staffDB[slot.selected] ? fixTel(staffDB[slot.selected].tel) : '—';
+    tbody.innerHTML += `
+      <tr>
+        <td style="text-align:center;font-family:'Share Tech Mono',monospace;">${i+1}</td>
+        <td>
+          <select class="duty-select" id="standby-sel-${i}" onchange="standbyChanged(${i},this.value)">
+            ${opts}
+          </select>
+        </td>
+        <td class="duty-tel-cell" id="standby-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">📞</span> ${tel}` : '—'}</td>
+      </tr>`;
+  });
+}
+
+function standbyChanged(idx, val) {
+  const i = parseInt(val);
+  standbySlots[idx].selected = i;
+  const tel = (i >= 0 && staffDB[i]) ? fixTel(staffDB[i].tel) : '—';
+  const telEl = document.getElementById('standby-tel-' + idx);
   telEl.innerHTML = tel !== '—'
     ? `<span style="color:#ff69b4">📞</span> ${tel}`
     : '—';
@@ -1806,7 +1866,9 @@ function loadCSV(input) {
       document.getElementById('csv-status').style.color = 'var(--green)';
       // Reset all slots to first person
       dutySlots.forEach(s => s.selected = 0);
+      standbySlots.forEach(s => s.selected = -1);
       buildDutyTable();
+      buildStandbyTable();
       // บันทึกลง LocalStorage ทันทีหลังโหลด CSV
       setTimeout(autoSaveLocal, 200);
     } else {
@@ -1818,6 +1880,7 @@ function loadCSV(input) {
 }
 
 buildDutyTable();
+buildStandbyTable();
 
 // ── BUILD AIRCRAFT TABLE ──
 function buildAircraftTable() {
@@ -2261,7 +2324,7 @@ async function loadFromServer() {
     if (data.staffDB?.length > 0) staffDB = data.staffDB.map(s => ({ ...s, tel: fixTel(s.tel) }));
     if (data.dutySlots) data.dutySlots.forEach((s,i) => { if (dutySlots[i]) dutySlots[i].selected = s.selected; });
     if (data.zones?.length > 0) zones = data.zones;
-    buildAircraftTable(); buildDutyTable(); renderZones();
+    buildAircraftTable(); buildDutyTable(); buildStandbyTable(); renderZones();
     setServerStatus(`โหลดแล้ว: ${data.savedAtTH || ''}`, '#00d4ff');
     return true;
   } catch(e) {
@@ -2289,6 +2352,10 @@ function syncAllData() {
     const sel = document.getElementById('duty-sel-' + i);
     if (sel) slot.selected = parseInt(sel.value);
   });
+  standbySlots.forEach((slot, i) => {
+    const sel = document.getElementById('standby-sel-' + i);
+    if (sel) slot.selected = parseInt(sel.value);
+  });
   zones.forEach(z => {
     const body = document.getElementById('zb-' + z.id);
     if (body) {
@@ -2304,6 +2371,7 @@ function saveAll() {
     savedAt: new Date().toISOString(),
     units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
     dutySlots: dutySlots.map(s => ({ selected:s.selected })),
+    standbySlots: standbySlots.map(s => ({ selected:s.selected })),
     staffDB, zones, imgStore, viewMode
   };
   try {
@@ -2343,6 +2411,11 @@ function loadSaved() {
       data.dutySlots.forEach((s, i) => { if (dutySlots[i]) dutySlots[i].selected = s.selected; });
     }
 
+    // restore standby slots
+    if (data.standbySlots) {
+      data.standbySlots.forEach((s, i) => { if (standbySlots[i]) standbySlots[i].selected = s.selected; });
+    }
+
     // restore zones
     if (data.zones && data.zones.length > 0) zones = data.zones;
 
@@ -2361,6 +2434,7 @@ function loadSaved() {
     // rebuild UI
     buildAircraftTable();
     buildDutyTable();
+    buildStandbyTable();
     renderZones();
     Object.keys(imgStore).forEach(n => renderImgGrid(n));
 
@@ -2382,6 +2456,7 @@ function autoSaveLocal() {
     savedAt: new Date().toISOString(),
     units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
     dutySlots: dutySlots.map(s => ({ selected:s.selected })),
+    standbySlots: standbySlots.map(s => ({ selected:s.selected })),
     staffDB, zones, imgStore, viewMode
   };
   try {
@@ -2430,6 +2505,10 @@ function exportJSON() {
     const sel = document.getElementById('duty-sel-' + i);
     if (sel) slot.selected = parseInt(sel.value);
   });
+  standbySlots.forEach((slot, i) => {
+    const sel = document.getElementById('standby-sel-' + i);
+    if (sel) slot.selected = parseInt(sel.value);
+  });
   zones.forEach(z => {
     const body = document.getElementById('zb-' + z.id);
     if (body) {
@@ -2451,6 +2530,7 @@ function exportJSON() {
     dateLabel: `${d}/${mo}/${y} ${h}:${m}`,
     units: units.map(u => ({ id:u.id, status:u.status, reason:u.reason, mission:u.mission, comm:u.comm||'ok', userEdited:u.userEdited||false })),
     dutySlots: dutySlots.map(s => ({ selected:s.selected })),
+    standbySlots: standbySlots.map(s => ({ selected:s.selected })),
     staffDB,
     zones
   };
@@ -2487,10 +2567,14 @@ function importJSON(input) {
       if (data.dutySlots) {
         data.dutySlots.forEach((s, i) => { if (dutySlots[i]) dutySlots[i].selected = s.selected; });
       }
+      if (data.standbySlots) {
+        data.standbySlots.forEach((s, i) => { if (standbySlots[i]) standbySlots[i].selected = s.selected; });
+      }
       if (data.zones && data.zones.length > 0) zones = data.zones;
 
       buildAircraftTable();
       buildDutyTable();
+      buildStandbyTable();
       renderZones();
 
       showToast(`✅ โหลดข้อมูลจาก ${file.name} แล้ว\n📅 บันทึกเมื่อ: ${data.dateLabel || '—'}`, 'cyan');
