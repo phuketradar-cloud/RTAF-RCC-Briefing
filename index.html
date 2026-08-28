@@ -904,6 +904,109 @@ body::before {
 </head>
 <body class="theme-dark">
 
+<!-- ═══ ACCESS GATE ═══ -->
+<style>
+#access-gate {
+  position: fixed; inset: 0; z-index: 999999;
+  background: #0a1628;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sarabun', sans-serif;
+}
+#access-gate.hidden { display: none; }
+.gate-box {
+  width: 340px; max-width: 90vw;
+  background: rgba(15,33,68,0.92);
+  border: 1px solid rgba(0,212,255,0.3);
+  padding: 32px 28px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0,212,255,0.15);
+}
+.gate-box .icon { font-size: 2.6rem; margin-bottom: 8px; }
+.gate-box h2 { color: #00d4ff; font-size: 1.05rem; margin-bottom: 4px; }
+.gate-box .sub { color: #8899aa; font-size: 0.78rem; margin-bottom: 20px; }
+.gate-box input {
+  width: 100%; background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.3); color: #e8f4f8;
+  font-family: 'Share Tech Mono', monospace; font-size: 1rem;
+  letter-spacing: 4px; text-align: center;
+  padding: 10px 8px; outline: none; margin-bottom: 12px;
+}
+.gate-box input:focus { border-color: #00d4ff; background: rgba(0,212,255,0.1); }
+.gate-box button {
+  width: 100%; background: rgba(0,212,255,0.15);
+  border: 1px solid #00d4ff; color: #00d4ff;
+  font-family: 'Sarabun', sans-serif; font-size: 0.9rem;
+  padding: 9px; cursor: pointer; transition: all 0.2s;
+}
+.gate-box button:hover { background: rgba(0,212,255,0.25); }
+.gate-box .err {
+  color: #ff4444; font-size: 0.78rem; margin-top: 10px; min-height: 1em;
+}
+.gate-box .warn {
+  color: #ffd700; font-size: 0.68rem; margin-top: 16px; line-height: 1.5; opacity: 0.75;
+}
+</style>
+<div id="access-gate">
+  <div class="gate-box">
+    <div class="icon">🔒</div>
+    <h2>RTAF RCC — ระบบจำกัดการเข้าถึง</h2>
+    <div class="sub">กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน</div>
+    <input type="password" id="gate-pw" placeholder="••••••" autocomplete="off" maxlength="32"/>
+    <button onclick="checkGatePw()">🔓 เข้าสู่ระบบ</button>
+    <div class="err" id="gate-err"></div>
+    <div class="warn">⚠️ ข้อมูลในระบบนี้เป็นข้อมูลราชการ ห้ามเผยแพร่โดยไม่ได้รับอนุญาต</div>
+  </div>
+</div>
+<script>
+(function(){
+  var GATE_HASH = '89cd6111b59128e33303eb2497497b90fdba6ad243945588e9583d69087a1093';
+  var GATE_SESSION_KEY = 'rtaf_gate_unlocked';
+
+  async function sha256Hex(text){
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  }
+
+  function unlockGate(){
+    var gate = document.getElementById('access-gate');
+    if (gate) gate.classList.add('hidden');
+    try { sessionStorage.setItem(GATE_SESSION_KEY, '1'); } catch(e) {}
+  }
+
+  window.checkGatePw = async function(){
+    var input = document.getElementById('gate-pw');
+    var err = document.getElementById('gate-err');
+    var val = input.value || '';
+    var hash = await sha256Hex(val);
+    if (hash === GATE_HASH) {
+      err.textContent = '';
+      unlockGate();
+    } else {
+      err.textContent = 'รหัสผ่านไม่ถูกต้อง';
+      input.value = '';
+      input.focus();
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var input = document.getElementById('gate-pw');
+    if (!input) return;
+    var already = false;
+    try { already = sessionStorage.getItem(GATE_SESSION_KEY) === '1'; } catch(e) {}
+    if (already) { unlockGate(); return; }
+    input.focus();
+    input.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') window.checkGatePw();
+    });
+  });
+})();
+</script>
+<!-- ═══ END ACCESS GATE ═══ -->
+
 <!-- Theme Toggle Button (ขวาล่าง) -->
 <button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="เปลี่ยนธีม">🌙</button>
 
