@@ -900,6 +900,72 @@ body::before {
   }
   #print-all-pages { display: block !important; }
 }
+
+/* ── ICAO EMERGENCY PHASE ── */
+.icao-card { --ph: #00ff88; }
+.icao-card[data-phase="INCERFA"]  { --ph: #ffd700; border-color: rgba(255,215,0,0.6) !important; }
+.icao-card[data-phase="ALERFA"]   { --ph: #ff8800; border-color: rgba(255,136,0,0.7) !important; }
+.icao-card[data-phase="DETRESFA"] { --ph: #ff4444; border-color: rgba(255,68,68,0.8) !important; animation: icaoPulse 1.6s ease-in-out infinite; }
+@keyframes icaoPulse { 0%,100% { box-shadow: 0 0 0 rgba(255,68,68,0); } 50% { box-shadow: 0 0 22px rgba(255,68,68,0.55); } }
+.icao-phase-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.icao-btn {
+  --c: #00ff88;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.15); color:var(--gray);
+  padding:8px 6px; cursor:pointer; font-family:'Sarabun',sans-serif; font-size:0.92rem; font-weight:700; transition:all .15s;
+}
+.icao-btn small { font-size:0.7rem; font-weight:400; opacity:.85; }
+.icao-btn[data-phase="INCERFA"]  { --c:#ffd700; }
+.icao-btn[data-phase="ALERFA"]   { --c:#ff8800; }
+.icao-btn[data-phase="DETRESFA"] { --c:#ff4444; }
+.icao-btn:hover { border-color:var(--c); color:var(--c); }
+.icao-btn.active { background:var(--c); border-color:var(--c); color:#0a1628; }
+.icao-banner {
+  margin-top:10px; padding:10px 14px; border-left:4px solid var(--ph);
+  background:rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+}
+.icao-banner .ph-name { font-family:'Share Tech Mono',monospace; font-size:1.3rem; font-weight:700; color:var(--ph); }
+.icao-banner .ph-desc { font-size:0.85rem; color:var(--white); }
+.icao-banner .ph-time { font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--gray); text-align:right; }
+.icao-banner .ph-time b { color:var(--ph); font-size:1.1rem; }
+.icao-body { display:none; grid-template-columns:1.2fr 1fr; gap:14px; margin-top:12px; }
+.icao-card[data-phase="INCERFA"] .icao-body,
+.icao-card[data-phase="ALERFA"] .icao-body,
+.icao-card[data-phase="DETRESFA"] .icao-body { display:grid; }
+.icao-fields { display:grid; grid-template-columns:1fr 1fr; gap:8px 10px; align-content:start; }
+.icao-fields label { display:flex; flex-direction:column; gap:3px; font-size:0.75rem; color:var(--gray); }
+.icao-fields .icao-wide { grid-column:1 / -1; }
+.icao-fields input, .icao-fields textarea {
+  background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.25); color:var(--white);
+  padding:6px 8px; font-family:'Sarabun',sans-serif; font-size:0.85rem; resize:vertical;
+}
+.icao-fields input:focus, .icao-fields textarea:focus { outline:none; border-color:var(--ph); }
+.icao-criteria { font-size:0.78rem; color:var(--white); background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; }
+.icao-criteria b { color:var(--ph); }
+.icao-criteria ol { margin:4px 0 0 18px; line-height:1.5; }
+.icao-log-head { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.78rem; color:var(--accent); }
+.icao-log-head button { background:none; border:1px solid rgba(255,255,255,0.15); color:var(--gray); font-size:0.7rem; padding:2px 8px; cursor:pointer; font-family:'Sarabun',sans-serif; }
+.icao-log-head button.confirm { border-color:#ff4444; color:#ff4444; }
+.icao-log { max-height:150px; overflow-y:auto; margin-top:4px; font-size:0.78rem; }
+.icao-log div { padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--white); }
+.icao-log .t { font-family:'Share Tech Mono',monospace; color:var(--gray); margin-right:6px; }
+.icao-log .p { font-weight:700; margin-right:6px; }
+.icao-pill {
+  display:none; cursor:pointer; flex-shrink:0; white-space:nowrap; margin:0 4px; align-self:center; line-height:1.2;
+  padding:4px 10px; font-family:'Share Tech Mono',monospace; font-size:0.78rem; font-weight:700; color:#0a1628;
+}
+.icao-pill.on { display:block; }
+.icao-pill[data-phase="INCERFA"]  { background:#ffd700; }
+.icao-pill[data-phase="ALERFA"]   { background:#ff8800; }
+.icao-pill[data-phase="DETRESFA"] { background:#ff4444; color:#fff; animation: icaoBlink 1s step-end infinite; }
+@keyframes icaoBlink { 50% { opacity:.45; } }
+body.theme-light .icao-banner .ph-desc, body.theme-light .icao-criteria, body.theme-light .icao-log div,
+body.theme-light .icao-fields input, body.theme-light .icao-fields textarea { color:#1a2a3a !important; }
+@media (max-width: 860px) {
+  .icao-phase-row { grid-template-columns:repeat(2,1fr); }
+  .icao-body { grid-template-columns:1fr !important; }
+  .icao-fields { grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body class="theme-dark">
@@ -943,6 +1009,7 @@ body::before {
     </div>
   </div>
   <div class="app-date">📅 <span id="header-date">7 เม.ย. 2569</span></div>
+  <div id="icao-header-pill" class="icao-pill" onclick="icaoGoto()" title="สถานะเหตุการณ์ตามมาตรฐาน ICAO"></div>
   <div id="server-status" style="font-size:0.72rem;padding:0 10px;white-space:nowrap;color:#8899aa;flex-shrink:0;">☁️ กำลังเชื่อมต่อ...</div>
   <!-- PWA Install Button (จะแสดงเมื่อติดตั้งได้) -->
   <button id="pwa-install-btn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;flex-shrink:0;">
@@ -963,6 +1030,41 @@ body::before {
       <div style="text-align:right;">
         <div style="font-size:0.75rem;color:var(--gray);">🌐 Bangkok Time (UTC+7) — realtime</div>
         <div id="clock-day" style="font-size:0.85rem;color:var(--yellow);margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <!-- ICAO EMERGENCY PHASE (Annex 11 / Annex 12) -->
+    <div class="card icao-card" id="icao-card" style="margin-bottom:14px;">
+      <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span>🚨 สถานะเหตุการณ์ตามมาตรฐาน ICAO (Emergency Phases)</span>
+        <span style="font-size:0.72rem;color:var(--gray);font-weight:400;">อ้างอิง ICAO Annex 11 ข้อ 5.2 / Annex 12 / IAMSAR</span>
+      </div>
+
+      <div class="icao-phase-row">
+        <button class="icao-btn" data-phase="NORMAL"   onclick="icaoSetPhase('NORMAL')">✅ ปกติ<small>NORMAL</small></button>
+        <button class="icao-btn" data-phase="INCERFA"  onclick="icaoSetPhase('INCERFA')">⚠️ INCERFA<small>ขั้นไม่แน่นอน</small></button>
+        <button class="icao-btn" data-phase="ALERFA"   onclick="icaoSetPhase('ALERFA')">🟠 ALERFA<small>ขั้นเตรียมพร้อม</small></button>
+        <button class="icao-btn" data-phase="DETRESFA" onclick="icaoSetPhase('DETRESFA')">🆘 DETRESFA<small>ขั้นอันตราย</small></button>
+      </div>
+
+      <div class="icao-banner" id="icao-banner"></div>
+
+      <div class="icao-body" id="icao-body">
+        <div class="icao-fields">
+          <label>อากาศยาน / Callsign<input id="icao-callsign" placeholder="เช่น RTAF123 / HS-XXX" oninput="icaoSaveFields()"/></label>
+          <label>แบบ / จำนวนคนบนเครื่อง<input id="icao-type" placeholder="เช่น EC725 / POB 6" oninput="icaoSaveFields()"/></label>
+          <label>ตำแหน่งสุดท้ายที่ทราบ (LKP)<input id="icao-lkp" placeholder="พิกัด / จุดรายงาน" oninput="icaoSaveFields()"/></label>
+          <label>ติดต่อครั้งสุดท้าย (เวลา)<input id="icao-lastcontact" placeholder="เช่น 0830 น. / 0130Z" oninput="icaoSaveFields()"/></label>
+          <label class="icao-wide">รายละเอียด / การดำเนินการ<textarea id="icao-notes" rows="2" placeholder="หน่วยที่แจ้ง, การประสานงาน, ทรัพยากรที่สั่งการ ..." oninput="icaoSaveFields()"></textarea></label>
+        </div>
+        <div class="icao-side">
+          <div class="icao-criteria" id="icao-criteria"></div>
+          <div class="icao-log-head">
+            <span>บันทึกการเปลี่ยนสถานะ</span>
+            <button onclick="icaoClearLog(this)">ล้างบันทึก</button>
+          </div>
+          <div class="icao-log" id="icao-log"></div>
+        </div>
       </div>
     </div>
 
@@ -3124,6 +3226,155 @@ async function exportPDF() {
   win.document.close();
 }
 
+</script>
+
+<!-- ICAO EMERGENCY PHASE -->
+<script>
+// ขั้นตอนภาวะฉุกเฉินตาม ICAO Annex 11 ข้อ 5.2.1 (INCERFA / ALERFA / DETRESFA)
+const ICAO_KEY = 'rtaf_rcc_icao';
+const ICAO_PHASES = {
+  NORMAL:   { color:'#00ff88', th:'สถานการณ์ปกติ', en:'No emergency phase declared', criteria:null },
+  INCERFA:  { color:'#ffd700', th:'ขั้นไม่แน่นอน', en:'Uncertainty Phase',
+    criteria:[
+      'ไม่ได้รับการติดต่อจากอากาศยานภายใน 30 นาที หลังเวลาที่ควรได้รับการติดต่อ หรือนับจากเวลาที่พยายามติดต่อครั้งแรกแล้วไม่สำเร็จ (ใช้เวลาที่ถึงก่อน)',
+      'อากาศยานไม่มาถึงภายใน 30 นาที หลังเวลาคาดว่าจะถึง (ETA) ที่แจ้งไว้ล่าสุดหรือที่หน่วย ATS ประมาณไว้ (ใช้เวลาที่ช้ากว่า)',
+    ], except:'ยกเว้นไม่มีข้อสงสัยเกี่ยวกับความปลอดภัยของอากาศยานและผู้โดยสาร' },
+  ALERFA:   { color:'#ff8800', th:'ขั้นเตรียมพร้อม', en:'Alert Phase',
+    criteria:[
+      'ต่อจากขั้น INCERFA แล้ว ความพยายามติดต่อหรือสอบถามจากแหล่งอื่นไม่ได้ข่าวของอากาศยาน',
+      'อากาศยานได้รับอนุญาตให้ลงแล้ว แต่ไม่ลงภายใน 5 นาทีหลังเวลาคาดว่าจะลง และติดต่อไม่ได้',
+      'ได้รับข้อมูลว่าประสิทธิภาพการทำงานของอากาศยานบกพร่อง แต่ยังไม่ถึงขั้นน่าจะต้องลงฉุกเฉิน',
+      'ทราบหรือเชื่อว่าอากาศยานถูกแทรกแซงโดยมิชอบด้วยกฎหมาย (Unlawful interference)',
+    ], except:'ยกเว้นมีหลักฐานที่คลายความกังวลเรื่องความปลอดภัยของอากาศยานและผู้โดยสาร' },
+  DETRESFA: { color:'#ff4444', th:'ขั้นอันตราย', en:'Distress Phase',
+    criteria:[
+      'ต่อจากขั้น ALERFA แล้ว ความพยายามติดต่อและการสอบถามที่กว้างขวางขึ้นไม่สำเร็จ บ่งชี้ว่าอากาศยานน่าจะประสบภัย',
+      'คาดว่าเชื้อเพลิงบนอากาศยานหมดแล้ว หรือไม่เพียงพอที่จะไปถึงที่ปลอดภัย',
+      'ได้รับข้อมูลว่าประสิทธิภาพการทำงานของอากาศยานบกพร่องจนน่าจะต้องลงฉุกเฉิน',
+      'ได้รับข้อมูลหรือค่อนข้างแน่ใจว่าอากาศยานกำลังจะลงหรือได้ลงฉุกเฉินแล้ว',
+    ], except:'ยกเว้นค่อนข้างแน่ใจว่าอากาศยานและผู้โดยสารไม่ได้อยู่ในอันตรายร้ายแรงและไม่ต้องการความช่วยเหลือทันที' },
+};
+
+let icaoState = { phase:'NORMAL', since:null, fields:{}, log:[] };
+try { Object.assign(icaoState, JSON.parse(localStorage.getItem(ICAO_KEY) || '{}')); } catch(e) {}
+
+function icaoPersist() {
+  try { localStorage.setItem(ICAO_KEY, JSON.stringify(icaoState)); } catch(e) {}
+}
+
+function icaoFmt(ts) {
+  // เวลาไทย (UTC+7) ให้ตรงกับนาฬิกาของระบบ พร้อมเวลา UTC (Z) แบบการบิน
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2, '0');
+  const th = new Date(ts + 7 * 3600000);
+  return `${p(th.getUTCDate())}/${p(th.getUTCMonth()+1)} ${p(th.getUTCHours())}:${p(th.getUTCMinutes())} น. (${p(d.getUTCHours())}${p(d.getUTCMinutes())}Z)`;
+}
+
+function icaoEsc(s) {
+  return String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+}
+
+function icaoSetPhase(phase) {
+  if (phase === icaoState.phase) return;
+  const prev = icaoState.phase;
+  icaoState.phase = phase;
+  icaoState.since = phase === 'NORMAL' ? null : Date.now();
+  const who = icaoState.fields.callsign ? ` — ${icaoState.fields.callsign}` : '';
+  icaoState.log.unshift({ t: Date.now(), phase, text: phase === 'NORMAL' ? `ยุติเหตุการณ์ (จาก ${prev})${who}` : `ประกาศ ${phase}${prev !== 'NORMAL' ? ` (จาก ${prev})` : ''}${who}` });
+  if (phase === 'NORMAL') icaoState.fields = {};
+  icaoPersist();
+  icaoRender();
+  if (typeof showToast === 'function') {
+    showToast(phase === 'NORMAL' ? '✅ ยุติเหตุการณ์ กลับสู่สถานะปกติ' : `🚨 ประกาศ ${phase} — ${ICAO_PHASES[phase].th}`, phase === 'NORMAL' ? 'green' : 'red');
+  }
+}
+
+function icaoSaveFields() {
+  ['callsign','type','lkp','lastcontact','notes'].forEach(k => {
+    const el = document.getElementById('icao-' + k);
+    if (el) icaoState.fields[k] = el.value;
+  });
+  icaoPersist();
+  icaoRenderPill();
+}
+
+function icaoClearLog(btn) {
+  // กดสองครั้งเพื่อยืนยัน
+  if (!btn.classList.contains('confirm')) {
+    btn.classList.add('confirm'); btn.textContent = 'กดอีกครั้งเพื่อยืนยัน';
+    setTimeout(() => { btn.classList.remove('confirm'); btn.textContent = 'ล้างบันทึก'; }, 3000);
+    return;
+  }
+  icaoState.log = [];
+  icaoPersist();
+  icaoRender();
+  btn.classList.remove('confirm'); btn.textContent = 'ล้างบันทึก';
+}
+
+function icaoGoto() {
+  const tab = document.querySelector('.nav-tab');
+  if (tab) tab.click();
+  const card = document.getElementById('icao-card');
+  if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function icaoElapsed() {
+  if (!icaoState.since) return '';
+  const s = Math.floor((Date.now() - icaoState.since) / 1000);
+  const p = n => String(n).padStart(2, '0');
+  return `${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`;
+}
+
+function icaoRenderPill() {
+  const pill = document.getElementById('icao-header-pill');
+  if (!pill) return;
+  const ph = icaoState.phase;
+  pill.dataset.phase = ph;
+  pill.classList.toggle('on', ph !== 'NORMAL');
+  pill.textContent = ph === 'NORMAL' ? '' : `🚨 ${ph} ${icaoElapsed()}`;
+  pill.title = ph === 'NORMAL' ? '' : `${ICAO_PHASES[ph].th}${icaoState.fields.callsign ? ' — ' + icaoState.fields.callsign : ''} (คลิกเพื่อดูรายละเอียด)`;
+}
+
+function icaoRender() {
+  const card = document.getElementById('icao-card');
+  if (!card) return;
+  const ph = icaoState.phase;
+  const info = ICAO_PHASES[ph];
+  card.dataset.phase = ph;
+  document.querySelectorAll('.icao-btn').forEach(b => b.classList.toggle('active', b.dataset.phase === ph));
+
+  document.getElementById('icao-banner').innerHTML = `
+    <div>
+      <div class="ph-name">${ph}</div>
+      <div class="ph-desc">${info.th} — ${info.en}</div>
+    </div>
+    <div class="ph-time">${icaoState.since
+      ? `ประกาศเมื่อ ${icaoFmt(icaoState.since)}<br>ผ่านไป <b id="icao-elapsed">${icaoElapsed()}</b>`
+      : 'ไม่มีเหตุการณ์ที่ประกาศ'}</div>`;
+
+  document.getElementById('icao-criteria').innerHTML = info.criteria
+    ? `<b>เกณฑ์ประกาศ ${ph}</b> (อย่างใดอย่างหนึ่ง)<ol>${info.criteria.map(c => `<li>${c}</li>`).join('')}</ol><div style="margin-top:4px;color:var(--gray);">* ${info.except}</div>`
+    : '';
+
+  ['callsign','type','lkp','lastcontact','notes'].forEach(k => {
+    const el = document.getElementById('icao-' + k);
+    if (el && document.activeElement !== el) el.value = icaoState.fields[k] || '';
+  });
+
+  document.getElementById('icao-log').innerHTML = icaoState.log.length
+    ? icaoState.log.map(l => `<div><span class="t">${icaoFmt(l.t)}</span><span class="p" style="color:${ICAO_PHASES[l.phase].color}">${l.phase}</span>${icaoEsc(l.text)}</div>`).join('')
+    : '<div style="color:var(--gray);">ยังไม่มีบันทึก</div>';
+
+  icaoRenderPill();
+}
+
+icaoRender();
+setInterval(() => {
+  if (!icaoState.since) return;
+  const el = document.getElementById('icao-elapsed');
+  if (el) el.textContent = icaoElapsed();
+  icaoRenderPill();
+}, 1000);
 </script>
 
 <!-- PWA Service Worker -->
