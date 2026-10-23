@@ -22,7 +22,12 @@ copy('jspdf/dist/jspdf.umd.min.js', 'jspdf.umd.min.js');
 // ฟอนต์: คัดเฉพาะน้ำหนักที่หน้าเว็บใช้
 const fontDir = path.join(VENDOR, 'fonts');
 const fontCss = [];
-for (const [pkg, weights] of [['sarabun', [300, 400, 600, 700]], ['share-tech-mono', [400]]]) {
+for (const [pkg, weights] of [
+  ['sarabun', [300, 400, 600, 700]],
+  ['share-tech-mono', [400]],
+  ['cinzel', [600, 700]],
+  ['noto-serif-thai', [500, 600, 700]],
+]) {
   fs.cpSync(path.join(NM, '@fontsource', pkg, 'files'), path.join(fontDir, pkg, 'files'), { recursive: true });
   for (const w of weights) {
     fs.copyFileSync(path.join(NM, '@fontsource', pkg, `${w}.css`), path.join(fontDir, pkg, `${w}.css`));

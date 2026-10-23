@@ -17,7 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Share+Tech+Mono&family=Cinzel:wght@600;700&family=Noto+Serif+Thai:wght@500;600;700&display=swap');
 
 :root {
   --navy: #0a1628; --navy2: #0f2144;
@@ -436,6 +436,14 @@ body::before {
 }
 .nav-tab:hover { color: var(--white); background: rgba(0,212,255,0.05); }
 .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(0,212,255,0.06); }
+
+/* จอเล็ก: แท็บเมนูขึ้นแถวใหม่เต็มความกว้าง (เลื่อนซ้าย-ขวาได้) แทนการถูกบีบจนมองไม่เห็น */
+@media (max-width: 860px) {
+  .app-header { flex-wrap: wrap; padding: 0 12px; row-gap: 4px; }
+  .app-logo { margin-right: auto; padding: 8px 0; }
+  .nav-tabs { order: 10; flex: 1 0 100%; min-height: 42px; }
+  .nav-tab { padding: 0 12px; }
+}
 
 .app-date {
   padding: 12px 0;
@@ -966,13 +974,422 @@ body.theme-light .icao-fields input, body.theme-light .icao-fields textarea { co
   .icao-body { grid-template-columns:1fr !important; }
   .icao-fields { grid-template-columns:1fr; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   THEME: DARK FANTASY — ธีมหลัก (กรอบโลหะ gothic + อัญมณีมรกต)
+   แก้สีทั้งธีมได้ที่ token ด้านล่าง (--df-*)
+   ══════════════════════════════════════════════════════════════ */
+body.theme-fantasy {
+  /* ── Palette tokens ── */
+  --df-obsidian: #101310;
+  --df-iron: #20251F;
+  --df-iron-hi: #2E352C;
+  --df-iron-lo: #151915;
+  --df-forest: #183923;
+  --df-emerald: #45D66A;
+  --df-emerald-dk: #1F7A39;
+  --df-gem-hi: #B8FFB5;
+  --df-bronze: #79552F;
+  --df-gold: #C7A45A;
+  --df-stone: #777966;
+  --df-ivory: #E7E4D1;
+  --df-muted-text: #A3A48E;     /* ข้อความรอง (stone ที่สว่างขึ้นเพื่อ contrast ≥ 4.5:1) */
+  --df-amber: #E2A23B;
+  --df-teal: #4FC8C0;
+  --df-danger: #E5533D;
+
+  /* ── Typography tokens ── */
+  --df-font-display: 'Cinzel', 'Noto Serif Thai', 'Sarabun', serif;
+  --df-font-body: 'Sarabun', sans-serif;
+  --df-font-mono: 'Share Tech Mono', monospace;
+
+  /* ── Effect tokens ── */
+  --df-rim: 0 0 0 1px #070907, 0 0 0 3px var(--df-iron-hi), 0 0 0 4px rgba(121,85,47,0.75);
+  --df-bevel: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.6);
+  --df-recess: inset 0 2px 5px rgba(0,0,0,0.75), inset 0 0 0 1px rgba(0,0,0,0.5);
+  --df-glow: 0 0 10px rgba(69,214,106,0.35);
+  --df-focus: 0 0 0 2px var(--df-obsidian), 0 0 0 4px var(--df-emerald);
+  --df-radius: 3px;
+
+  /* ── map ตัวแปรเดิมของระบบ → ธีมนี้ (สไตล์เดิมที่ใช้ var() จะเปลี่ยนตาม) ── */
+  --navy: var(--df-obsidian); --navy2: var(--df-iron);
+  --bg: var(--df-obsidian); --bg2: var(--df-iron);
+  --accent: var(--df-emerald); --accent2: var(--df-gold);
+  --green: var(--df-emerald); --yellow: var(--df-amber);
+  --red: var(--df-danger); --orange: #E07B2E;
+  --white: var(--df-ivory); --gray: var(--df-muted-text);
+  --text: var(--df-ivory); --text2: var(--df-muted-text);
+  --border: rgba(121,85,47,0.5);
+
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(24,57,35,0.55), transparent 55%),
+    radial-gradient(ellipse at 50% 120%, rgba(0,0,0,0.9), transparent 60%),
+    var(--df-obsidian) !important;
+  color: var(--df-ivory) !important;
+  font-family: var(--df-font-body);
+}
+body.theme-fantasy::before {
+  /* ลายเส้นทแยงจาง ๆ แบบผิวหิน — ไม่รบกวนการอ่าน */
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 9px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%) !important;
+  background-size: auto !important;
+}
+body.theme-fantasy ::selection { background: rgba(69,214,106,0.35); color: #fff; }
+
+/* ── Main frame: header ── */
+body.theme-fantasy .app-header {
+  background:
+    linear-gradient(180deg, #262c24 0%, #1a1f19 55%, #121511 100%) !important;
+  border-bottom: 0 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 1px 0 #070907, 0 3px 0 var(--df-iron-hi), 0 4px 0 var(--df-bronze),
+    0 5px 0 #070907, 0 10px 24px rgba(0,0,0,0.7) !important;
+  margin-bottom: 5px;
+}
+body.theme-fantasy .app-header::after {
+  /* อัญมณีมรกตกลางขอบล่าง — ตกแต่งเท่านั้น */
+  content: '';
+  position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%);
+  width: 20px; height: 20px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--df-gem-hi) 0 12%, var(--df-emerald) 38%, var(--df-emerald-dk) 75%, #0b2a14 100%);
+  box-shadow: 0 0 0 2px #070907, 0 0 0 4px var(--df-bronze), 0 0 12px rgba(69,214,106,0.6);
+  pointer-events: none; z-index: 2;
+}
+body.theme-fantasy .app-logo h1 {
+  font-family: var(--df-font-display) !important;
+  font-size: 1.15rem !important; font-weight: 700 !important; letter-spacing: 1.5px;
+  color: #9CF5A8 !important;
+  text-shadow: 0 0 8px rgba(69,214,106,0.55), 0 1px 0 #000 !important;
+}
+body.theme-fantasy .app-logo .sub { color: var(--df-muted-text) !important; }
+body.theme-fantasy .app-date { color: var(--df-gold) !important; }
+
+/* ── Navigation ── */
+body.theme-fantasy .nav-tabs { gap: 0 !important; }
+body.theme-fantasy .nav-tab {
+  color: var(--df-muted-text) !important;
+  font-weight: 600; letter-spacing: 0.2px;
+  border-bottom: 3px solid transparent !important;
+  position: relative;
+}
+body.theme-fantasy .nav-tab + .nav-tab::before {
+  /* ตัวคั่นโลหะระหว่างแท็บ */
+  content: ''; position: absolute; left: 0; top: 22%; bottom: 22%; width: 2px;
+  background: linear-gradient(180deg, transparent, var(--df-bronze), transparent);
+  box-shadow: 1px 0 0 rgba(0,0,0,0.6);
+}
+body.theme-fantasy .nav-tab:hover { color: var(--df-ivory) !important; background: rgba(69,214,106,0.06) !important; }
+body.theme-fantasy .nav-tab.active {
+  color: var(--df-gem-hi) !important;
+  background: linear-gradient(180deg, rgba(24,57,35,0.15), rgba(24,57,35,0.65)) !important;
+  border-bottom-color: var(--df-emerald) !important;
+  text-shadow: 0 0 8px rgba(69,214,106,0.5);
+  box-shadow: inset 0 -8px 14px -10px rgba(69,214,106,0.7);
+}
+
+/* ไอคอน SVG ของแท็บ (แสดงเฉพาะธีมนี้ แทน emoji) */
+.tab-ico { display: none; width: 17px; height: 17px; flex-shrink: 0; }
+body.theme-fantasy .tab-ico { display: inline-block; }
+body.theme-fantasy .tab-emo { display: none; }
+
+/* ── Focus (keyboard) ── */
+body.theme-fantasy :is(button, select, input, textarea, label, [tabindex]):focus-visible {
+  outline: none !important;
+  box-shadow: var(--df-focus) !important;
+}
+
+/* ── Panels / cards: กรอบโลหะซ้อนชั้น + มุมประดับ ── */
+body.theme-fantasy .card,
+body.theme-fantasy .sum-card,
+body.theme-fantasy .zone-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(46,53,44,0.35), transparent 40px),
+    linear-gradient(180deg, #1b201a 0%, #141813 100%) !important;
+  border: 1px solid #3A4033 !important;
+  border-radius: var(--df-radius);
+  box-shadow: var(--df-rim), var(--df-bevel), inset 0 0 40px rgba(0,0,0,0.45), 0 10px 26px rgba(0,0,0,0.6) !important;
+}
+body.theme-fantasy .card { margin: 4px 4px 18px; }
+body.theme-fantasy .card::before {
+  content: ''; position: absolute; inset: -5px; pointer-events: none; z-index: 1;
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/svg%3E") top left / 34px 34px no-repeat,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%200)%20scale(-1%201)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") top right / 34px 34px no-repeat,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(0%2034)%20scale(1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom left / 34px 34px no-repeat,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%2034)%20scale(-1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom right / 34px 34px no-repeat;
+}
+body.theme-fantasy .card-title {
+  position: relative;
+  font-family: var(--df-font-display);
+  font-weight: 600; letter-spacing: 0.6px;
+  color: var(--df-gold) !important;
+  text-shadow: 0 1px 0 #000;
+  border-bottom: 0 !important;
+  padding-bottom: 11px !important;
+  background: linear-gradient(90deg, transparent, var(--df-bronze) 12%, var(--df-gold) 50%, var(--df-bronze) 88%, transparent) bottom / 100% 1px no-repeat;
+}
+body.theme-fantasy .card-title::after {
+  /* เพชรเล็กกลางเส้นคั่น */
+  content: ''; position: absolute; left: 50%; bottom: -3px; width: 7px; height: 7px;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--df-emerald); box-shadow: 0 0 0 1px #070907, 0 0 6px rgba(69,214,106,0.7);
+}
+
+/* แผงสรุปตัวเลข: แยกหมวดด้วยสีอัญมณี (ไม่ใช้สีอย่างเดียว — มีป้ายข้อความกำกับอยู่แล้ว) */
+body.theme-fantasy .sum-card { padding-top: 22px !important; }
+body.theme-fantasy .sum-card::after {
+  content: ''; position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
+  width: 9px; height: 9px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 15%, var(--gem, var(--df-emerald)) 45%, #000 120%);
+  box-shadow: 0 0 0 1px #070907, 0 0 8px var(--gem, var(--df-emerald));
+}
+body.theme-fantasy .sum-card.t { --gem: var(--df-teal); }
+body.theme-fantasy .sum-card.f { --gem: var(--df-emerald); }
+body.theme-fantasy .sum-card.p { --gem: var(--df-amber); }
+body.theme-fantasy .sum-card.n { --gem: var(--df-danger); }
+body.theme-fantasy .sum-card.t .num { color: var(--df-teal) !important; }
+body.theme-fantasy .sum-card .num { text-shadow: 0 0 10px rgba(0,0,0,0.6); }
+body.theme-fantasy .sum-card .lbl { color: var(--df-muted-text) !important; }
+
+/* แถบนาฬิกา */
+body.theme-fantasy .clock-bar {
+  background: linear-gradient(180deg, #171c16, #10130f) !important;
+  border: 1px solid #3A4033 !important;
+  box-shadow: var(--df-rim), var(--df-recess) !important;
+  margin: 4px 4px 18px !important;
+}
+body.theme-fantasy #clock-date { color: var(--df-gold) !important; }
+body.theme-fantasy #clock-time { color: var(--df-gem-hi) !important; text-shadow: 0 0 10px rgba(69,214,106,0.45); }
+
+/* ── Tables ── */
+body.theme-fantasy .data-table th {
+  background: linear-gradient(180deg, #1f3a26, #142619) !important;
+  color: var(--df-gold) !important;
+  border-bottom: 1px solid var(--df-bronze) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+body.theme-fantasy .data-table td { color: var(--df-ivory) !important; border-bottom: 1px solid rgba(119,121,102,0.18) !important; }
+body.theme-fantasy .data-table tr:hover td { background: rgba(69,214,106,0.05) !important; }
+body.theme-fantasy .loc { background: rgba(121,85,47,0.18) !important; color: var(--df-gold) !important; border: 1px solid rgba(121,85,47,0.6) !important; }
+body.theme-fantasy .duty-tel, body.theme-fantasy .duty-tel-cell { color: var(--df-amber); }
+
+/* ── Inputs: ผิวเว้าลึก + ขอบโลหะ ── */
+body.theme-fantasy :is(.duty-select, .ac-input, .mission-input, .zone-item-input, .zone-name-input,
+  .icao-fields input, .icao-fields textarea, .page input[type="text"], .page input:not([type]), .page textarea) {
+  background: linear-gradient(180deg, #0b0e0b, #121611) !important;
+  border: 1px solid #454B3C !important;
+  border-radius: 2px;
+  color: var(--df-ivory) !important;
+  box-shadow: var(--df-recess) !important;
+  transition: border-color .15s, box-shadow .15s;
+}
+body.theme-fantasy :is(.duty-select, .ac-input, .mission-input, .zone-item-input, .zone-name-input,
+  .icao-fields input, .icao-fields textarea):hover { border-color: var(--df-bronze) !important; }
+body.theme-fantasy :is(.duty-select, .ac-input, .mission-input, .zone-item-input, .zone-name-input,
+  .icao-fields input, .icao-fields textarea):focus {
+  border-color: var(--df-emerald) !important;
+  box-shadow: var(--df-recess), 0 0 0 1px var(--df-emerald), var(--df-glow) !important;
+  outline: none;
+}
+body.theme-fantasy ::placeholder { color: #7f816d !important; opacity: 1; }
+body.theme-fantasy select option { background: var(--df-iron) !important; color: var(--df-ivory) !important; }
+/* select สถานะ (FMC/PMC/NMC, สื่อสาร) คงสีตามความหมาย แต่ทำให้เป็นผิวเว้า */
+body.theme-fantasy :is(.ac-select, .status-select, .comm-select) {
+  box-shadow: var(--df-recess);
+  background-color: #0e120d !important;
+}
+
+/* ── Buttons ──
+   primary   = มรกตเรืองแสง
+   secondary = เหล็กดำ/บรอนซ์
+   danger    = แดงหม่น */
+body.theme-fantasy :is(#btn-save, #btn-save + button, .df-primary) {
+  background: linear-gradient(180deg, #6BEA8C 0%, #36B75A 45%, #1F7A39 100%) !important;
+  color: #08190d !important;
+  font-weight: 700 !important;
+  border: 1px solid #0b2a14 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 0 rgba(0,0,0,0.25), 0 0 0 1px var(--df-bronze), var(--df-glow) !important;
+  transition: filter .15s, transform .05s;
+}
+body.theme-fantasy #btn-save + button { border-left: 1px solid #0b2a14 !important; }
+body.theme-fantasy :is(#btn-save, #btn-save + button, .df-primary):hover { filter: brightness(1.12) saturate(1.1); }
+body.theme-fantasy :is(#btn-save, #btn-save + button, .df-primary):active { transform: translateY(1px); filter: brightness(0.95); }
+
+body.theme-fantasy :is(.toggle-btn, .sub-tab, .zone-add-item, .img-controls button, .df-secondary,
+  #pwa-install-btn, .icao-log-head button) {
+  background: linear-gradient(180deg, #2E352C 0%, #1B201A 100%) !important;
+  color: var(--df-ivory) !important;
+  border: 1px solid #4A503F !important;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 0 1px #070907 !important;
+  transition: border-color .15s, color .15s, filter .15s;
+}
+body.theme-fantasy :is(.toggle-btn, .sub-tab, .zone-add-item, .img-controls button, .df-secondary,
+  #pwa-install-btn, .icao-log-head button):hover {
+  border-color: var(--df-gold) !important; color: #fff !important; filter: brightness(1.12);
+}
+body.theme-fantasy :is(.toggle-btn, .sub-tab, .zone-add-item, .img-controls button, .df-secondary):active { transform: translateY(1px); }
+body.theme-fantasy .sub-tab.active {
+  background: linear-gradient(180deg, #24502F 0%, #183923 100%) !important;
+  border-color: var(--df-emerald) !important;
+  color: var(--df-gem-hi) !important;
+  box-shadow: inset 0 1px 0 rgba(184,255,181,0.25), 0 0 0 1px #070907, var(--df-glow) !important;
+}
+body.theme-fantasy :is(.zone-del-btn, .ac-clear, .mission-clear, .zone-item-clear, .df-danger, .icao-log-head button.confirm) {
+  background: linear-gradient(180deg, #3a1a15, #241009) !important;
+  color: #FFB4A6 !important;
+  border: 1px solid rgba(229,83,61,0.6) !important;
+}
+body.theme-fantasy :is(.zone-del-btn, .ac-clear, .mission-clear, .zone-item-clear, .df-danger):hover { border-color: var(--df-danger) !important; color: #fff !important; }
+body.theme-fantasy button:disabled {
+  background: #23271F !important; color: #6c6e5e !important; border-color: #33372D !important;
+  box-shadow: none !important; filter: none !important; cursor: not-allowed;
+}
+
+/* ปุ่ม/ป้ายเลือกไฟล์ + ปุ่มอื่นที่กำหนดสไตล์ในบรรทัด */
+body.theme-fantasy .file-btn, body.theme-fantasy .go-map-btn {
+  background: linear-gradient(180deg, #2E352C 0%, #1B201A 100%) !important;
+  color: var(--df-ivory) !important;
+  border: 1px solid #4A503F !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px #070907 !important;
+}
+body.theme-fantasy .file-btn:hover, body.theme-fantasy .go-map-btn:hover { border-color: var(--df-gold) !important; color: #fff !important; }
+
+/* ── Zones (แผนการฝึกบิน) ── */
+body.theme-fantasy .zone-header {
+  background: linear-gradient(180deg, #1f3a26, #142619) !important;
+  border-bottom: 1px solid var(--df-bronze) !important;
+}
+body.theme-fantasy .zone-name-input { color: var(--df-gold) !important; font-weight: 700; }
+
+/* ── Image panels (หน้าอื่นๆ) ── */
+body.theme-fantasy .img-card { background: #0e110d !important; border: 1px solid #3A4033 !important; box-shadow: 0 0 0 1px #070907; }
+body.theme-fantasy .img-card-header { background: linear-gradient(180deg, #232922, #191d18) !important; border-bottom: 1px solid var(--df-bronze) !important; }
+body.theme-fantasy .img-card-num { color: var(--df-gold) !important; }
+body.theme-fantasy .img-upload-area {
+  border: 2px dashed rgba(199,164,90,0.45) !important;
+  background: radial-gradient(ellipse at center, rgba(24,57,35,0.35), rgba(0,0,0,0.25)) !important;
+  box-shadow: var(--df-recess);
+}
+body.theme-fantasy .img-upload-area:hover { border-color: var(--df-emerald) !important; }
+body.theme-fantasy .img-viewer { background: #0b0e0b !important; border-color: #3A4033 !important; }
+
+/* ── Dropdown / dialogs / toast ── */
+body.theme-fantasy #save-dropdown {
+  background: linear-gradient(180deg, #1d221c, #121511) !important;
+  border: 1px solid #3A4033 !important;
+  box-shadow: var(--df-rim), 0 14px 30px rgba(0,0,0,0.75) !important;
+  margin-top: 8px !important;
+}
+body.theme-fantasy #save-dropdown > div, body.theme-fantasy #save-dropdown label {
+  color: var(--df-ivory) !important; border-bottom-color: rgba(121,85,47,0.35) !important;
+}
+body.theme-fantasy #save-dropdown > div:hover, body.theme-fantasy #save-dropdown label:hover {
+  background: rgba(69,214,106,0.1) !important; color: var(--df-gem-hi) !important;
+}
+body.theme-fantasy #rcc-toast {
+  background: linear-gradient(180deg, rgba(29,34,28,0.97), rgba(16,19,16,0.97)) !important;
+  box-shadow: var(--df-rim), 0 12px 28px rgba(0,0,0,0.7) !important;
+  border-radius: var(--df-radius);
+}
+body.theme-fantasy .cap-overlay { background: radial-gradient(ellipse at center, rgba(24,57,35,0.6), rgba(5,7,5,0.95)) !important; color: var(--df-ivory) !important; }
+
+/* ── ปุ่มเปลี่ยนธีม = ลูกแก้วมรกต (เหมือนอัญมณีกลางกรอบในภาพอ้างอิง) ── */
+body.theme-fantasy .theme-btn {
+  background: radial-gradient(circle at 35% 30%, var(--df-gem-hi) 0 10%, var(--df-emerald) 35%, var(--df-emerald-dk) 72%, #0b2a14 100%) !important;
+  border: 0 !important;
+  box-shadow: 0 0 0 3px #070907, 0 0 0 6px var(--df-bronze), 0 0 0 7px #070907, 0 0 22px rgba(69,214,106,0.55) !important;
+  font-size: 1.15rem;
+}
+
+/* ── ICAO panel ปรับให้เข้ากับธีม (สีขั้นภาวะฉุกเฉินคงเดิมตามความหมาย) ── */
+body.theme-fantasy .icao-btn {
+  background: linear-gradient(180deg, #2A3028, #181C17) !important;
+  border: 1px solid #454B3C !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 0 1px #070907;
+  color: var(--df-muted-text) !important;
+}
+body.theme-fantasy .icao-btn:hover { border-color: var(--c) !important; color: var(--c) !important; }
+body.theme-fantasy .icao-btn.active {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 85%, #fff) 0%, var(--c) 50%, color-mix(in srgb, var(--c) 60%, #000) 100%) !important;
+  color: #0b0d0b !important; border-color: #070907 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 0 0 1px var(--df-bronze), 0 0 12px color-mix(in srgb, var(--c) 55%, transparent) !important;
+}
+body.theme-fantasy .icao-btn[data-phase="NORMAL"] { --c: var(--df-emerald); }
+body.theme-fantasy .icao-banner { background: linear-gradient(90deg, rgba(0,0,0,0.35), rgba(0,0,0,0.1)) !important; box-shadow: var(--df-recess); }
+body.theme-fantasy .icao-criteria { background: #0e110d !important; border-color: #3A4033 !important; }
+
+body.theme-fantasy .icao-card[data-phase="INCERFA"],
+body.theme-fantasy .icao-card[data-phase="ALERFA"],
+body.theme-fantasy .icao-card[data-phase="DETRESFA"] {
+  border-color: var(--ph) !important;
+  box-shadow: var(--df-rim), var(--df-bevel), inset 0 0 40px rgba(0,0,0,0.45), 0 0 18px color-mix(in srgb, var(--ph) 45%, transparent) !important;
+}
+body.theme-fantasy .icao-card[data-phase="DETRESFA"] { animation: none; }
+body.theme-fantasy .icao-card[data-phase="DETRESFA"]::after {
+  /* แสงแดงเต้นรอบกรอบเมื่อ DETRESFA (แยกเป็น pseudo-element เพื่อไม่ชนกับเงากรอบโลหะ) */
+  content: ''; position: absolute; inset: -6px; pointer-events: none;
+  box-shadow: 0 0 28px rgba(229,83,61,0.85);
+  animation: dfDistress 1.6s ease-in-out infinite;
+}
+@keyframes dfDistress { 0%,100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+/* ── Map page ── */
+body.theme-fantasy .map-sidebar {
+  background: linear-gradient(180deg, #1b201a, #111410) !important;
+  border-left: 0 !important;
+  box-shadow: -1px 0 0 #070907, -3px 0 0 var(--df-iron-hi), -4px 0 0 var(--df-bronze) !important;
+}
+body.theme-fantasy :is(.ms-legend, .ms-summary, .ms-sum, .ms-unit-item, .ms-detail) { border-color: rgba(121,85,47,0.35) !important; }
+body.theme-fantasy .ms-legend-title { color: var(--df-gold) !important; }
+body.theme-fantasy .ms-unit-item:hover { background: rgba(69,214,106,0.06) !important; }
+body.theme-fantasy .ms-unit-item.sel { background: rgba(24,57,35,0.6) !important; border-left: 3px solid var(--df-emerald) !important; }
+body.theme-fantasy .ms-detail { background: rgba(0,0,0,0.25) !important; }
+body.theme-fantasy :is(.ms-detail-title, .popup-title) { color: var(--df-gold) !important; font-family: var(--df-font-display); }
+body.theme-fantasy .leaflet-tile { filter: brightness(0.45) saturate(0.35) sepia(0.35) hue-rotate(50deg) !important; }
+body.theme-fantasy :is(.leaflet-control-layers, .leaflet-popup-content-wrapper) {
+  background: linear-gradient(180deg, #1d221c, #121511) !important;
+  border: 1px solid var(--df-bronze) !important;
+  box-shadow: 0 0 0 1px #070907, 0 10px 24px rgba(0,0,0,0.7) !important;
+  color: var(--df-ivory) !important;
+}
+body.theme-fantasy .leaflet-popup-tip { background: #121511 !important; }
+body.theme-fantasy .leaflet-control-layers-list label { color: var(--df-ivory) !important; }
+body.theme-fantasy .leaflet-control-layers-list label:hover { color: var(--df-gem-hi) !important; }
+
+/* ── Scrollbar ── */
+body.theme-fantasy ::-webkit-scrollbar { width: 10px; height: 10px; }
+body.theme-fantasy ::-webkit-scrollbar-track { background: #0b0e0b; box-shadow: inset 0 0 0 1px #20251F; }
+body.theme-fantasy ::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #3a4033, #5b4630, #3a4033); border: 2px solid #0b0e0b; border-radius: 5px;
+}
+body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient(90deg, #4a503f, var(--df-bronze), #4a503f); }
+
+/* ── Responsive: ลดของตกแต่งบนจอเล็ก ── */
+@media (max-width: 860px) {
+  body.theme-fantasy .card::before { display: none; }
+  body.theme-fantasy .card, body.theme-fantasy .clock-bar { margin: 3px 3px 14px !important; }
+  body.theme-fantasy .app-header::after { display: none; }
+  body.theme-fantasy .nav-tab + .nav-tab::before { display: none; }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  body.theme-fantasy *, body.theme-fantasy *::before, body.theme-fantasy *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important;
+  }
+}
 </style>
 </head>
-<body class="theme-dark">
+<body class="theme-fantasy">
 
 
 <!-- Theme Toggle Button (ขวาล่าง) -->
-<button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="เปลี่ยนธีม">🌙</button>
+<button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="เปลี่ยนธีม" aria-label="เปลี่ยนธีม"></button>
 
 <!-- HEADER + NAV -->
 <div class="app-header">
@@ -981,12 +1398,12 @@ body.theme-light .icao-fields input, body.theme-light .icao-fields textarea { co
     <div class="sub">ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.</div>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('duty',this)">👮 เจ้าหน้าที่เวร</button>
-    <button class="nav-tab" onclick="showPage('aircraft',this)">🚁 สถานภาพอากาศยาน</button>
-    <button class="nav-tab" onclick="showPage('mission',this)">📋 ภารกิจประจำวัน</button>
-    <button class="nav-tab" onclick="showPage('training',this)">🗺️ แผนการฝึกบิน</button>
-    <button class="nav-tab" onclick="showPage('map',this)">🗺️ แผนที่ Coverage</button>
-    <button class="nav-tab" onclick="showPage('others',this)">📎 อื่นๆ</button>
+    <button class="nav-tab active" onclick="showPage('duty',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><circle cx="12" cy="10" r="2.5"/><path d="M8 16c.8-1.8 2.2-2.7 4-2.7s3.2.9 4 2.7"/></svg><span class="tab-emo" aria-hidden="true">👮</span> เจ้าหน้าที่เวร</button>
+    <button class="nav-tab" onclick="showPage('aircraft',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M12 6v3"/><path d="M6 13c0-2.2 2.7-4 6-4h2c2.8 0 5 1.8 5 4v1H6z"/><path d="M6 14l-3-2M9 17v2M16 17v2M7 19h12"/></svg><span class="tab-emo" aria-hidden="true">🚁</span> สถานภาพอากาศยาน</button>
+    <button class="nav-tab" onclick="showPage('mission',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8M9 2h6v4H9z"/><path d="M6 4H5v17h14V4h-1"/><path d="M8.5 11l2 2 4-4M8.5 17h7"/></svg><span class="tab-emo" aria-hidden="true">📋</span> ภารกิจประจำวัน</button>
+    <button class="nav-tab" onclick="showPage('training',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span class="tab-emo" aria-hidden="true">🗺️</span> แผนการฝึกบิน</button>
+    <button class="nav-tab" onclick="showPage('map',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg><span class="tab-emo" aria-hidden="true">🗺️</span> แผนที่ Coverage</button>
+    <button class="nav-tab" onclick="showPage('others',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5l-8.2 8.2a5 5 0 01-7.1-7.1l8.5-8.5a3.3 3.3 0 014.7 4.7l-8.5 8.5a1.7 1.7 0 01-2.4-2.4l7.8-7.8"/></svg><span class="tab-emo" aria-hidden="true">📎</span> อื่นๆ</button>
   </div>
   <div style="display:flex;align-items:center;gap:6px;padding:0 8px;flex-shrink:0;position:relative;">
     <!-- ปุ่มบันทึก + dropdown -->
@@ -1022,7 +1439,7 @@ body.theme-light .icao-fields input, body.theme-light .icao-fields textarea { co
   <div class="page-scroll">
 
     <!-- CLOCK BAR -->
-    <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);padding:12px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <div class="clock-bar" style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);padding:12px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
       <div>
         <div id="clock-date" style="font-size:1rem;font-weight:700;color:var(--accent);font-family:'Share Tech Mono',monospace;"></div>
         <div id="clock-time" style="font-size:1.8rem;font-weight:700;color:var(--white);font-family:'Share Tech Mono',monospace;line-height:1.1;"></div>
@@ -1114,7 +1531,7 @@ body.theme-light .icao-fields input, body.theme-light .icao-fields textarea { co
     <div class="card" style="margin-top:14px;">
       <div class="card-title">📂 นำเข้าฐานข้อมูลเจ้าหน้าที่ (CSV/Excel)</div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <label style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:7px 16px;cursor:pointer;font-size:0.85rem;white-space:nowrap;">
+        <label class="file-btn" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:7px 16px;cursor:pointer;font-size:0.85rem;white-space:nowrap;">
           📁 เลือกไฟล์ CSV
           <input type="file" id="csv-upload" accept=".csv,.xlsx,.xls" style="display:none" onchange="loadCSV(this)"/>
         </label>
@@ -1137,7 +1554,7 @@ body.theme-light .icao-fields input, body.theme-light .icao-fields textarea { co
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
         <span>สถานภาพอากาศยานหน่วยบินค้นหาและช่วยชีวิต</span>
-        <button onclick="applyAndGoMap()" style="background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:5px;">
+        <button class="go-map-btn" onclick="applyAndGoMap()" style="background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:5px;">
           🗺️ บันทึก &amp; ดูแผนที่
         </button>
       </div>
@@ -1260,13 +1677,16 @@ const themes = [
   { cls:'theme-light', icon:'☀️', label:'Light' },
   { cls:'theme-camo',  icon:'🪖', label:'Camo' },
   { cls:'theme-metal', icon:'🤘', label:'Heavy Metal' },
+  { cls:'theme-fantasy', icon:'', label:'Dark Fantasy' }, // ปุ่มเป็นลูกแก้วมรกต ไม่ต้องมีไอคอน
 ];
-let themeIdx = 0;
+// ธีมเริ่มต้น = Dark Fantasy (key ใหม่ จึงเริ่มที่ธีมนี้หนึ่งครั้ง แล้วจำตามที่ผู้ใช้เลือก)
+const THEME_KEY = 'rtaf_theme_v2';
+let themeIdx = themes.findIndex(t => t.cls === 'theme-fantasy');
 
 function cycleTheme() {
   themeIdx = (themeIdx + 1) % themes.length;
   applyTheme(themeIdx);
-  try { localStorage.setItem('rtaf_theme', themeIdx); } catch(e) {}
+  try { localStorage.setItem(THEME_KEY, themeIdx); } catch(e) {}
 }
 
 function applyTheme(idx) {
@@ -1280,8 +1700,9 @@ function applyTheme(idx) {
 
 // โหลดธีมที่บันทึกไว้
 try {
-  const saved = localStorage.getItem('rtaf_theme');
-  if (saved !== null) { themeIdx = parseInt(saved); applyTheme(themeIdx); }
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved !== null && themes[parseInt(saved)]) { themeIdx = parseInt(saved); applyTheme(themeIdx); }
+  else { const btn = document.getElementById('theme-btn'); if (btn) btn.textContent = themes[themeIdx].icon; }
 } catch(e) {}
 
 // ── MULTI-IMAGE SYSTEM ──
@@ -2088,10 +2509,8 @@ function initMap() {
   setTimeout(() => {
     const lc = document.querySelector('.leaflet-control-layers');
     if (lc) {
+      // สี/พื้นหลัง/ขอบ มาจาก CSS (.leaflet-control-layers และธีม) เพื่อให้เปลี่ยนตามธีมได้
       lc.style.cssText += `
-        background:rgba(10,22,40,0.95)!important;
-        border:1px solid rgba(0,212,255,0.3)!important;
-        color:#e8f4f8!important;
         font-family:'Sarabun',sans-serif!important;
         font-size:0.85rem!important;
         padding:8px 12px!important;
@@ -2853,6 +3272,7 @@ async function captureAllPages() {
   const totalPages = mainPages.length + subPages.length;
 
   const overlay = document.createElement('div');
+  overlay.className = 'cap-overlay';
   overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:'Sarabun',sans-serif;color:#e8f4f8;";
   overlay.innerHTML = `
     <div style="font-size:1.2rem;font-weight:700;color:#00d4ff;">📸 กำลังแคปหน้าจอ...</div>
@@ -2875,6 +3295,7 @@ async function captureAllPages() {
     if (b.classList.contains('theme-light')) return '#f0f4f8';
     if (b.classList.contains('theme-camo'))  return '#2d3a1e';
     if (b.classList.contains('theme-metal')) return '#111111';
+    if (b.classList.contains('theme-fantasy')) return '#101310';
     return '#0a1628';
   };
 
