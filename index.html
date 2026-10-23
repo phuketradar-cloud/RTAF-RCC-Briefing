@@ -17,7 +17,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Share+Tech+Mono&family=Cinzel:wght@600;700&family=Noto+Serif+Thai:wght@500;600;700&display=swap');
 
 :root {
   --navy: #0a1628; --navy2: #0f2144;
@@ -436,6 +436,14 @@ body::before {
 }
 .nav-tab:hover { color: var(--white); background: rgba(0,212,255,0.05); }
 .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(0,212,255,0.06); }
+
+/* จอเล็ก: แท็บเมนูขึ้นแถวใหม่เต็มความกว้าง (เลื่อนซ้าย-ขวาได้) แทนการถูกบีบจนมองไม่เห็น */
+@media (max-width: 860px) {
+  .app-header { flex-wrap: wrap; padding: 0 12px; row-gap: 4px; }
+  .app-logo { margin-right: auto; padding: 8px 0; }
+  .nav-tabs { order: 10; flex: 1 0 100%; min-height: 42px; }
+  .nav-tab { padding: 0 12px; }
+}
 
 .app-date {
   padding: 12px 0;
@@ -900,53 +908,587 @@ body::before {
   }
   #print-all-pages { display: block !important; }
 }
+
+/* ── ICONS (SVG sprite) ── */
+.ic { width:1.1em; height:1.1em; vertical-align:-0.18em; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.nav-tab .ic { width:17px; height:17px; }
+.icao-btn .ic { width:1.15em; height:1.15em; margin-right:4px; }
+.heli-circle .ic { width:18px; height:18px; }
+.img-placeholder .ic { stroke-width:1.4; }
+
+/* ── ICAO EMERGENCY PHASE ── */
+.icao-card { --ph: #00ff88; }
+.icao-card[data-phase="INCERFA"]  { --ph: #ffd700; border-color: rgba(255,215,0,0.6) !important; }
+.icao-card[data-phase="ALERFA"]   { --ph: #ff8800; border-color: rgba(255,136,0,0.7) !important; }
+.icao-card[data-phase="DETRESFA"] { --ph: #ff4444; border-color: rgba(255,68,68,0.8) !important; animation: icaoPulse 1.6s ease-in-out infinite; }
+@keyframes icaoPulse { 0%,100% { box-shadow: 0 0 0 rgba(255,68,68,0); } 50% { box-shadow: 0 0 22px rgba(255,68,68,0.55); } }
+.icao-phase-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.icao-btn {
+  --c: #00ff88;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.15); color:var(--gray);
+  padding:8px 6px; cursor:pointer; font-family:'Sarabun',sans-serif; font-size:0.92rem; font-weight:700; transition:all .15s;
+}
+.icao-btn small { font-size:0.7rem; font-weight:400; opacity:.85; }
+.icao-btn[data-phase="INCERFA"]  { --c:#ffd700; }
+.icao-btn[data-phase="ALERFA"]   { --c:#ff8800; }
+.icao-btn[data-phase="DETRESFA"] { --c:#ff4444; }
+.icao-btn:hover { border-color:var(--c); color:var(--c); }
+.icao-btn.active { background:var(--c); border-color:var(--c); color:#0a1628; }
+.icao-banner {
+  margin-top:10px; padding:10px 14px; border-left:4px solid var(--ph);
+  background:rgba(255,255,255,0.04); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+}
+.icao-banner .ph-name { font-family:'Share Tech Mono',monospace; font-size:1.3rem; font-weight:700; color:var(--ph); }
+.icao-banner .ph-desc { font-size:0.85rem; color:var(--white); }
+.icao-banner .ph-time { font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--gray); text-align:right; }
+.icao-banner .ph-time b { color:var(--ph); font-size:1.1rem; }
+.icao-body { display:none; grid-template-columns:1.2fr 1fr; gap:14px; margin-top:12px; }
+.icao-card[data-phase="INCERFA"] .icao-body,
+.icao-card[data-phase="ALERFA"] .icao-body,
+.icao-card[data-phase="DETRESFA"] .icao-body { display:grid; }
+.icao-fields { display:grid; grid-template-columns:1fr 1fr; gap:8px 10px; align-content:start; }
+.icao-fields label { display:flex; flex-direction:column; gap:3px; font-size:0.75rem; color:var(--gray); }
+.icao-fields .icao-wide { grid-column:1 / -1; }
+.icao-fields input, .icao-fields textarea {
+  background:rgba(0,212,255,0.06); border:1px solid rgba(0,212,255,0.25); color:var(--white);
+  padding:6px 8px; font-family:'Sarabun',sans-serif; font-size:0.85rem; resize:vertical;
+}
+.icao-fields input:focus, .icao-fields textarea:focus { outline:none; border-color:var(--ph); }
+.icao-criteria { font-size:0.78rem; color:var(--white); background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; }
+.icao-criteria b { color:var(--ph); }
+.icao-criteria ol { margin:4px 0 0 18px; line-height:1.5; }
+.icao-log-head { display:flex; justify-content:space-between; align-items:center; margin-top:10px; font-size:0.78rem; color:var(--accent); }
+.icao-log-head button { background:none; border:1px solid rgba(255,255,255,0.15); color:var(--gray); font-size:0.7rem; padding:2px 8px; cursor:pointer; font-family:'Sarabun',sans-serif; }
+.icao-log-head button.confirm { border-color:#ff4444; color:#ff4444; }
+.icao-log { max-height:150px; overflow-y:auto; margin-top:4px; font-size:0.78rem; }
+.icao-log div { padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--white); }
+.icao-log .t { font-family:'Share Tech Mono',monospace; color:var(--gray); margin-right:6px; }
+.icao-log .p { font-weight:700; margin-right:6px; }
+.icao-pill {
+  display:none; cursor:pointer; flex-shrink:0; white-space:nowrap; margin:0 4px; align-self:center; line-height:1.2;
+  padding:4px 10px; font-family:'Share Tech Mono',monospace; font-size:0.78rem; font-weight:700; color:#0a1628;
+}
+.icao-pill.on { display:block; }
+.icao-pill[data-phase="INCERFA"]  { background:#ffd700; }
+.icao-pill[data-phase="ALERFA"]   { background:#ff8800; }
+.icao-pill[data-phase="DETRESFA"] { background:#ff4444; color:#fff; animation: icaoBlink 1s step-end infinite; }
+@keyframes icaoBlink { 50% { opacity:.45; } }
+body.theme-light .icao-banner .ph-desc, body.theme-light .icao-criteria, body.theme-light .icao-log div,
+body.theme-light .icao-fields input, body.theme-light .icao-fields textarea { color:#1a2a3a !important; }
+@media (max-width: 860px) {
+  .icao-phase-row { grid-template-columns:repeat(2,1fr); }
+  .icao-body { grid-template-columns:1fr !important; }
+  .icao-fields { grid-template-columns:1fr; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   THEME: DARK FANTASY — ธีมหลัก (กรอบโลหะ gothic + อัญมณีมรกต)
+   แก้สีทั้งธีมได้ที่ token ด้านล่าง (--df-*)
+   ══════════════════════════════════════════════════════════════ */
+body.theme-fantasy {
+  /* ── Palette tokens ── */
+  --df-obsidian: #101310;
+  --df-iron: #20251F;
+  --df-iron-hi: #2E352C;
+  --df-iron-lo: #151915;
+  --df-forest: #183923;
+  --df-emerald: #45D66A;
+  --df-emerald-dk: #1F7A39;
+  --df-gem-hi: #B8FFB5;
+  --df-bronze: #79552F;
+  --df-gold: #C7A45A;
+  --df-stone: #777966;
+  --df-ivory: #E7E4D1;
+  --df-muted-text: #A3A48E;     /* ข้อความรอง (stone ที่สว่างขึ้นเพื่อ contrast ≥ 4.5:1) */
+  --df-amber: #E2A23B;
+  --df-teal: #4FC8C0;
+  --df-danger: #E5533D;
+
+  /* ── Typography tokens ── */
+  --df-font-display: 'Cinzel', 'Noto Serif Thai', 'Sarabun', serif;
+  --df-font-body: 'Sarabun', sans-serif;
+  --df-font-mono: 'Share Tech Mono', monospace;
+
+  /* ── Effect tokens ── */
+  --df-rim: 0 0 0 1px #070907, 0 0 0 3px var(--df-iron-hi), 0 0 0 4px rgba(121,85,47,0.75);
+  --df-bevel: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.6);
+  --df-recess: inset 0 2px 5px rgba(0,0,0,0.75), inset 0 0 0 1px rgba(0,0,0,0.5);
+  --df-glow: 0 0 10px rgba(69,214,106,0.35);
+  --df-focus: 0 0 0 2px var(--df-obsidian), 0 0 0 4px var(--df-emerald);
+  --df-radius: 3px;
+
+  /* ── map ตัวแปรเดิมของระบบ → ธีมนี้ (สไตล์เดิมที่ใช้ var() จะเปลี่ยนตาม) ── */
+  --navy: var(--df-obsidian); --navy2: var(--df-iron);
+  --bg: var(--df-obsidian); --bg2: var(--df-iron);
+  --accent: var(--df-emerald); --accent2: var(--df-gold);
+  --green: var(--df-emerald); --yellow: var(--df-amber);
+  --red: var(--df-danger); --orange: #E07B2E;
+  --white: var(--df-ivory); --gray: var(--df-muted-text);
+  --text: var(--df-ivory); --text2: var(--df-muted-text);
+  --border: rgba(121,85,47,0.5);
+
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(24,57,35,0.55), transparent 55%),
+    radial-gradient(ellipse at 50% 120%, rgba(0,0,0,0.9), transparent 60%),
+    var(--df-obsidian) !important;
+  color: var(--df-ivory) !important;
+  font-family: var(--df-font-body);
+}
+body.theme-fantasy::before {
+  /* ลายเส้นทแยงจาง ๆ แบบผิวหิน — ไม่รบกวนการอ่าน */
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 9px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%) !important;
+  background-size: auto !important;
+}
+body.theme-fantasy ::selection { background: rgba(69,214,106,0.35); color: #fff; }
+
+/* ── Main frame: header ── */
+body.theme-fantasy .app-header {
+  background:
+    linear-gradient(180deg, #262c24 0%, #1a1f19 55%, #121511 100%) !important;
+  border-bottom: 0 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 1px 0 #070907, 0 3px 0 var(--df-iron-hi), 0 4px 0 var(--df-bronze),
+    0 5px 0 #070907, 0 10px 24px rgba(0,0,0,0.7) !important;
+  margin-bottom: 5px;
+}
+body.theme-fantasy .app-header::after {
+  /* อัญมณีมรกตกลางขอบล่าง — ตกแต่งเท่านั้น */
+  content: '';
+  position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%);
+  width: 20px; height: 20px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--df-gem-hi) 0 12%, var(--df-emerald) 38%, var(--df-emerald-dk) 75%, #0b2a14 100%);
+  box-shadow: 0 0 0 2px #070907, 0 0 0 4px var(--df-bronze), 0 0 12px rgba(69,214,106,0.6);
+  pointer-events: none; z-index: 2;
+}
+body.theme-fantasy .app-logo h1 {
+  font-family: var(--df-font-display) !important;
+  font-size: 1.15rem !important; font-weight: 700 !important; letter-spacing: 1.5px;
+  color: #9CF5A8 !important;
+  text-shadow: 0 0 8px rgba(69,214,106,0.55), 0 1px 0 #000 !important;
+}
+body.theme-fantasy .app-logo .sub { color: var(--df-muted-text) !important; }
+body.theme-fantasy .app-date { color: var(--df-gold) !important; }
+
+/* ── Navigation ── */
+body.theme-fantasy .nav-tabs { gap: 0 !important; }
+body.theme-fantasy .nav-tab {
+  color: var(--df-muted-text) !important;
+  font-weight: 600; letter-spacing: 0.2px;
+  border-bottom: 3px solid transparent !important;
+  position: relative;
+}
+body.theme-fantasy .nav-tab + .nav-tab::before {
+  /* ตัวคั่นโลหะระหว่างแท็บ */
+  content: ''; position: absolute; left: 0; top: 22%; bottom: 22%; width: 2px;
+  background: linear-gradient(180deg, transparent, var(--df-bronze), transparent);
+  box-shadow: 1px 0 0 rgba(0,0,0,0.6);
+}
+body.theme-fantasy .nav-tab:hover { color: var(--df-ivory) !important; background: rgba(69,214,106,0.06) !important; }
+body.theme-fantasy .nav-tab.active {
+  color: var(--df-gem-hi) !important;
+  background: linear-gradient(180deg, rgba(24,57,35,0.15), rgba(24,57,35,0.65)) !important;
+  border-bottom-color: var(--df-emerald) !important;
+  text-shadow: 0 0 8px rgba(69,214,106,0.5);
+  box-shadow: inset 0 -8px 14px -10px rgba(69,214,106,0.7);
+}
+
+
+/* ── Focus (keyboard) ── */
+body.theme-fantasy :is(button, select, input, textarea, label, [tabindex]):focus-visible {
+  outline: none !important;
+  box-shadow: var(--df-focus) !important;
+}
+
+/* ── Panels / cards: กรอบโลหะซ้อนชั้น + มุมประดับ ── */
+body.theme-fantasy .card,
+body.theme-fantasy .sum-card,
+body.theme-fantasy .zone-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(46,53,44,0.35), transparent 40px),
+    linear-gradient(180deg, #1b201a 0%, #141813 100%) !important;
+  border: 1px solid #3A4033 !important;
+  border-radius: var(--df-radius);
+  box-shadow: var(--df-rim), var(--df-bevel), inset 0 0 40px rgba(0,0,0,0.45), 0 10px 26px rgba(0,0,0,0.6) !important;
+}
+body.theme-fantasy .card { margin: 4px 4px 18px; }
+body.theme-fantasy .card::before {
+  content: ''; position: absolute; inset: -5px; pointer-events: none; z-index: 1;
+  background:
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/svg%3E") top left / 34px 34px no-repeat,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%200)%20scale(-1%201)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") top right / 34px 34px no-repeat,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(0%2034)%20scale(1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom left / 34px 34px no-repeat,
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='34'%20height='34'%20viewBox='0%200%2034%2034'%3E%3Cg%20transform='translate(34%2034)%20scale(-1%20-1)'%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23070907'%20stroke-width='5'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%2379552F'%20stroke-width='2.4'/%3E%3Cpath%20d='M2%2032V9L9%202H32'%20fill='none'%20stroke='%23C7A45A'%20stroke-opacity='.45'%20stroke-width='.8'/%3E%3Cpath%20d='M6%2026V11L11%206H26'%20fill='none'%20stroke='%2379552F'%20stroke-opacity='.7'%20stroke-width='1'/%3E%3Cpath%20d='M2%2018h4M18%202v4'%20stroke='%23C7A45A'%20stroke-opacity='.6'%20stroke-width='1'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='3.6'%20fill='%23070907'/%3E%3Ccircle%20cx='9.5'%20cy='9.5'%20r='2.7'%20fill='%2345D66A'/%3E%3Ccircle%20cx='8.6'%20cy='8.6'%20r='1'%20fill='%23B8FFB5'/%3E%3C/g%3E%3C/svg%3E") bottom right / 34px 34px no-repeat;
+}
+body.theme-fantasy .card-title {
+  position: relative;
+  font-family: var(--df-font-display);
+  font-weight: 600; letter-spacing: 0.6px;
+  color: var(--df-gold) !important;
+  text-shadow: 0 1px 0 #000;
+  border-bottom: 0 !important;
+  padding-bottom: 11px !important;
+  background: linear-gradient(90deg, transparent, var(--df-bronze) 12%, var(--df-gold) 50%, var(--df-bronze) 88%, transparent) bottom / 100% 1px no-repeat;
+}
+body.theme-fantasy .card-title::after {
+  /* เพชรเล็กกลางเส้นคั่น */
+  content: ''; position: absolute; left: 50%; bottom: -3px; width: 7px; height: 7px;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--df-emerald); box-shadow: 0 0 0 1px #070907, 0 0 6px rgba(69,214,106,0.7);
+}
+
+/* แผงสรุปตัวเลข: แยกหมวดด้วยสีอัญมณี (ไม่ใช้สีอย่างเดียว — มีป้ายข้อความกำกับอยู่แล้ว) */
+body.theme-fantasy .sum-card { padding-top: 22px !important; }
+body.theme-fantasy .sum-card::after {
+  content: ''; position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
+  width: 9px; height: 9px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 15%, var(--gem, var(--df-emerald)) 45%, #000 120%);
+  box-shadow: 0 0 0 1px #070907, 0 0 8px var(--gem, var(--df-emerald));
+}
+body.theme-fantasy .sum-card.t { --gem: var(--df-teal); }
+body.theme-fantasy .sum-card.f { --gem: var(--df-emerald); }
+body.theme-fantasy .sum-card.p { --gem: var(--df-amber); }
+body.theme-fantasy .sum-card.n { --gem: var(--df-danger); }
+body.theme-fantasy .sum-card.t .num { color: var(--df-teal) !important; }
+body.theme-fantasy .sum-card .num { text-shadow: 0 0 10px rgba(0,0,0,0.6); }
+body.theme-fantasy .sum-card .lbl { color: var(--df-muted-text) !important; }
+
+/* แถบนาฬิกา */
+body.theme-fantasy .clock-bar {
+  background: linear-gradient(180deg, #171c16, #10130f) !important;
+  border: 1px solid #3A4033 !important;
+  box-shadow: var(--df-rim), var(--df-recess) !important;
+  margin: 4px 4px 18px !important;
+}
+body.theme-fantasy #clock-date { color: var(--df-gold) !important; }
+body.theme-fantasy #clock-time { color: var(--df-gem-hi) !important; text-shadow: 0 0 10px rgba(69,214,106,0.45); }
+
+/* ── Tables ── */
+body.theme-fantasy .data-table th {
+  background: linear-gradient(180deg, #1f3a26, #142619) !important;
+  color: var(--df-gold) !important;
+  border-bottom: 1px solid var(--df-bronze) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+body.theme-fantasy .data-table td { color: var(--df-ivory) !important; border-bottom: 1px solid rgba(119,121,102,0.18) !important; }
+body.theme-fantasy .data-table tr:hover td { background: rgba(69,214,106,0.05) !important; }
+body.theme-fantasy .loc { background: rgba(121,85,47,0.18) !important; color: var(--df-gold) !important; border: 1px solid rgba(121,85,47,0.6) !important; }
+body.theme-fantasy .duty-tel, body.theme-fantasy .duty-tel-cell { color: var(--df-amber); }
+
+/* ── Inputs: ผิวเว้าลึก + ขอบโลหะ ── */
+body.theme-fantasy :is(.duty-select, .ac-input, .mission-input, .zone-item-input, .zone-name-input,
+  .icao-fields input, .icao-fields textarea, .page input[type="text"], .page input:not([type]), .page textarea) {
+  background: linear-gradient(180deg, #0b0e0b, #121611) !important;
+  border: 1px solid #454B3C !important;
+  border-radius: 2px;
+  color: var(--df-ivory) !important;
+  box-shadow: var(--df-recess) !important;
+  transition: border-color .15s, box-shadow .15s;
+}
+body.theme-fantasy :is(.duty-select, .ac-input, .mission-input, .zone-item-input, .zone-name-input,
+  .icao-fields input, .icao-fields textarea):hover { border-color: var(--df-bronze) !important; }
+body.theme-fantasy :is(.duty-select, .ac-input, .mission-input, .zone-item-input, .zone-name-input,
+  .icao-fields input, .icao-fields textarea):focus {
+  border-color: var(--df-emerald) !important;
+  box-shadow: var(--df-recess), 0 0 0 1px var(--df-emerald), var(--df-glow) !important;
+  outline: none;
+}
+body.theme-fantasy ::placeholder { color: #7f816d !important; opacity: 1; }
+body.theme-fantasy select option { background: var(--df-iron) !important; color: var(--df-ivory) !important; }
+/* select สถานะ (FMC/PMC/NMC, สื่อสาร) คงสีตามความหมาย แต่ทำให้เป็นผิวเว้า */
+body.theme-fantasy :is(.ac-select, .status-select, .comm-select) {
+  box-shadow: var(--df-recess);
+  background-color: #0e120d !important;
+}
+
+/* ── Buttons ──
+   primary   = มรกตเรืองแสง
+   secondary = เหล็กดำ/บรอนซ์
+   danger    = แดงหม่น */
+body.theme-fantasy :is(#btn-save, #btn-save + button, .df-primary) {
+  background: linear-gradient(180deg, #6BEA8C 0%, #36B75A 45%, #1F7A39 100%) !important;
+  color: #08190d !important;
+  font-weight: 700 !important;
+  border: 1px solid #0b2a14 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -2px 0 rgba(0,0,0,0.25), 0 0 0 1px var(--df-bronze), var(--df-glow) !important;
+  transition: filter .15s, transform .05s;
+}
+body.theme-fantasy #btn-save + button { border-left: 1px solid #0b2a14 !important; }
+body.theme-fantasy :is(#btn-save, #btn-save + button, .df-primary):hover { filter: brightness(1.12) saturate(1.1); }
+body.theme-fantasy :is(#btn-save, #btn-save + button, .df-primary):active { transform: translateY(1px); filter: brightness(0.95); }
+
+body.theme-fantasy :is(.toggle-btn, .sub-tab, .zone-add-item, .img-controls button, .df-secondary,
+  #pwa-install-btn, .icao-log-head button) {
+  background: linear-gradient(180deg, #2E352C 0%, #1B201A 100%) !important;
+  color: var(--df-ivory) !important;
+  border: 1px solid #4A503F !important;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 0 1px #070907 !important;
+  transition: border-color .15s, color .15s, filter .15s;
+}
+body.theme-fantasy :is(.toggle-btn, .sub-tab, .zone-add-item, .img-controls button, .df-secondary,
+  #pwa-install-btn, .icao-log-head button):hover {
+  border-color: var(--df-gold) !important; color: #fff !important; filter: brightness(1.12);
+}
+body.theme-fantasy :is(.toggle-btn, .sub-tab, .zone-add-item, .img-controls button, .df-secondary):active { transform: translateY(1px); }
+body.theme-fantasy .sub-tab.active {
+  background: linear-gradient(180deg, #24502F 0%, #183923 100%) !important;
+  border-color: var(--df-emerald) !important;
+  color: var(--df-gem-hi) !important;
+  box-shadow: inset 0 1px 0 rgba(184,255,181,0.25), 0 0 0 1px #070907, var(--df-glow) !important;
+}
+body.theme-fantasy :is(.zone-del-btn, .ac-clear, .mission-clear, .zone-item-clear, .df-danger, .icao-log-head button.confirm) {
+  background: linear-gradient(180deg, #3a1a15, #241009) !important;
+  color: #FFB4A6 !important;
+  border: 1px solid rgba(229,83,61,0.6) !important;
+}
+body.theme-fantasy :is(.zone-del-btn, .ac-clear, .mission-clear, .zone-item-clear, .df-danger):hover { border-color: var(--df-danger) !important; color: #fff !important; }
+body.theme-fantasy button:disabled {
+  background: #23271F !important; color: #6c6e5e !important; border-color: #33372D !important;
+  box-shadow: none !important; filter: none !important; cursor: not-allowed;
+}
+
+/* ปุ่ม/ป้ายเลือกไฟล์ + ปุ่มอื่นที่กำหนดสไตล์ในบรรทัด */
+body.theme-fantasy .file-btn, body.theme-fantasy .go-map-btn {
+  background: linear-gradient(180deg, #2E352C 0%, #1B201A 100%) !important;
+  color: var(--df-ivory) !important;
+  border: 1px solid #4A503F !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px #070907 !important;
+}
+body.theme-fantasy .file-btn:hover, body.theme-fantasy .go-map-btn:hover { border-color: var(--df-gold) !important; color: #fff !important; }
+
+/* ── Zones (แผนการฝึกบิน) ── */
+body.theme-fantasy .zone-header {
+  background: linear-gradient(180deg, #1f3a26, #142619) !important;
+  border-bottom: 1px solid var(--df-bronze) !important;
+}
+body.theme-fantasy .zone-name-input { color: var(--df-gold) !important; font-weight: 700; }
+
+/* ── Image panels (หน้าอื่นๆ) ── */
+body.theme-fantasy .img-card { background: #0e110d !important; border: 1px solid #3A4033 !important; box-shadow: 0 0 0 1px #070907; }
+body.theme-fantasy .img-card-header { background: linear-gradient(180deg, #232922, #191d18) !important; border-bottom: 1px solid var(--df-bronze) !important; }
+body.theme-fantasy .img-card-num { color: var(--df-gold) !important; }
+body.theme-fantasy .img-upload-area {
+  border: 2px dashed rgba(199,164,90,0.45) !important;
+  background: radial-gradient(ellipse at center, rgba(24,57,35,0.35), rgba(0,0,0,0.25)) !important;
+  box-shadow: var(--df-recess);
+}
+body.theme-fantasy .img-upload-area:hover { border-color: var(--df-emerald) !important; }
+body.theme-fantasy .img-viewer { background: #0b0e0b !important; border-color: #3A4033 !important; }
+
+/* ── Dropdown / dialogs / toast ── */
+body.theme-fantasy #save-dropdown {
+  background: linear-gradient(180deg, #1d221c, #121511) !important;
+  border: 1px solid #3A4033 !important;
+  box-shadow: var(--df-rim), 0 14px 30px rgba(0,0,0,0.75) !important;
+  margin-top: 8px !important;
+}
+body.theme-fantasy #save-dropdown > div, body.theme-fantasy #save-dropdown label {
+  color: var(--df-ivory) !important; border-bottom-color: rgba(121,85,47,0.35) !important;
+}
+body.theme-fantasy #save-dropdown > div:hover, body.theme-fantasy #save-dropdown label:hover {
+  background: rgba(69,214,106,0.1) !important; color: var(--df-gem-hi) !important;
+}
+body.theme-fantasy #rcc-toast {
+  background: linear-gradient(180deg, rgba(29,34,28,0.97), rgba(16,19,16,0.97)) !important;
+  box-shadow: var(--df-rim), 0 12px 28px rgba(0,0,0,0.7) !important;
+  border-radius: var(--df-radius);
+}
+body.theme-fantasy .cap-overlay { background: radial-gradient(ellipse at center, rgba(24,57,35,0.6), rgba(5,7,5,0.95)) !important; color: var(--df-ivory) !important; }
+
+/* ── ปุ่มเปลี่ยนธีม = ลูกแก้วมรกต (เหมือนอัญมณีกลางกรอบในภาพอ้างอิง) ── */
+body.theme-fantasy .theme-btn {
+  background: radial-gradient(circle at 35% 30%, var(--df-gem-hi) 0 10%, var(--df-emerald) 35%, var(--df-emerald-dk) 72%, #0b2a14 100%) !important;
+  border: 0 !important;
+  box-shadow: 0 0 0 3px #070907, 0 0 0 6px var(--df-bronze), 0 0 0 7px #070907, 0 0 22px rgba(69,214,106,0.55) !important;
+  font-size: 1.15rem;
+}
+
+/* ── ICAO panel ปรับให้เข้ากับธีม (สีขั้นภาวะฉุกเฉินคงเดิมตามความหมาย) ── */
+body.theme-fantasy .icao-btn {
+  background: linear-gradient(180deg, #2A3028, #181C17) !important;
+  border: 1px solid #454B3C !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 0 1px #070907;
+  color: var(--df-muted-text) !important;
+}
+body.theme-fantasy .icao-btn:hover { border-color: var(--c) !important; color: var(--c) !important; }
+body.theme-fantasy .icao-btn.active {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 85%, #fff) 0%, var(--c) 50%, color-mix(in srgb, var(--c) 60%, #000) 100%) !important;
+  color: #0b0d0b !important; border-color: #070907 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 0 0 1px var(--df-bronze), 0 0 12px color-mix(in srgb, var(--c) 55%, transparent) !important;
+}
+body.theme-fantasy .icao-btn[data-phase="NORMAL"] { --c: var(--df-emerald); }
+body.theme-fantasy .icao-banner { background: linear-gradient(90deg, rgba(0,0,0,0.35), rgba(0,0,0,0.1)) !important; box-shadow: var(--df-recess); }
+body.theme-fantasy .icao-criteria { background: #0e110d !important; border-color: #3A4033 !important; }
+
+body.theme-fantasy .icao-card[data-phase="INCERFA"],
+body.theme-fantasy .icao-card[data-phase="ALERFA"],
+body.theme-fantasy .icao-card[data-phase="DETRESFA"] {
+  border-color: var(--ph) !important;
+  box-shadow: var(--df-rim), var(--df-bevel), inset 0 0 40px rgba(0,0,0,0.45), 0 0 18px color-mix(in srgb, var(--ph) 45%, transparent) !important;
+}
+body.theme-fantasy .icao-card[data-phase="DETRESFA"] { animation: none; }
+body.theme-fantasy .icao-card[data-phase="DETRESFA"]::after {
+  /* แสงแดงเต้นรอบกรอบเมื่อ DETRESFA (แยกเป็น pseudo-element เพื่อไม่ชนกับเงากรอบโลหะ) */
+  content: ''; position: absolute; inset: -6px; pointer-events: none;
+  box-shadow: 0 0 28px rgba(229,83,61,0.85);
+  animation: dfDistress 1.6s ease-in-out infinite;
+}
+@keyframes dfDistress { 0%,100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+/* ── Map page ── */
+body.theme-fantasy .map-sidebar {
+  background: linear-gradient(180deg, #1b201a, #111410) !important;
+  border-left: 0 !important;
+  box-shadow: -1px 0 0 #070907, -3px 0 0 var(--df-iron-hi), -4px 0 0 var(--df-bronze) !important;
+}
+body.theme-fantasy :is(.ms-legend, .ms-summary, .ms-sum, .ms-unit-item, .ms-detail) { border-color: rgba(121,85,47,0.35) !important; }
+body.theme-fantasy .ms-legend-title { color: var(--df-gold) !important; }
+body.theme-fantasy .ms-unit-item:hover { background: rgba(69,214,106,0.06) !important; }
+body.theme-fantasy .ms-unit-item.sel { background: rgba(24,57,35,0.6) !important; border-left: 3px solid var(--df-emerald) !important; }
+body.theme-fantasy .ms-detail { background: rgba(0,0,0,0.25) !important; }
+body.theme-fantasy :is(.ms-detail-title, .popup-title) { color: var(--df-gold) !important; font-family: var(--df-font-display); }
+body.theme-fantasy .leaflet-tile { filter: brightness(0.45) saturate(0.35) sepia(0.35) hue-rotate(50deg) !important; }
+body.theme-fantasy :is(.leaflet-control-layers, .leaflet-popup-content-wrapper) {
+  background: linear-gradient(180deg, #1d221c, #121511) !important;
+  border: 1px solid var(--df-bronze) !important;
+  box-shadow: 0 0 0 1px #070907, 0 10px 24px rgba(0,0,0,0.7) !important;
+  color: var(--df-ivory) !important;
+}
+body.theme-fantasy .leaflet-popup-tip { background: #121511 !important; }
+body.theme-fantasy .leaflet-control-layers-list label { color: var(--df-ivory) !important; }
+body.theme-fantasy .leaflet-control-layers-list label:hover { color: var(--df-gem-hi) !important; }
+
+/* ── Scrollbar ── */
+body.theme-fantasy ::-webkit-scrollbar { width: 10px; height: 10px; }
+body.theme-fantasy ::-webkit-scrollbar-track { background: #0b0e0b; box-shadow: inset 0 0 0 1px #20251F; }
+body.theme-fantasy ::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #3a4033, #5b4630, #3a4033); border: 2px solid #0b0e0b; border-radius: 5px;
+}
+body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient(90deg, #4a503f, var(--df-bronze), #4a503f); }
+
+/* ── Responsive: ลดของตกแต่งบนจอเล็ก ── */
+@media (max-width: 860px) {
+  body.theme-fantasy .card::before { display: none; }
+  body.theme-fantasy .card, body.theme-fantasy .clock-bar { margin: 3px 3px 14px !important; }
+  body.theme-fantasy .app-header::after { display: none; }
+  body.theme-fantasy .nav-tab + .nav-tab::before { display: none; }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  body.theme-fantasy *, body.theme-fantasy *::before, body.theme-fantasy *::after {
+    animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important;
+  }
+}
 </style>
 </head>
-<body class="theme-dark">
+<body class="theme-fantasy">
+<!-- ICON SPRITE: ไอคอนเส้นชุดเดียวทั้งระบบ ใช้ผ่าน ic('ชื่อ') หรือ <use href="#i-ชื่อ"> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-heli" viewBox="0 0 24 24"><path d="M2 5h14M9 5v3"/><path d="M4 13a5 5 0 015-5h2a5 5 0 015 5 2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M16 11h5M21 9v4M7 15v3M13 15v3M4 18h12"/></symbol>
+  <symbol id="i-duty" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><circle cx="12" cy="10" r="2.5"/><path d="M8 16c.8-1.8 2.2-2.7 4-2.7s3.2.9 4 2.7"/></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="1.5"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="M20 11.5l-8.2 8.2a5 5 0 01-7.1-7.1l8.5-8.5a3.3 3.3 0 014.7 4.7l-8.5 8.5a1.7 1.7 0 01-2.4-2.4l7.8-7.8"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M4 20h16"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7 10l5-5 5 5M4 20h16"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-printer" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="1"/><path d="M7 14h10v7H7z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 000-8 6 6 0 00-11.5 1.5A3.3 3.3 0 007 18z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.5 5.7 3.5 9s-1 6.3-3.5 9c-2.5-2.7-3.5-5.7-3.5-9s1-6.3 3.5-9z"/></symbol>
+  <symbol id="i-siren" viewBox="0 0 24 24"><path d="M7 18v-6a5 5 0 0110 0v6"/><path d="M5 21h14v-3H5zM12 4V2M5 7L3.6 5.6M19 7l1.4-1.4"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></symbol>
+  <symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="M12 3L2 20h20z"/><path d="M12 9v5M12 17h.01"/></symbol>
+  <symbol id="i-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5h.01"/></symbol>
+  <symbol id="i-octagon" viewBox="0 0 24 24"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z"/><path d="M12 7v6M12 16.5h.01"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h6l2 2h10v11H3z"/></symbol>
+  <symbol id="i-folder-open" viewBox="0 0 24 24"><path d="M3 19V6h6l2 2h8v3"/><path d="M3 19l3-8h16l-3 8z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0014.5 4.5L20 16M20 20v-4h-4"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-dasharray="3 2.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A10 10 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.1 3.9M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 005.3-1.6"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 006 6L16 13l5 2v4a2 2 0 01-2 2A17 17 0 013 5a2 2 0 012-2z"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 3h4M6 7l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-satellite" viewBox="0 0 24 24"><path d="M7 9l2-2 6 6-2 2z"/><path d="M8 8L4 4M14 14l4 4M4.5 9.5l-1.5 1.5 3 3 1.5-1.5M9.5 4.5L11 3l3 3-1.5 1.5"/><path d="M15 21a6 6 0 006-6"/></symbol>
+  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="M2 20l7-12 4 6 3-4 6 10z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+  <symbol id="i-signal" viewBox="0 0 24 24"><path d="M5 19a10 10 0 010-14M19 5a10 10 0 010 14M8.5 15.5a5 5 0 010-7M15.5 8.5a5 5 0 010 7"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v3l5 6 5-6V3M7 21v-3l5-6 5 6v3"/></symbol>
+  <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9V16h7v-2.1A6 6 0 0012 3z"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 000 18c1.5 0 2-1 2-2s-1-2 0-3h2.5A4.5 4.5 0 0021 11.5C21 6.8 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+</svg>
+<script>
+// ไอคอน SVG จาก sprite ด้านบน
+function ic(name) { return `<svg class="ic" aria-hidden="true" focusable="false"><use href="#i-${name}"/></svg>`; }
+// แปลง emoji ในข้อความแจ้งเตือนเป็นไอคอน SVG (ใช้กับ toast / สถานะ)
+const EMOJI_ICON = { '✅':'check-circle', '⚠️':'alert-triangle', '⚠':'alert-triangle', '❌':'x-circle', '🎨':'palette', '📍':'pin',
+  '📄':'file-text', '📅':'calendar', '💡':'lightbulb', '⏳':'hourglass', '🚨':'siren', '🖥️':'monitor', '📂':'folder-open', '📸':'camera' };
+const EMOJI_RE = new RegExp(Object.keys(EMOJI_ICON).sort((a, b) => b.length - a.length).join('|'), 'g');
+function iconize(str) { return String(str).replace(EMOJI_RE, m => ic(EMOJI_ICON[m])); }
+</script>
 
 
 <!-- Theme Toggle Button (ขวาล่าง) -->
-<button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="เปลี่ยนธีม">🌙</button>
+<button class="theme-btn" id="theme-btn" onclick="cycleTheme()" title="เปลี่ยนธีม" aria-label="เปลี่ยนธีม"></button>
 
 <!-- HEADER + NAV -->
 <div class="app-header">
   <div class="app-logo">
-    <h1>🚁 RTAF RCC</h1>
+    <h1><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-heli"/></svg> RTAF RCC</h1>
     <div class="sub">ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.</div>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('duty',this)">👮 เจ้าหน้าที่เวร</button>
-    <button class="nav-tab" onclick="showPage('aircraft',this)">🚁 สถานภาพอากาศยาน</button>
-    <button class="nav-tab" onclick="showPage('mission',this)">📋 ภารกิจประจำวัน</button>
-    <button class="nav-tab" onclick="showPage('training',this)">🗺️ แผนการฝึกบิน</button>
-    <button class="nav-tab" onclick="showPage('map',this)">🗺️ แผนที่ Coverage</button>
-    <button class="nav-tab" onclick="showPage('others',this)">📎 อื่นๆ</button>
+    <button class="nav-tab active" onclick="showPage('duty',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-duty"/></svg> เจ้าหน้าที่เวร</button>
+    <button class="nav-tab" onclick="showPage('aircraft',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-heli"/></svg> สถานภาพอากาศยาน</button>
+    <button class="nav-tab" onclick="showPage('mission',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-clipboard"/></svg> ภารกิจประจำวัน</button>
+    <button class="nav-tab" onclick="showPage('training',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-map"/></svg> แผนการฝึกบิน</button>
+    <button class="nav-tab" onclick="showPage('map',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-radar"/></svg> แผนที่ Coverage</button>
+    <button class="nav-tab" onclick="showPage('others',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg> อื่นๆ</button>
   </div>
   <div style="display:flex;align-items:center;gap:6px;padding:0 8px;flex-shrink:0;position:relative;">
     <!-- ปุ่มบันทึก + dropdown -->
     <div style="position:relative;" id="save-menu-wrap">
       <div style="display:flex;">
-        <button id="btn-save" onclick="saveAll()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);border-right:none;color:#00ff88;padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;">💾 บันทึก</button>
+        <button id="btn-save" onclick="saveAll()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);border-right:none;color:#00ff88;padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-save"/></svg> บันทึก</button>
         <button onclick="toggleSaveMenu()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);color:#00ff88;padding:5px 8px;cursor:pointer;font-size:0.7rem;border-left:1px solid rgba(0,255,136,0.2);">▼</button>
       </div>
       <div id="save-dropdown" style="display:none;position:absolute;top:100%;right:0;min-width:180px;background:rgba(10,22,40,0.98);border:1px solid rgba(0,212,255,0.3);z-index:9999;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
-        <div onclick="exportJSON();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#00d4ff;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(0,212,255,0.1)'" onmouseout="this.style.background='transparent'">📥 Export JSON</div>
+        <div onclick="exportJSON();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#00d4ff;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(0,212,255,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-download"/></svg> Export JSON</div>
         <div style="padding:0;border-bottom:1px solid rgba(255,255,255,0.06);">
           <label style="display:block;padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">
-            📤 Import JSON<input type="file" accept=".json" onchange="importJSON(this);toggleSaveMenu()" style="display:none"/>
+            <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-upload"/></svg> Import JSON<input type="file" accept=".json" onchange="importJSON(this);toggleSaveMenu()" style="display:none"/>
           </label>
         </div>
-        <div onclick="exportWord();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#6495ed;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(100,149,237,0.1)'" onmouseout="this.style.background='transparent'">📝 Export Word</div>
-        <div onclick="exportPDF();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">🖨️ Export PDF (บรรยายสรุป)</div>
-        <div onclick="captureAllPages();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ff69b4;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,105,180,0.1)'" onmouseout="this.style.background='transparent'">📸 แคปทุกหน้า → PDF</div>
+        <div onclick="exportWord();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#6495ed;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(100,149,237,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-file-text"/></svg> Export Word</div>
+        <div onclick="exportPDF();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-printer"/></svg> Export PDF (บรรยายสรุป)</div>
+        <div onclick="captureAllPages();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ff69b4;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,105,180,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-camera"/></svg> แคปทุกหน้า → PDF</div>
       </div>
     </div>
   </div>
-  <div class="app-date">📅 <span id="header-date">7 เม.ย. 2569</span></div>
-  <div id="server-status" style="font-size:0.72rem;padding:0 10px;white-space:nowrap;color:#8899aa;flex-shrink:0;">☁️ กำลังเชื่อมต่อ...</div>
+  <div class="app-date"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-calendar"/></svg>&nbsp;<span id="header-date">7 เม.ย. 2569</span></div>
+  <div id="icao-header-pill" class="icao-pill" onclick="icaoGoto()" title="สถานะเหตุการณ์ตามมาตรฐาน ICAO"></div>
+  <div id="server-status" style="font-size:0.72rem;padding:0 10px;white-space:nowrap;color:#8899aa;flex-shrink:0;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-cloud"/></svg> กำลังเชื่อมต่อ...</div>
   <!-- PWA Install Button (จะแสดงเมื่อติดตั้งได้) -->
   <button id="pwa-install-btn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;flex-shrink:0;">
-    📲 ติดตั้งแอป
+    <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-smartphone"/></svg> ติดตั้งแอป
   </button>
 </div>
 
@@ -955,14 +1497,49 @@ body::before {
   <div class="page-scroll">
 
     <!-- CLOCK BAR -->
-    <div style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);padding:12px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <div class="clock-bar" style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);padding:12px 20px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
       <div>
         <div id="clock-date" style="font-size:1rem;font-weight:700;color:var(--accent);font-family:'Share Tech Mono',monospace;"></div>
         <div id="clock-time" style="font-size:1.8rem;font-weight:700;color:var(--white);font-family:'Share Tech Mono',monospace;line-height:1.1;"></div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:0.75rem;color:var(--gray);">🌐 Bangkok Time (UTC+7) — realtime</div>
+        <div style="font-size:0.75rem;color:var(--gray);"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg> Bangkok Time (UTC+7) — realtime</div>
         <div id="clock-day" style="font-size:0.85rem;color:var(--yellow);margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <!-- ICAO EMERGENCY PHASE (Annex 11 / Annex 12) -->
+    <div class="card icao-card" id="icao-card" style="margin-bottom:14px;">
+      <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <span><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-siren"/></svg> สถานะเหตุการณ์ตามมาตรฐาน ICAO (Emergency Phases)</span>
+        <span style="font-size:0.72rem;color:var(--gray);font-weight:400;">อ้างอิง ICAO Annex 11 ข้อ 5.2 / Annex 12 / IAMSAR</span>
+      </div>
+
+      <div class="icao-phase-row">
+        <button class="icao-btn" data-phase="NORMAL"   onclick="icaoSetPhase('NORMAL')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-check-circle"/></svg>ปกติ<small>NORMAL</small></button>
+        <button class="icao-btn" data-phase="INCERFA"  onclick="icaoSetPhase('INCERFA')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-alert-triangle"/></svg>INCERFA<small>ขั้นไม่แน่นอน</small></button>
+        <button class="icao-btn" data-phase="ALERFA"   onclick="icaoSetPhase('ALERFA')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-alert-circle"/></svg>ALERFA<small>ขั้นเตรียมพร้อม</small></button>
+        <button class="icao-btn" data-phase="DETRESFA" onclick="icaoSetPhase('DETRESFA')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-octagon"/></svg>DETRESFA<small>ขั้นอันตราย</small></button>
+      </div>
+
+      <div class="icao-banner" id="icao-banner"></div>
+
+      <div class="icao-body" id="icao-body">
+        <div class="icao-fields">
+          <label>อากาศยาน / Callsign<input id="icao-callsign" placeholder="เช่น RTAF123 / HS-XXX" oninput="icaoSaveFields()"/></label>
+          <label>แบบ / จำนวนคนบนเครื่อง<input id="icao-type" placeholder="เช่น EC725 / POB 6" oninput="icaoSaveFields()"/></label>
+          <label>ตำแหน่งสุดท้ายที่ทราบ (LKP)<input id="icao-lkp" placeholder="พิกัด / จุดรายงาน" oninput="icaoSaveFields()"/></label>
+          <label>ติดต่อครั้งสุดท้าย (เวลา)<input id="icao-lastcontact" placeholder="เช่น 0830 น. / 0130Z" oninput="icaoSaveFields()"/></label>
+          <label class="icao-wide">รายละเอียด / การดำเนินการ<textarea id="icao-notes" rows="2" placeholder="หน่วยที่แจ้ง, การประสานงาน, ทรัพยากรที่สั่งการ ..." oninput="icaoSaveFields()"></textarea></label>
+        </div>
+        <div class="icao-side">
+          <div class="icao-criteria" id="icao-criteria"></div>
+          <div class="icao-log-head">
+            <span>บันทึกการเปลี่ยนสถานะ</span>
+            <button onclick="icaoClearLog(this)">ล้างบันทึก</button>
+          </div>
+          <div class="icao-log" id="icao-log"></div>
+        </div>
       </div>
     </div>
 
@@ -1010,10 +1587,10 @@ body::before {
 
     <!-- CSV UPLOAD (ด้านล่าง) -->
     <div class="card" style="margin-top:14px;">
-      <div class="card-title">📂 นำเข้าฐานข้อมูลเจ้าหน้าที่ (CSV/Excel)</div>
+      <div class="card-title"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-folder-open"/></svg> นำเข้าฐานข้อมูลเจ้าหน้าที่ (CSV/Excel)</div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <label style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:7px 16px;cursor:pointer;font-size:0.85rem;white-space:nowrap;">
-          📁 เลือกไฟล์ CSV
+        <label class="file-btn" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:7px 16px;cursor:pointer;font-size:0.85rem;white-space:nowrap;">
+          <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-folder"/></svg> เลือกไฟล์ CSV
           <input type="file" id="csv-upload" accept=".csv,.xlsx,.xls" style="display:none" onchange="loadCSV(this)"/>
         </label>
         <span id="csv-status"></span>
@@ -1035,8 +1612,8 @@ body::before {
     <div class="card">
       <div class="card-title" style="justify-content:space-between">
         <span>สถานภาพอากาศยานหน่วยบินค้นหาและช่วยชีวิต</span>
-        <button onclick="applyAndGoMap()" style="background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:5px;">
-          🗺️ บันทึก &amp; ดูแผนที่
+        <button class="go-map-btn" onclick="applyAndGoMap()" style="background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:5px;">
+          <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-map"/></svg> บันทึก &amp; ดูแผนที่
         </button>
       </div>
       <div style="overflow-x:auto">
@@ -1064,7 +1641,7 @@ body::before {
     <div class="card">
       <div class="card-title" style="justify-content:space-between;">
         <span>ภารกิจประจำวันหน่วยบินค้นหาและช่วยชีวิต — <span id="mission-date"></span></span>
-        <div style="font-size:0.75rem;color:var(--gray);">🔄 สถานภาพ sync จากหน้าสถานภาพอากาศยานอัตโนมัติ</div>
+        <div style="font-size:0.75rem;color:var(--gray);"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg> สถานภาพ sync จากหน้าสถานภาพอากาศยานอัตโนมัติ</div>
       </div>
       <div style="overflow-x:auto">
         <table class="data-table">
@@ -1109,11 +1686,11 @@ body::before {
       <button class="sub-tab" onclick="showSub('sub5',this)">5. BIGSHELL</button>
     </div>
 
-    <!-- SUB 1 --><div class="sub-page active" id="sub1"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการปฏิบัติทางอากาศประจำวัน</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-1" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('1')" id="view-btn-1" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('1',this)"/></label></div></div><div id="img-grid-1" class="img-grid-single"></div><div id="img-empty-1" class="img-upload-area" onclick="document.querySelector('#sub1 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 2 --><div class="sub-page" id="sub2"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>ภารกิจการติดตามอากาศยานที่สำคัญ</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-2" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('2')" id="view-btn-2" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('2',this)"/></label></div></div><div id="img-grid-2" class="img-grid-single"></div><div id="img-empty-2" class="img-upload-area" onclick="document.querySelector('#sub2 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 3 --><div class="sub-page" id="sub3"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ OSCAR</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-3" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('3')" id="view-btn-3" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('3',this)"/></label></div></div><div id="img-grid-3" class="img-grid-single"></div><div id="img-empty-3" class="img-upload-area" onclick="document.querySelector('#sub3 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 4 --><div class="sub-page" id="sub4"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ FOCAL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-4" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('4')" id="view-btn-4" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('4',this)"/></label></div></div><div id="img-grid-4" class="img-grid-single"></div><div id="img-empty-4" class="img-upload-area" onclick="document.querySelector('#sub4 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 5 --><div class="sub-page" id="sub5"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ BIGSHELL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-5" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('5')" id="view-btn-5" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('5',this)"/></label></div></div><div id="img-grid-5" class="img-grid-single"></div><div id="img-empty-5" class="img-upload-area" onclick="document.querySelector('#sub5 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 1 --><div class="sub-page active" id="sub1"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการปฏิบัติทางอากาศประจำวัน</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-1" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('1')" id="view-btn-1" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('1',this)"/></label></div></div><div id="img-grid-1" class="img-grid-single"></div><div id="img-empty-1" class="img-upload-area" onclick="document.querySelector('#sub1 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 2 --><div class="sub-page" id="sub2"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>ภารกิจการติดตามอากาศยานที่สำคัญ</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-2" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('2')" id="view-btn-2" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('2',this)"/></label></div></div><div id="img-grid-2" class="img-grid-single"></div><div id="img-empty-2" class="img-upload-area" onclick="document.querySelector('#sub2 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 3 --><div class="sub-page" id="sub3"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ OSCAR</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-3" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('3')" id="view-btn-3" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('3',this)"/></label></div></div><div id="img-grid-3" class="img-grid-single"></div><div id="img-empty-3" class="img-upload-area" onclick="document.querySelector('#sub3 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 4 --><div class="sub-page" id="sub4"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ FOCAL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-4" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('4')" id="view-btn-4" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('4',this)"/></label></div></div><div id="img-grid-4" class="img-grid-single"></div><div id="img-empty-4" class="img-upload-area" onclick="document.querySelector('#sub4 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 5 --><div class="sub-page" id="sub5"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ BIGSHELL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-5" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('5')" id="view-btn-5" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('5',this)"/></label></div></div><div id="img-grid-5" class="img-grid-single"></div><div id="img-empty-5" class="img-upload-area" onclick="document.querySelector('#sub5 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
 
   </div>
 </div>
@@ -1136,17 +1713,18 @@ body::before {
     <div class="ms-legend" style="border-top:1px solid rgba(0,212,255,0.1);border-bottom:none;margin-top:auto;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div class="ms-legend-title" style="margin-bottom:0;">สัญลักษณ์สถานภาพ</div>
+      </div>
       <div id="api-status" style="font-size:0.7rem;color:var(--gray);margin-bottom:6px;"></div>
       <div class="ms-legend-item"><div class="ms-dot" style="background:#00ff88"></div><span style="color:#00ff88">FMC — พร้อมปฏิบัติเต็มที่</span></div>
       <div class="ms-legend-item"><div class="ms-dot" style="background:#ffd700"></div><span style="color:#ffd700">PMC — พร้อมปฏิบัติบางส่วน</span></div>
       <div class="ms-legend-item"><div class="ms-dot" style="background:#ff4444"></div><span style="color:#ff4444">NMC — ไม่พร้อมปฏิบัติ</span></div>
-      <div style="margin-top:6px;font-size:0.72rem;color:var(--gray)">⭕ วงกลม = Coverage <span style="color:var(--accent);font-family:'Share Tech Mono',monospace">150 NM</span></div>
+      <div style="margin-top:6px;font-size:0.72rem;color:var(--gray)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-target"/></svg> วงกลม = Coverage <span style="color:var(--accent);font-family:'Share Tech Mono',monospace">150 NM</span></div>
     </div>
     <div class="ms-toggle">
-      <button id="btn-FMC" class="toggle-btn" onclick="toggleCov('FMC')">👁 FMC Coverage</button>
-      <button id="btn-PMC" class="toggle-btn" onclick="toggleCov('PMC')">👁 PMC Coverage</button>
-      <button id="btn-NMC" class="toggle-btn" onclick="toggleCov('NMC')">👁 NMC Coverage</button>
-      <button id="btn-all" class="toggle-btn all-btn" onclick="toggleAll()">🚫 ปิดทั้งหมด</button>
+      <button id="btn-FMC" class="toggle-btn" onclick="toggleCov('FMC')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg> FMC Coverage</button>
+      <button id="btn-PMC" class="toggle-btn" onclick="toggleCov('PMC')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg> PMC Coverage</button>
+      <button id="btn-NMC" class="toggle-btn" onclick="toggleCov('NMC')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg> NMC Coverage</button>
+      <button id="btn-all" class="toggle-btn all-btn" onclick="toggleAll()"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye-off"/></svg> ปิดทั้งหมด</button>
     </div>
   </div>
 </div>
@@ -1154,17 +1732,20 @@ body::before {
 <script>
 // ── THEME CYCLE ──
 const themes = [
-  { cls:'theme-dark',  icon:'🌙', label:'Dark' },
-  { cls:'theme-light', icon:'☀️', label:'Light' },
-  { cls:'theme-camo',  icon:'🪖', label:'Camo' },
-  { cls:'theme-metal', icon:'🤘', label:'Heavy Metal' },
+  { cls:'theme-dark',  icon:'moon',   label:'Dark' },
+  { cls:'theme-light', icon:'sun',    label:'Light' },
+  { cls:'theme-camo',  icon:'shield', label:'Camo' },
+  { cls:'theme-metal', icon:'bolt',   label:'Heavy Metal' },
+  { cls:'theme-fantasy', icon:'', label:'Dark Fantasy' }, // ปุ่มเป็นลูกแก้วมรกต ไม่ต้องมีไอคอน
 ];
-let themeIdx = 0;
+// ธีมเริ่มต้น = Dark Fantasy (key ใหม่ จึงเริ่มที่ธีมนี้หนึ่งครั้ง แล้วจำตามที่ผู้ใช้เลือก)
+const THEME_KEY = 'rtaf_theme_v2';
+let themeIdx = themes.findIndex(t => t.cls === 'theme-fantasy');
 
 function cycleTheme() {
   themeIdx = (themeIdx + 1) % themes.length;
   applyTheme(themeIdx);
-  try { localStorage.setItem('rtaf_theme', themeIdx); } catch(e) {}
+  try { localStorage.setItem(THEME_KEY, themeIdx); } catch(e) {}
 }
 
 function applyTheme(idx) {
@@ -1172,14 +1753,15 @@ function applyTheme(idx) {
   themes.forEach(t => body.classList.remove(t.cls));
   body.classList.add(themes[idx].cls);
   const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = themes[idx].icon;
+  if (btn) btn.innerHTML = themes[idx].icon ? ic(themes[idx].icon) : '';
   showToast(`🎨 ธีม: ${themes[idx].label}`, idx === 0 ? 'cyan' : idx === 1 ? 'green' : 'green');
 }
 
 // โหลดธีมที่บันทึกไว้
 try {
-  const saved = localStorage.getItem('rtaf_theme');
-  if (saved !== null) { themeIdx = parseInt(saved); applyTheme(themeIdx); }
+  const saved = localStorage.getItem(THEME_KEY);
+  if (saved !== null && themes[parseInt(saved)]) { themeIdx = parseInt(saved); applyTheme(themeIdx); }
+  else { const btn = document.getElementById('theme-btn'); if (btn) btn.innerHTML = themes[themeIdx].icon ? ic(themes[themeIdx].icon) : ''; }
 } catch(e) {}
 
 // ── MULTI-IMAGE SYSTEM ──
@@ -1234,7 +1816,7 @@ function renderImgGrid(n) {
           <span id="zoom-lbl-${n}-${i}" style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent);min-width:36px;text-align:center;">${Math.round(img.zoom*100)}%</span>
           <button onclick="zoomImgNew('${n}',${i},0.2)" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--white);padding:2px 8px;cursor:pointer;font-size:0.75rem;">+</button>
           <button onclick="resetZoomNew('${n}',${i})" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--gray);padding:2px 8px;cursor:pointer;font-size:0.75rem;">↺</button>
-          <button onclick="removeImg('${n}',${i})" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff6666;padding:2px 8px;cursor:pointer;font-size:0.75rem;">✕</button>
+          <button onclick="removeImg('${n}',${i})" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff6666;padding:2px 8px;cursor:pointer;font-size:0.75rem;" title="ลบภาพ" aria-label="ลบภาพ">${ic('x')}</button>
         </div>
       </div>
       <div class="img-card-body" id="img-body-${n}-${i}">
@@ -1374,7 +1956,7 @@ function buildMissionTable() {
             <input class="mission-input" id="m-inp-${u.id}"
               value="${u.mission !== '—' ? u.mission : ''}"
               placeholder="ระบุภารกิจประจำวัน..."/>
-            <button class="mission-clear" onclick="clearMission('${u.id}')" title="ล้างภารกิจ">✕</button>
+            <button class="mission-clear" onclick="clearMission('${u.id}')" title="ล้างภารกิจ" aria-label="ล้างภารกิจ">${ic('x')}</button>
           </div>
         </td>
       </tr>`;
@@ -1451,21 +2033,21 @@ function renderZones() {
           </div>
           <input class="zone-item-input" value="${item}" placeholder="ระบุแผนการฝึกบิน..."
             oninput="updateZoneItem('${z.id}',${i},this.value);rerenderSummary('${z.id}')"/>
-          <button class="zone-item-clear" onclick="clearZoneItem('${z.id}',${i})" title="ล้างข้อความ">✕</button>
+          <button class="zone-item-clear" onclick="clearZoneItem('${z.id}',${i})" title="ล้างข้อความ" aria-label="ล้างข้อความ">${ic('x')}</button>
           <button class="zone-item-clear" onclick="removeZoneItem('${z.id}',${i})"
             style="background:rgba(100,100,100,0.1);border-color:rgba(255,255,255,0.15);color:var(--gray);"
-            title="ลบรายการ">🗑</button>
+            title="ลบรายการ" aria-label="ลบรายการ">${ic('trash')}</button>
         </div>`;
     }).join('');
 
     container.innerHTML += `
       <div class="zone-card" id="zc-${z.id}">
         <div class="zone-header">
-          <span style="color:var(--accent);font-size:1rem;">🗺️</span>
+          <span style="color:var(--accent);font-size:1rem;">${ic('map')}</span>
           <input class="zone-name-input" value="${z.name}" placeholder="ชื่อเขตพื้นที่..."
             onchange="updateZoneName('${z.id}',this.value)"/>
           <div id="zone-summary-${z.id}" style="background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:0.75rem;padding:2px 10px;white-space:nowrap;flex-shrink:0;">
-            📋 ${count} ภารกิจ
+            ${ic('clipboard')} ${count} ภารกิจ
           </div>
         </div>
         <div class="zone-body" id="zb-${z.id}">
@@ -1487,7 +2069,7 @@ function rerenderSummary(zid) {
   }
   const count = z.items.filter(item => item.trim() !== '').length;
   const sumEl = document.getElementById('zone-summary-' + zid);
-  if (sumEl) sumEl.textContent = `📋 ${count} ภารกิจ`;
+  if (sumEl) sumEl.innerHTML = `${ic('clipboard')} ${count} ภารกิจ`;
 
   // re-number all items
   let num = 1;
@@ -1659,7 +2241,7 @@ function buildDutyTable() {
             ${opts}
           </select>
         </td>
-        <td class="duty-tel-cell" id="duty-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">📞</span> ${tel}` : '—'}</td>
+        <td class="duty-tel-cell" id="duty-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}` : '—'}</td>
       </tr>`;
   });
 }
@@ -1670,7 +2252,7 @@ function dutyChanged(idx, val) {
   const tel = (i >= 0 && staffDB[i]) ? fixTel(staffDB[i].tel) : '—';
   const telEl = document.getElementById('duty-tel-' + idx);
   telEl.innerHTML = tel !== '—'
-    ? `<span style="color:#ff69b4">📞</span> ${tel}`
+    ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}`
     : '—';
   autoSaveLocal();
 }
@@ -1694,7 +2276,7 @@ function buildStandbyTable() {
             ${opts}
           </select>
         </td>
-        <td class="duty-tel-cell" id="standby-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">📞</span> ${tel}` : '—'}</td>
+        <td class="duty-tel-cell" id="standby-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}` : '—'}</td>
       </tr>`;
   });
 }
@@ -1705,7 +2287,7 @@ function standbyChanged(idx, val) {
   const tel = (i >= 0 && staffDB[i]) ? fixTel(staffDB[i].tel) : '—';
   const telEl = document.getElementById('standby-tel-' + idx);
   telEl.innerHTML = tel !== '—'
-    ? `<span style="color:#ff69b4">📞</span> ${tel}`
+    ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}`
     : '—';
   autoSaveLocal();
 }
@@ -1756,7 +2338,9 @@ function loadCSV(input) {
 
     if (newStaff.length > 0) {
       staffDB = newStaff;
-      document.getElementById('csv-status').textContent = `✅ โหลดแล้ว ${newStaff.length} คน จาก ${file.name}`;
+      const csvSt = document.getElementById('csv-status');
+      csvSt.innerHTML = ic('check-circle');
+      csvSt.append(` โหลดแล้ว ${newStaff.length} คน จาก ${file.name}`);
       document.getElementById('csv-status').style.color = 'var(--green)';
       // Reset all slots to first person
       dutySlots.forEach(s => s.selected = 0);
@@ -1766,7 +2350,7 @@ function loadCSV(input) {
       // บันทึกลง LocalStorage ทันทีหลังโหลด CSV
       setTimeout(autoSaveLocal, 200);
     } else {
-      document.getElementById('csv-status').textContent = '❌ ไม่พบข้อมูล กรุณาตรวจสอบรูปแบบ CSV';
+      document.getElementById('csv-status').innerHTML = ic('x-circle') + ' ไม่พบข้อมูล กรุณาตรวจสอบรูปแบบ CSV';
       document.getElementById('csv-status').style.color = 'var(--red)';
     }
   };
@@ -1800,11 +2384,11 @@ function buildAircraftTable() {
         <td>
           <select class="comm-select ${commClass}" id="comm-sel-${u.id}"
             onchange="commChanged('${u.id}',this)">
-            <option value="ok"  ${u.comm==='ok' ?'selected':''}>✅ ติดต่อได้</option>
-            <option value="no"  ${u.comm==='no' ?'selected':''}>❌ ติดต่อไม่ได้</option>
+            <option value="ok"  ${u.comm==='ok' ?'selected':''}>ติดต่อได้</option>
+            <option value="no"  ${u.comm==='no' ?'selected':''}>ติดต่อไม่ได้</option>
           </select>
         </td>
-        <td><div class="ac-input-wrap"><input class="ac-input" id="ac-inp-${u.id}" value="${u.reason}" placeholder="ระบุสาเหตุ..."/><button class="ac-clear" onclick="clearReason('${u.id}')" title="ล้างข้อความ">✕</button></div></td>
+        <td><div class="ac-input-wrap"><input class="ac-input" id="ac-inp-${u.id}" value="${u.reason}" placeholder="ระบุสาเหตุ..."/><button class="ac-clear" onclick="clearReason('${u.id}')" title="ล้างข้อความ" aria-label="ล้างข้อความ">${ic('x')}</button></div></td>
       </tr>`;
   });
   updateAcSummary();
@@ -1939,13 +2523,13 @@ function initMap() {
 
   // ── LAYER CONTROL ──
   const baseLayers = {
-    '🗺️ Google Maps (ภาษาไทย)':     googleStreet,
-    '🛰️ Google Satellite (ดาวเทียม)': googleSat,
-    '🌐 Google Hybrid (ดาวเทียม+ถนน)': googleHybrid,
-    '🏔️ Google Terrain (ภูมิประเทศ)': googleTerrain,
-    '📍 OSM ภาษาไทย':                 osmTH,
-    '🌎 Esri World Imagery (ดาวเทียมคมชัด)': esriImagery,
-    '⛰️ OpenTopoMap (ภูมิประเทศ)':      openTopo,
+    [ic('map') + ' Google Maps (ภาษาไทย)']:     googleStreet,
+    [ic('satellite') + ' Google Satellite (ดาวเทียม)']: googleSat,
+    [ic('globe') + ' Google Hybrid (ดาวเทียม+ถนน)']: googleHybrid,
+    [ic('mountain') + ' Google Terrain (ภูมิประเทศ)']: googleTerrain,
+    [ic('pin') + ' OSM ภาษาไทย']:                 osmTH,
+    [ic('globe') + ' Esri World Imagery (ดาวเทียมคมชัด)']: esriImagery,
+    [ic('mountain') + ' OpenTopoMap (ภูมิประเทศ)']:      openTopo,
   };
 
   L.control.layers(baseLayers, null, {
@@ -1986,10 +2570,8 @@ function initMap() {
   setTimeout(() => {
     const lc = document.querySelector('.leaflet-control-layers');
     if (lc) {
+      // สี/พื้นหลัง/ขอบ มาจาก CSS (.leaflet-control-layers และธีม) เพื่อให้เปลี่ยนตามธีมได้
       lc.style.cssText += `
-        background:rgba(10,22,40,0.95)!important;
-        border:1px solid rgba(0,212,255,0.3)!important;
-        color:#e8f4f8!important;
         font-family:'Sarabun',sans-serif!important;
         font-size:0.85rem!important;
         padding:8px 12px!important;
@@ -2008,7 +2590,7 @@ function makeMarker(u) {
   return L.marker([u.lat,u.lng], { icon: L.divIcon({
     className:'',
     html:`<div class="heli-marker">
-      <div class="heli-circle" style="background:rgba(10,22,40,0.9);border-color:${c};box-shadow:0 0 10px ${c}44"><span style="font-size:16px">🚁</span></div>
+      <div class="heli-circle" style="background:rgba(10,22,40,0.9);border-color:${c};box-shadow:0 0 10px ${c}44"><span style="color:${c};display:flex">${ic('heli')}</span></div>
       <div class="heli-label" style="background:rgba(10,22,40,0.9);color:${c};border:1px solid ${c}44">${u.id}</div>
     </div>`,
     iconSize:[48,50], iconAnchor:[24,17], popupAnchor:[0,-18]
@@ -2021,13 +2603,13 @@ function makePopup(u) {
     `<option value="${l.name}" data-lat="${l.lat}" data-lng="${l.lng}" ${u.loc===l.name?'selected':''}>${l.name}</option>`
   ).join('');
   return `
-    <div class="popup-title">🚁 ${u.name}</div>
+    <div class="popup-title">${ic('heli')} ${u.name}</div>
     <div class="popup-row"><span class="popup-label">แบบเครื่อง</span><span class="popup-val">${u.type}</span></div>
     <div class="popup-row"><span class="popup-label">สถานภาพ</span><span class="popup-val" style="color:${c}">${u.status} — ${statusTh[u.status]}</span></div>
     <div class="popup-row"><span class="popup-label">ภารกิจ</span><span class="popup-val">${u.mission}</span></div>
     <div class="popup-row"><span class="popup-label">สาเหตุ</span><span class="popup-val" style="font-size:0.72rem">${u.reason}</span></div>
     <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,212,255,0.15);">
-      <div style="font-size:0.72rem;color:#8899aa;margin-bottom:4px;">📍 ย้ายที่ตั้ง</div>
+      <div style="font-size:0.72rem;color:#8899aa;margin-bottom:4px;">${ic('pin')} ย้ายที่ตั้ง</div>
       <select onchange="moveUnit('${u.id}',this)" style="width:100%;background:#0a1628;border:1px solid rgba(0,212,255,0.3);color:#e8f4f8;font-family:'Sarabun',sans-serif;font-size:0.82rem;padding:4px 8px;cursor:pointer;outline:none;">
         ${locOpts}
       </select>
@@ -2058,7 +2640,7 @@ function buildUnitList() {
         <div class="ms-unit-dot" id="mdot-${u.id}" style="background:${dc}"></div>
         <div class="ms-unit-info">
           <div class="ms-unit-name">${u.name}</div>
-          <div class="ms-unit-loc">📍 ${u.loc} — ${u.type}</div>
+          <div class="ms-unit-loc">${ic('pin')} ${u.loc} — ${u.type}</div>
         </div>
         <select class="status-select ${sc}" id="msel-${u.id}"
           onclick="event.stopPropagation()"
@@ -2106,7 +2688,7 @@ function moveUnit(id, sel) {
 
   // อัปเดต unit loc ใน sidebar
   const locText = document.querySelector(`#mitem-${id} .ms-unit-loc`);
-  if (locText) locText.textContent = `📡 ${u.type}`;
+  if (locText) locText.innerHTML = `${ic('signal')} ${u.type}`;
 
   showToast(`📍 ${u.name}\nย้ายไป ${newLoc} แล้ว`, 'cyan');
   autoSaveLocal();
@@ -2161,7 +2743,7 @@ function toggleCov(s) {
   Object.values(circles).forEach(c => { if (c.status===s) { covState[s]?map.addLayer(c.layer):map.removeLayer(c.layer); } });
   const btn = document.getElementById('btn-'+s);
   btn.classList.toggle('off', !covState[s]);
-  btn.textContent = (covState[s]?'👁 ':'🚫 ') + s + ' Coverage';
+  btn.innerHTML = ic(covState[s] ? 'eye' : 'eye-off') + ' ' + s + ' Coverage';
 }
 
 function toggleAll() {
@@ -2171,9 +2753,9 @@ function toggleAll() {
     Object.values(circles).forEach(c => { if(c.status===s){ !allOn?map.addLayer(c.layer):map.removeLayer(c.layer); } });
     const btn = document.getElementById('btn-'+s);
     btn.classList.toggle('off', allOn);
-    btn.textContent = (!allOn?'👁 ':'🚫 ') + s + ' Coverage';
+    btn.innerHTML = ic(!allOn ? 'eye' : 'eye-off') + ' ' + s + ' Coverage';
   });
-  document.getElementById('btn-all').textContent = allOn?'👁 เปิดทั้งหมด':'🚫 ปิดทั้งหมด';
+  document.getElementById('btn-all').innerHTML = allOn ? ic('eye') + ' เปิดทั้งหมด' : ic('eye-off') + ' ปิดทั้งหมด';
 }
 
 // Init aircraft table on load
@@ -2185,7 +2767,7 @@ let lastServerSync = 0;
 
 function setServerStatus(msg, color) {
   const el = document.getElementById('server-status');
-  if (el) el.innerHTML = `☁️ <span style="color:${color}">${msg}</span>`;
+  if (el) el.innerHTML = `${ic('cloud')} <span style="color:${color}">${msg}</span>`;
 }
 
 async function saveToServer(data) {
@@ -2519,20 +3101,21 @@ function showToast(msg, color = 'green', filename = null) {
   `;
 
   const lines = msg.split('\n').join('<br>');
-  toast.innerHTML = `<div>${lines}</div>`;
+  toast.innerHTML = `<div>${iconize(lines)}</div>`;
 
   // ถ้ามี filename → เพิ่มปุ่มเปิด Downloads folder
   if (filename) {
     const hint = document.createElement('div');
     hint.style.cssText = `margin-top:10px;padding-top:8px;border-top:1px solid ${c.border};font-size:0.78rem;color:#8899aa;`;
-    hint.innerHTML = `📂 ไฟล์อยู่ใน <strong style="color:${c.text}">Downloads</strong> ของเครื่องคุณ<br>
+    hint.innerHTML = `${ic('folder-open')} ไฟล์อยู่ใน <strong style="color:${c.text}">Downloads</strong> ของเครื่องคุณ<br>
       <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;opacity:0.8;">${filename}</span>`;
     toast.appendChild(hint);
   }
 
   // ปุ่มปิด
   const closeBtn = document.createElement('button');
-  closeBtn.textContent = '✕';
+  closeBtn.innerHTML = ic('x');
+  closeBtn.setAttribute('aria-label', 'ปิดการแจ้งเตือน');
   closeBtn.style.cssText = `
     position:absolute; top:8px; right:10px;
     background:none; border:none; color:${c.text};
@@ -2726,7 +3309,7 @@ function exportWord(fromSave = false) {
 
   if (fromSave) {
     const btn = document.getElementById('btn-save');
-    if (btn) { btn.textContent = '✅ บันทึกแล้ว!'; setTimeout(() => { btn.textContent = '💾 บันทึก'; }, 2000); }
+    if (btn) { btn.innerHTML = ic('check-circle') + ' บันทึกแล้ว!'; setTimeout(() => { btn.innerHTML = ic('save') + ' บันทึก'; }, 2000); }
   }
 }
 
@@ -2751,9 +3334,10 @@ async function captureAllPages() {
   const totalPages = mainPages.length + subPages.length;
 
   const overlay = document.createElement('div');
+  overlay.className = 'cap-overlay';
   overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:'Sarabun',sans-serif;color:#e8f4f8;";
   overlay.innerHTML = `
-    <div style="font-size:1.2rem;font-weight:700;color:#00d4ff;">📸 กำลังแคปหน้าจอ...</div>
+    <div style="font-size:1.2rem;font-weight:700;color:#00d4ff;">${ic('camera')} กำลังแคปหน้าจอ...</div>
     <div id="cap-status" style="font-size:0.9rem;color:#aaa;">เตรียมการ...</div>
     <div style="width:300px;background:#1a1a1a;height:8px;border-radius:4px;overflow:hidden;">
       <div id="cap-bar" style="height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);width:0%;transition:width 0.3s;border-radius:4px;"></div>
@@ -2762,7 +3346,7 @@ async function captureAllPages() {
   document.body.appendChild(overlay);
 
   const setStatus = (txt, pct) => {
-    document.getElementById('cap-status').textContent = txt;
+    document.getElementById('cap-status').innerHTML = iconize(txt);
     document.getElementById('cap-bar').style.width = pct + '%';
   };
 
@@ -2773,6 +3357,7 @@ async function captureAllPages() {
     if (b.classList.contains('theme-light')) return '#f0f4f8';
     if (b.classList.contains('theme-camo'))  return '#2d3a1e';
     if (b.classList.contains('theme-metal')) return '#111111';
+    if (b.classList.contains('theme-fantasy')) return '#101310';
     return '#0a1628';
   };
 
@@ -3124,6 +3709,155 @@ async function exportPDF() {
   win.document.close();
 }
 
+</script>
+
+<!-- ICAO EMERGENCY PHASE -->
+<script>
+// ขั้นตอนภาวะฉุกเฉินตาม ICAO Annex 11 ข้อ 5.2.1 (INCERFA / ALERFA / DETRESFA)
+const ICAO_KEY = 'rtaf_rcc_icao';
+const ICAO_PHASES = {
+  NORMAL:   { color:'#00ff88', th:'สถานการณ์ปกติ', en:'No emergency phase declared', criteria:null },
+  INCERFA:  { color:'#ffd700', th:'ขั้นไม่แน่นอน', en:'Uncertainty Phase',
+    criteria:[
+      'ไม่ได้รับการติดต่อจากอากาศยานภายใน 30 นาที หลังเวลาที่ควรได้รับการติดต่อ หรือนับจากเวลาที่พยายามติดต่อครั้งแรกแล้วไม่สำเร็จ (ใช้เวลาที่ถึงก่อน)',
+      'อากาศยานไม่มาถึงภายใน 30 นาที หลังเวลาคาดว่าจะถึง (ETA) ที่แจ้งไว้ล่าสุดหรือที่หน่วย ATS ประมาณไว้ (ใช้เวลาที่ช้ากว่า)',
+    ], except:'ยกเว้นไม่มีข้อสงสัยเกี่ยวกับความปลอดภัยของอากาศยานและผู้โดยสาร' },
+  ALERFA:   { color:'#ff8800', th:'ขั้นเตรียมพร้อม', en:'Alert Phase',
+    criteria:[
+      'ต่อจากขั้น INCERFA แล้ว ความพยายามติดต่อหรือสอบถามจากแหล่งอื่นไม่ได้ข่าวของอากาศยาน',
+      'อากาศยานได้รับอนุญาตให้ลงแล้ว แต่ไม่ลงภายใน 5 นาทีหลังเวลาคาดว่าจะลง และติดต่อไม่ได้',
+      'ได้รับข้อมูลว่าประสิทธิภาพการทำงานของอากาศยานบกพร่อง แต่ยังไม่ถึงขั้นน่าจะต้องลงฉุกเฉิน',
+      'ทราบหรือเชื่อว่าอากาศยานถูกแทรกแซงโดยมิชอบด้วยกฎหมาย (Unlawful interference)',
+    ], except:'ยกเว้นมีหลักฐานที่คลายความกังวลเรื่องความปลอดภัยของอากาศยานและผู้โดยสาร' },
+  DETRESFA: { color:'#ff4444', th:'ขั้นอันตราย', en:'Distress Phase',
+    criteria:[
+      'ต่อจากขั้น ALERFA แล้ว ความพยายามติดต่อและการสอบถามที่กว้างขวางขึ้นไม่สำเร็จ บ่งชี้ว่าอากาศยานน่าจะประสบภัย',
+      'คาดว่าเชื้อเพลิงบนอากาศยานหมดแล้ว หรือไม่เพียงพอที่จะไปถึงที่ปลอดภัย',
+      'ได้รับข้อมูลว่าประสิทธิภาพการทำงานของอากาศยานบกพร่องจนน่าจะต้องลงฉุกเฉิน',
+      'ได้รับข้อมูลหรือค่อนข้างแน่ใจว่าอากาศยานกำลังจะลงหรือได้ลงฉุกเฉินแล้ว',
+    ], except:'ยกเว้นค่อนข้างแน่ใจว่าอากาศยานและผู้โดยสารไม่ได้อยู่ในอันตรายร้ายแรงและไม่ต้องการความช่วยเหลือทันที' },
+};
+
+let icaoState = { phase:'NORMAL', since:null, fields:{}, log:[] };
+try { Object.assign(icaoState, JSON.parse(localStorage.getItem(ICAO_KEY) || '{}')); } catch(e) {}
+
+function icaoPersist() {
+  try { localStorage.setItem(ICAO_KEY, JSON.stringify(icaoState)); } catch(e) {}
+}
+
+function icaoFmt(ts) {
+  // เวลาไทย (UTC+7) ให้ตรงกับนาฬิกาของระบบ พร้อมเวลา UTC (Z) แบบการบิน
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2, '0');
+  const th = new Date(ts + 7 * 3600000);
+  return `${p(th.getUTCDate())}/${p(th.getUTCMonth()+1)} ${p(th.getUTCHours())}:${p(th.getUTCMinutes())} น. (${p(d.getUTCHours())}${p(d.getUTCMinutes())}Z)`;
+}
+
+function icaoEsc(s) {
+  return String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+}
+
+function icaoSetPhase(phase) {
+  if (phase === icaoState.phase) return;
+  const prev = icaoState.phase;
+  icaoState.phase = phase;
+  icaoState.since = phase === 'NORMAL' ? null : Date.now();
+  const who = icaoState.fields.callsign ? ` — ${icaoState.fields.callsign}` : '';
+  icaoState.log.unshift({ t: Date.now(), phase, text: phase === 'NORMAL' ? `ยุติเหตุการณ์ (จาก ${prev})${who}` : `ประกาศ ${phase}${prev !== 'NORMAL' ? ` (จาก ${prev})` : ''}${who}` });
+  if (phase === 'NORMAL') icaoState.fields = {};
+  icaoPersist();
+  icaoRender();
+  if (typeof showToast === 'function') {
+    showToast(phase === 'NORMAL' ? '✅ ยุติเหตุการณ์ กลับสู่สถานะปกติ' : `🚨 ประกาศ ${phase} — ${ICAO_PHASES[phase].th}`, phase === 'NORMAL' ? 'green' : 'red');
+  }
+}
+
+function icaoSaveFields() {
+  ['callsign','type','lkp','lastcontact','notes'].forEach(k => {
+    const el = document.getElementById('icao-' + k);
+    if (el) icaoState.fields[k] = el.value;
+  });
+  icaoPersist();
+  icaoRenderPill();
+}
+
+function icaoClearLog(btn) {
+  // กดสองครั้งเพื่อยืนยัน
+  if (!btn.classList.contains('confirm')) {
+    btn.classList.add('confirm'); btn.textContent = 'กดอีกครั้งเพื่อยืนยัน';
+    setTimeout(() => { btn.classList.remove('confirm'); btn.textContent = 'ล้างบันทึก'; }, 3000);
+    return;
+  }
+  icaoState.log = [];
+  icaoPersist();
+  icaoRender();
+  btn.classList.remove('confirm'); btn.textContent = 'ล้างบันทึก';
+}
+
+function icaoGoto() {
+  const tab = document.querySelector('.nav-tab');
+  if (tab) tab.click();
+  const card = document.getElementById('icao-card');
+  if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function icaoElapsed() {
+  if (!icaoState.since) return '';
+  const s = Math.floor((Date.now() - icaoState.since) / 1000);
+  const p = n => String(n).padStart(2, '0');
+  return `${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`;
+}
+
+function icaoRenderPill() {
+  const pill = document.getElementById('icao-header-pill');
+  if (!pill) return;
+  const ph = icaoState.phase;
+  pill.dataset.phase = ph;
+  pill.classList.toggle('on', ph !== 'NORMAL');
+  pill.innerHTML = ph === 'NORMAL' ? '' : `${ic('siren')} ${ph} ${icaoElapsed()}`;
+  pill.title = ph === 'NORMAL' ? '' : `${ICAO_PHASES[ph].th}${icaoState.fields.callsign ? ' — ' + icaoState.fields.callsign : ''} (คลิกเพื่อดูรายละเอียด)`;
+}
+
+function icaoRender() {
+  const card = document.getElementById('icao-card');
+  if (!card) return;
+  const ph = icaoState.phase;
+  const info = ICAO_PHASES[ph];
+  card.dataset.phase = ph;
+  document.querySelectorAll('.icao-btn').forEach(b => b.classList.toggle('active', b.dataset.phase === ph));
+
+  document.getElementById('icao-banner').innerHTML = `
+    <div>
+      <div class="ph-name">${ph}</div>
+      <div class="ph-desc">${info.th} — ${info.en}</div>
+    </div>
+    <div class="ph-time">${icaoState.since
+      ? `ประกาศเมื่อ ${icaoFmt(icaoState.since)}<br>ผ่านไป <b id="icao-elapsed">${icaoElapsed()}</b>`
+      : 'ไม่มีเหตุการณ์ที่ประกาศ'}</div>`;
+
+  document.getElementById('icao-criteria').innerHTML = info.criteria
+    ? `<b>เกณฑ์ประกาศ ${ph}</b> (อย่างใดอย่างหนึ่ง)<ol>${info.criteria.map(c => `<li>${c}</li>`).join('')}</ol><div style="margin-top:4px;color:var(--gray);">* ${info.except}</div>`
+    : '';
+
+  ['callsign','type','lkp','lastcontact','notes'].forEach(k => {
+    const el = document.getElementById('icao-' + k);
+    if (el && document.activeElement !== el) el.value = icaoState.fields[k] || '';
+  });
+
+  document.getElementById('icao-log').innerHTML = icaoState.log.length
+    ? icaoState.log.map(l => `<div><span class="t">${icaoFmt(l.t)}</span><span class="p" style="color:${ICAO_PHASES[l.phase].color}">${l.phase}</span>${icaoEsc(l.text)}</div>`).join('')
+    : '<div style="color:var(--gray);">ยังไม่มีบันทึก</div>';
+
+  icaoRenderPill();
+}
+
+icaoRender();
+setInterval(() => {
+  if (!icaoState.since) return;
+  const el = document.getElementById('icao-elapsed');
+  if (el) el.textContent = icaoElapsed();
+  icaoRenderPill();
+}, 1000);
 </script>
 
 <!-- PWA Service Worker -->
