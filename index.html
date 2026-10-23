@@ -909,6 +909,13 @@ body::before {
   #print-all-pages { display: block !important; }
 }
 
+/* ── ICONS (SVG sprite) ── */
+.ic { width:1.1em; height:1.1em; vertical-align:-0.18em; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.nav-tab .ic { width:17px; height:17px; }
+.icao-btn .ic { width:1.15em; height:1.15em; margin-right:4px; }
+.heli-circle .ic { width:18px; height:18px; }
+.img-placeholder .ic { stroke-width:1.4; }
+
 /* ── ICAO EMERGENCY PHASE ── */
 .icao-card { --ph: #00ff88; }
 .icao-card[data-phase="INCERFA"]  { --ph: #ffd700; border-color: rgba(255,215,0,0.6) !important; }
@@ -1089,10 +1096,6 @@ body.theme-fantasy .nav-tab.active {
   box-shadow: inset 0 -8px 14px -10px rgba(69,214,106,0.7);
 }
 
-/* ไอคอน SVG ของแท็บ (แสดงเฉพาะธีมนี้ แทน emoji) */
-.tab-ico { display: none; width: 17px; height: 17px; flex-shrink: 0; }
-body.theme-fantasy .tab-ico { display: inline-block; }
-body.theme-fantasy .tab-emo { display: none; }
 
 /* ── Focus (keyboard) ── */
 body.theme-fantasy :is(button, select, input, textarea, label, [tabindex]):focus-visible {
@@ -1386,6 +1389,61 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
 </style>
 </head>
 <body class="theme-fantasy">
+<!-- ICON SPRITE: ไอคอนเส้นชุดเดียวทั้งระบบ ใช้ผ่าน ic('ชื่อ') หรือ <use href="#i-ชื่อ"> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-heli" viewBox="0 0 24 24"><path d="M2 5h14M9 5v3"/><path d="M4 13a5 5 0 015-5h2a5 5 0 015 5 2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M16 11h5M21 9v4M7 15v3M13 15v3M4 18h12"/></symbol>
+  <symbol id="i-duty" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><circle cx="12" cy="10" r="2.5"/><path d="M8 16c.8-1.8 2.2-2.7 4-2.7s3.2.9 4 2.7"/></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="1.5"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+  <symbol id="i-paperclip" viewBox="0 0 24 24"><path d="M20 11.5l-8.2 8.2a5 5 0 01-7.1-7.1l8.5-8.5a3.3 3.3 0 014.7 4.7l-8.5 8.5a1.7 1.7 0 01-2.4-2.4l7.8-7.8"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M4 20h16"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7 10l5-5 5 5M4 20h16"/></symbol>
+  <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-printer" viewBox="0 0 24 24"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="1"/><path d="M7 14h10v7H7z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1.5"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 000-8 6 6 0 00-11.5 1.5A3.3 3.3 0 007 18z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.5 5.7 3.5 9s-1 6.3-3.5 9c-2.5-2.7-3.5-5.7-3.5-9s1-6.3 3.5-9z"/></symbol>
+  <symbol id="i-siren" viewBox="0 0 24 24"><path d="M7 18v-6a5 5 0 0110 0v6"/><path d="M5 21h14v-3H5zM12 4V2M5 7L3.6 5.6M19 7l1.4-1.4"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></symbol>
+  <symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="M12 3L2 20h20z"/><path d="M12 9v5M12 17h.01"/></symbol>
+  <symbol id="i-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5h.01"/></symbol>
+  <symbol id="i-octagon" viewBox="0 0 24 24"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z"/><path d="M12 7v6M12 16.5h.01"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6h6l2 2h10v11H3z"/></symbol>
+  <symbol id="i-folder-open" viewBox="0 0 24 24"><path d="M3 19V6h6l2 2h8v3"/><path d="M3 19l3-8h16l-3 8z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 00-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0014.5 4.5L20 16M20 20v-4h-4"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-dasharray="3 2.5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A10 10 0 0112 5c6.4 0 10 7 10 7a17 17 0 01-3.1 3.9M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.6 9.6 0 005.3-1.6"/><path d="M9.9 9.9a3 3 0 004.2 4.2"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 006 6L16 13l5 2v4a2 2 0 01-2 2A17 17 0 013 5a2 2 0 012-2z"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 3h4M6 7l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-satellite" viewBox="0 0 24 24"><path d="M7 9l2-2 6 6-2 2z"/><path d="M8 8L4 4M14 14l4 4M4.5 9.5l-1.5 1.5 3 3 1.5-1.5M9.5 4.5L11 3l3 3-1.5 1.5"/><path d="M15 21a6 6 0 006-6"/></symbol>
+  <symbol id="i-mountain" viewBox="0 0 24 24"><path d="M2 20l7-12 4 6 3-4 6 10z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0114 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+  <symbol id="i-signal" viewBox="0 0 24 24"><path d="M5 19a10 10 0 010-14M19 5a10 10 0 010 14M8.5 15.5a5 5 0 010-7M15.5 8.5a5 5 0 010 7"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v3l5 6 5-6V3M7 21v-3l5-6 5 6v3"/></symbol>
+  <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.9V16h7v-2.1A6 6 0 0012 3z"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 000 18c1.5 0 2-1 2-2s-1-2 0-3h2.5A4.5 4.5 0 0021 11.5C21 6.8 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+</svg>
+<script>
+// ไอคอน SVG จาก sprite ด้านบน
+function ic(name) { return `<svg class="ic" aria-hidden="true" focusable="false"><use href="#i-${name}"/></svg>`; }
+// แปลง emoji ในข้อความแจ้งเตือนเป็นไอคอน SVG (ใช้กับ toast / สถานะ)
+const EMOJI_ICON = { '✅':'check-circle', '⚠️':'alert-triangle', '⚠':'alert-triangle', '❌':'x-circle', '🎨':'palette', '📍':'pin',
+  '📄':'file-text', '📅':'calendar', '💡':'lightbulb', '⏳':'hourglass', '🚨':'siren', '🖥️':'monitor', '📂':'folder-open', '📸':'camera' };
+const EMOJI_RE = new RegExp(Object.keys(EMOJI_ICON).sort((a, b) => b.length - a.length).join('|'), 'g');
+function iconize(str) { return String(str).replace(EMOJI_RE, m => ic(EMOJI_ICON[m])); }
+</script>
 
 
 <!-- Theme Toggle Button (ขวาล่าง) -->
@@ -1394,43 +1452,43 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
 <!-- HEADER + NAV -->
 <div class="app-header">
   <div class="app-logo">
-    <h1>🚁 RTAF RCC</h1>
+    <h1><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-heli"/></svg> RTAF RCC</h1>
     <div class="sub">ห้องประสานงานการค้นหาและช่วยชีวิต ศยอ.ศปก.ทอ.</div>
   </div>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('duty',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><circle cx="12" cy="10" r="2.5"/><path d="M8 16c.8-1.8 2.2-2.7 4-2.7s3.2.9 4 2.7"/></svg><span class="tab-emo" aria-hidden="true">👮</span> เจ้าหน้าที่เวร</button>
-    <button class="nav-tab" onclick="showPage('aircraft',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M12 6v3"/><path d="M6 13c0-2.2 2.7-4 6-4h2c2.8 0 5 1.8 5 4v1H6z"/><path d="M6 14l-3-2M9 17v2M16 17v2M7 19h12"/></svg><span class="tab-emo" aria-hidden="true">🚁</span> สถานภาพอากาศยาน</button>
-    <button class="nav-tab" onclick="showPage('mission',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8M9 2h6v4H9z"/><path d="M6 4H5v17h14V4h-1"/><path d="M8.5 11l2 2 4-4M8.5 17h7"/></svg><span class="tab-emo" aria-hidden="true">📋</span> ภารกิจประจำวัน</button>
-    <button class="nav-tab" onclick="showPage('training',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span class="tab-emo" aria-hidden="true">🗺️</span> แผนการฝึกบิน</button>
-    <button class="nav-tab" onclick="showPage('map',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12l6-6"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg><span class="tab-emo" aria-hidden="true">🗺️</span> แผนที่ Coverage</button>
-    <button class="nav-tab" onclick="showPage('others',this)"><svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5l-8.2 8.2a5 5 0 01-7.1-7.1l8.5-8.5a3.3 3.3 0 014.7 4.7l-8.5 8.5a1.7 1.7 0 01-2.4-2.4l7.8-7.8"/></svg><span class="tab-emo" aria-hidden="true">📎</span> อื่นๆ</button>
+    <button class="nav-tab active" onclick="showPage('duty',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-duty"/></svg> เจ้าหน้าที่เวร</button>
+    <button class="nav-tab" onclick="showPage('aircraft',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-heli"/></svg> สถานภาพอากาศยาน</button>
+    <button class="nav-tab" onclick="showPage('mission',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-clipboard"/></svg> ภารกิจประจำวัน</button>
+    <button class="nav-tab" onclick="showPage('training',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-map"/></svg> แผนการฝึกบิน</button>
+    <button class="nav-tab" onclick="showPage('map',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-radar"/></svg> แผนที่ Coverage</button>
+    <button class="nav-tab" onclick="showPage('others',this)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg> อื่นๆ</button>
   </div>
   <div style="display:flex;align-items:center;gap:6px;padding:0 8px;flex-shrink:0;position:relative;">
     <!-- ปุ่มบันทึก + dropdown -->
     <div style="position:relative;" id="save-menu-wrap">
       <div style="display:flex;">
-        <button id="btn-save" onclick="saveAll()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);border-right:none;color:#00ff88;padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;">💾 บันทึก</button>
+        <button id="btn-save" onclick="saveAll()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);border-right:none;color:#00ff88;padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-save"/></svg> บันทึก</button>
         <button onclick="toggleSaveMenu()" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.4);color:#00ff88;padding:5px 8px;cursor:pointer;font-size:0.7rem;border-left:1px solid rgba(0,255,136,0.2);">▼</button>
       </div>
       <div id="save-dropdown" style="display:none;position:absolute;top:100%;right:0;min-width:180px;background:rgba(10,22,40,0.98);border:1px solid rgba(0,212,255,0.3);z-index:9999;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">
-        <div onclick="exportJSON();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#00d4ff;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(0,212,255,0.1)'" onmouseout="this.style.background='transparent'">📥 Export JSON</div>
+        <div onclick="exportJSON();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#00d4ff;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(0,212,255,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-download"/></svg> Export JSON</div>
         <div style="padding:0;border-bottom:1px solid rgba(255,255,255,0.06);">
           <label style="display:block;padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">
-            📤 Import JSON<input type="file" accept=".json" onchange="importJSON(this);toggleSaveMenu()" style="display:none"/>
+            <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-upload"/></svg> Import JSON<input type="file" accept=".json" onchange="importJSON(this);toggleSaveMenu()" style="display:none"/>
           </label>
         </div>
-        <div onclick="exportWord();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#6495ed;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(100,149,237,0.1)'" onmouseout="this.style.background='transparent'">📝 Export Word</div>
-        <div onclick="exportPDF();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'">🖨️ Export PDF (บรรยายสรุป)</div>
-        <div onclick="captureAllPages();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ff69b4;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,105,180,0.1)'" onmouseout="this.style.background='transparent'">📸 แคปทุกหน้า → PDF</div>
+        <div onclick="exportWord();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#6495ed;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(100,149,237,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-file-text"/></svg> Export Word</div>
+        <div onclick="exportPDF();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ffd700;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,215,0,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-printer"/></svg> Export PDF (บรรยายสรุป)</div>
+        <div onclick="captureAllPages();toggleSaveMenu()" style="padding:10px 16px;cursor:pointer;color:#ff69b4;font-size:0.82rem;font-family:'Sarabun',sans-serif;" onmouseover="this.style.background='rgba(255,105,180,0.1)'" onmouseout="this.style.background='transparent'"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-camera"/></svg> แคปทุกหน้า → PDF</div>
       </div>
     </div>
   </div>
-  <div class="app-date">📅 <span id="header-date">7 เม.ย. 2569</span></div>
+  <div class="app-date"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-calendar"/></svg>&nbsp;<span id="header-date">7 เม.ย. 2569</span></div>
   <div id="icao-header-pill" class="icao-pill" onclick="icaoGoto()" title="สถานะเหตุการณ์ตามมาตรฐาน ICAO"></div>
-  <div id="server-status" style="font-size:0.72rem;padding:0 10px;white-space:nowrap;color:#8899aa;flex-shrink:0;">☁️ กำลังเชื่อมต่อ...</div>
+  <div id="server-status" style="font-size:0.72rem;padding:0 10px;white-space:nowrap;color:#8899aa;flex-shrink:0;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-cloud"/></svg> กำลังเชื่อมต่อ...</div>
   <!-- PWA Install Button (จะแสดงเมื่อติดตั้งได้) -->
   <button id="pwa-install-btn" onclick="installPWA()" style="display:none;align-items:center;gap:6px;background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 12px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.78rem;white-space:nowrap;flex-shrink:0;">
-    📲 ติดตั้งแอป
+    <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-smartphone"/></svg> ติดตั้งแอป
   </button>
 </div>
 
@@ -1445,7 +1503,7 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
         <div id="clock-time" style="font-size:1.8rem;font-weight:700;color:var(--white);font-family:'Share Tech Mono',monospace;line-height:1.1;"></div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:0.75rem;color:var(--gray);">🌐 Bangkok Time (UTC+7) — realtime</div>
+        <div style="font-size:0.75rem;color:var(--gray);"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-globe"/></svg> Bangkok Time (UTC+7) — realtime</div>
         <div id="clock-day" style="font-size:0.85rem;color:var(--yellow);margin-top:2px;"></div>
       </div>
     </div>
@@ -1453,15 +1511,15 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
     <!-- ICAO EMERGENCY PHASE (Annex 11 / Annex 12) -->
     <div class="card icao-card" id="icao-card" style="margin-bottom:14px;">
       <div class="card-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <span>🚨 สถานะเหตุการณ์ตามมาตรฐาน ICAO (Emergency Phases)</span>
+        <span><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-siren"/></svg> สถานะเหตุการณ์ตามมาตรฐาน ICAO (Emergency Phases)</span>
         <span style="font-size:0.72rem;color:var(--gray);font-weight:400;">อ้างอิง ICAO Annex 11 ข้อ 5.2 / Annex 12 / IAMSAR</span>
       </div>
 
       <div class="icao-phase-row">
-        <button class="icao-btn" data-phase="NORMAL"   onclick="icaoSetPhase('NORMAL')">✅ ปกติ<small>NORMAL</small></button>
-        <button class="icao-btn" data-phase="INCERFA"  onclick="icaoSetPhase('INCERFA')">⚠️ INCERFA<small>ขั้นไม่แน่นอน</small></button>
-        <button class="icao-btn" data-phase="ALERFA"   onclick="icaoSetPhase('ALERFA')">🟠 ALERFA<small>ขั้นเตรียมพร้อม</small></button>
-        <button class="icao-btn" data-phase="DETRESFA" onclick="icaoSetPhase('DETRESFA')">🆘 DETRESFA<small>ขั้นอันตราย</small></button>
+        <button class="icao-btn" data-phase="NORMAL"   onclick="icaoSetPhase('NORMAL')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-check-circle"/></svg>ปกติ<small>NORMAL</small></button>
+        <button class="icao-btn" data-phase="INCERFA"  onclick="icaoSetPhase('INCERFA')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-alert-triangle"/></svg>INCERFA<small>ขั้นไม่แน่นอน</small></button>
+        <button class="icao-btn" data-phase="ALERFA"   onclick="icaoSetPhase('ALERFA')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-alert-circle"/></svg>ALERFA<small>ขั้นเตรียมพร้อม</small></button>
+        <button class="icao-btn" data-phase="DETRESFA" onclick="icaoSetPhase('DETRESFA')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-octagon"/></svg>DETRESFA<small>ขั้นอันตราย</small></button>
       </div>
 
       <div class="icao-banner" id="icao-banner"></div>
@@ -1529,10 +1587,10 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
 
     <!-- CSV UPLOAD (ด้านล่าง) -->
     <div class="card" style="margin-top:14px;">
-      <div class="card-title">📂 นำเข้าฐานข้อมูลเจ้าหน้าที่ (CSV/Excel)</div>
+      <div class="card-title"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-folder-open"/></svg> นำเข้าฐานข้อมูลเจ้าหน้าที่ (CSV/Excel)</div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <label class="file-btn" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:7px 16px;cursor:pointer;font-size:0.85rem;white-space:nowrap;">
-          📁 เลือกไฟล์ CSV
+          <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-folder"/></svg> เลือกไฟล์ CSV
           <input type="file" id="csv-upload" accept=".csv,.xlsx,.xls" style="display:none" onchange="loadCSV(this)"/>
         </label>
         <span id="csv-status"></span>
@@ -1555,7 +1613,7 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
       <div class="card-title" style="justify-content:space-between">
         <span>สถานภาพอากาศยานหน่วยบินค้นหาและช่วยชีวิต</span>
         <button class="go-map-btn" onclick="applyAndGoMap()" style="background:rgba(0,212,255,0.15);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:5px;">
-          🗺️ บันทึก &amp; ดูแผนที่
+          <svg class="ic" aria-hidden="true" focusable="false"><use href="#i-map"/></svg> บันทึก &amp; ดูแผนที่
         </button>
       </div>
       <div style="overflow-x:auto">
@@ -1583,7 +1641,7 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
     <div class="card">
       <div class="card-title" style="justify-content:space-between;">
         <span>ภารกิจประจำวันหน่วยบินค้นหาและช่วยชีวิต — <span id="mission-date"></span></span>
-        <div style="font-size:0.75rem;color:var(--gray);">🔄 สถานภาพ sync จากหน้าสถานภาพอากาศยานอัตโนมัติ</div>
+        <div style="font-size:0.75rem;color:var(--gray);"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-refresh"/></svg> สถานภาพ sync จากหน้าสถานภาพอากาศยานอัตโนมัติ</div>
       </div>
       <div style="overflow-x:auto">
         <table class="data-table">
@@ -1628,11 +1686,11 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
       <button class="sub-tab" onclick="showSub('sub5',this)">5. BIGSHELL</button>
     </div>
 
-    <!-- SUB 1 --><div class="sub-page active" id="sub1"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการปฏิบัติทางอากาศประจำวัน</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-1" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('1')" id="view-btn-1" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('1',this)"/></label></div></div><div id="img-grid-1" class="img-grid-single"></div><div id="img-empty-1" class="img-upload-area" onclick="document.querySelector('#sub1 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 2 --><div class="sub-page" id="sub2"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>ภารกิจการติดตามอากาศยานที่สำคัญ</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-2" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('2')" id="view-btn-2" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('2',this)"/></label></div></div><div id="img-grid-2" class="img-grid-single"></div><div id="img-empty-2" class="img-upload-area" onclick="document.querySelector('#sub2 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 3 --><div class="sub-page" id="sub3"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ OSCAR</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-3" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('3')" id="view-btn-3" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('3',this)"/></label></div></div><div id="img-grid-3" class="img-grid-single"></div><div id="img-empty-3" class="img-upload-area" onclick="document.querySelector('#sub3 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 4 --><div class="sub-page" id="sub4"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ FOCAL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-4" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('4')" id="view-btn-4" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('4',this)"/></label></div></div><div id="img-grid-4" class="img-grid-single"></div><div id="img-empty-4" class="img-upload-area" onclick="document.querySelector('#sub4 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
-    <!-- SUB 5 --><div class="sub-page" id="sub5"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ BIGSHELL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-5" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('5')" id="view-btn-5" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('5',this)"/></label></div></div><div id="img-grid-5" class="img-grid-single"></div><div id="img-empty-5" class="img-upload-area" onclick="document.querySelector('#sub5 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;">📎</div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 1 --><div class="sub-page active" id="sub1"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการปฏิบัติทางอากาศประจำวัน</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-1" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('1')" id="view-btn-1" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('1',this)"/></label></div></div><div id="img-grid-1" class="img-grid-single"></div><div id="img-empty-1" class="img-upload-area" onclick="document.querySelector('#sub1 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 2 --><div class="sub-page" id="sub2"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>ภารกิจการติดตามอากาศยานที่สำคัญ</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-2" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('2')" id="view-btn-2" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('2',this)"/></label></div></div><div id="img-grid-2" class="img-grid-single"></div><div id="img-empty-2" class="img-upload-area" onclick="document.querySelector('#sub2 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 3 --><div class="sub-page" id="sub3"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ OSCAR</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-3" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('3')" id="view-btn-3" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('3',this)"/></label></div></div><div id="img-grid-3" class="img-grid-single"></div><div id="img-empty-3" class="img-upload-area" onclick="document.querySelector('#sub3 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 4 --><div class="sub-page" id="sub4"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ FOCAL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-4" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('4')" id="view-btn-4" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('4',this)"/></label></div></div><div id="img-grid-4" class="img-grid-single"></div><div id="img-empty-4" class="img-upload-area" onclick="document.querySelector('#sub4 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
+    <!-- SUB 5 --><div class="sub-page" id="sub5"><div class="card"><div class="card-title" style="justify-content:space-between;"><span>แผนการฝึกบินในเขตพื้นที่ BIGSHELL</span><div style="display:flex;gap:6px;align-items:center;"><span id="img-count-5" style="font-size:0.75rem;color:var(--gray);"></span><button onclick="toggleView('5')" id="view-btn-5" style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:var(--accent);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">⊟ 2 คอลัมน์</button><label style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:3px 10px;cursor:pointer;font-size:0.78rem;font-family:'Sarabun',sans-serif;">+ เพิ่มภาพ<input type="file" accept="image/*,.pdf" multiple style="display:none" onchange="addImages('5',this)"/></label></div></div><div id="img-grid-5" class="img-grid-single"></div><div id="img-empty-5" class="img-upload-area" onclick="document.querySelector('#sub5 input[type=file]').click()"><div class="img-placeholder"><div style="font-size:2rem;"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-paperclip"/></svg></div><div style="margin-top:8px;font-size:0.9rem;">คลิกเพื่อแนบไฟล์ภาพ</div><div style="font-size:0.75rem;color:var(--gray);margin-top:4px;">รองรับ JPG, PNG, PDF (สูงสุด 10 ภาพ)</div></div></div></div></div>
 
   </div>
 </div>
@@ -1655,17 +1713,18 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
     <div class="ms-legend" style="border-top:1px solid rgba(0,212,255,0.1);border-bottom:none;margin-top:auto;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div class="ms-legend-title" style="margin-bottom:0;">สัญลักษณ์สถานภาพ</div>
+      </div>
       <div id="api-status" style="font-size:0.7rem;color:var(--gray);margin-bottom:6px;"></div>
       <div class="ms-legend-item"><div class="ms-dot" style="background:#00ff88"></div><span style="color:#00ff88">FMC — พร้อมปฏิบัติเต็มที่</span></div>
       <div class="ms-legend-item"><div class="ms-dot" style="background:#ffd700"></div><span style="color:#ffd700">PMC — พร้อมปฏิบัติบางส่วน</span></div>
       <div class="ms-legend-item"><div class="ms-dot" style="background:#ff4444"></div><span style="color:#ff4444">NMC — ไม่พร้อมปฏิบัติ</span></div>
-      <div style="margin-top:6px;font-size:0.72rem;color:var(--gray)">⭕ วงกลม = Coverage <span style="color:var(--accent);font-family:'Share Tech Mono',monospace">150 NM</span></div>
+      <div style="margin-top:6px;font-size:0.72rem;color:var(--gray)"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-target"/></svg> วงกลม = Coverage <span style="color:var(--accent);font-family:'Share Tech Mono',monospace">150 NM</span></div>
     </div>
     <div class="ms-toggle">
-      <button id="btn-FMC" class="toggle-btn" onclick="toggleCov('FMC')">👁 FMC Coverage</button>
-      <button id="btn-PMC" class="toggle-btn" onclick="toggleCov('PMC')">👁 PMC Coverage</button>
-      <button id="btn-NMC" class="toggle-btn" onclick="toggleCov('NMC')">👁 NMC Coverage</button>
-      <button id="btn-all" class="toggle-btn all-btn" onclick="toggleAll()">🚫 ปิดทั้งหมด</button>
+      <button id="btn-FMC" class="toggle-btn" onclick="toggleCov('FMC')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg> FMC Coverage</button>
+      <button id="btn-PMC" class="toggle-btn" onclick="toggleCov('PMC')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg> PMC Coverage</button>
+      <button id="btn-NMC" class="toggle-btn" onclick="toggleCov('NMC')"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye"/></svg> NMC Coverage</button>
+      <button id="btn-all" class="toggle-btn all-btn" onclick="toggleAll()"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-eye-off"/></svg> ปิดทั้งหมด</button>
     </div>
   </div>
 </div>
@@ -1673,10 +1732,10 @@ body.theme-fantasy ::-webkit-scrollbar-thumb:hover { background: linear-gradient
 <script>
 // ── THEME CYCLE ──
 const themes = [
-  { cls:'theme-dark',  icon:'🌙', label:'Dark' },
-  { cls:'theme-light', icon:'☀️', label:'Light' },
-  { cls:'theme-camo',  icon:'🪖', label:'Camo' },
-  { cls:'theme-metal', icon:'🤘', label:'Heavy Metal' },
+  { cls:'theme-dark',  icon:'moon',   label:'Dark' },
+  { cls:'theme-light', icon:'sun',    label:'Light' },
+  { cls:'theme-camo',  icon:'shield', label:'Camo' },
+  { cls:'theme-metal', icon:'bolt',   label:'Heavy Metal' },
   { cls:'theme-fantasy', icon:'', label:'Dark Fantasy' }, // ปุ่มเป็นลูกแก้วมรกต ไม่ต้องมีไอคอน
 ];
 // ธีมเริ่มต้น = Dark Fantasy (key ใหม่ จึงเริ่มที่ธีมนี้หนึ่งครั้ง แล้วจำตามที่ผู้ใช้เลือก)
@@ -1694,7 +1753,7 @@ function applyTheme(idx) {
   themes.forEach(t => body.classList.remove(t.cls));
   body.classList.add(themes[idx].cls);
   const btn = document.getElementById('theme-btn');
-  if (btn) btn.textContent = themes[idx].icon;
+  if (btn) btn.innerHTML = themes[idx].icon ? ic(themes[idx].icon) : '';
   showToast(`🎨 ธีม: ${themes[idx].label}`, idx === 0 ? 'cyan' : idx === 1 ? 'green' : 'green');
 }
 
@@ -1702,7 +1761,7 @@ function applyTheme(idx) {
 try {
   const saved = localStorage.getItem(THEME_KEY);
   if (saved !== null && themes[parseInt(saved)]) { themeIdx = parseInt(saved); applyTheme(themeIdx); }
-  else { const btn = document.getElementById('theme-btn'); if (btn) btn.textContent = themes[themeIdx].icon; }
+  else { const btn = document.getElementById('theme-btn'); if (btn) btn.innerHTML = themes[themeIdx].icon ? ic(themes[themeIdx].icon) : ''; }
 } catch(e) {}
 
 // ── MULTI-IMAGE SYSTEM ──
@@ -1757,7 +1816,7 @@ function renderImgGrid(n) {
           <span id="zoom-lbl-${n}-${i}" style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--accent);min-width:36px;text-align:center;">${Math.round(img.zoom*100)}%</span>
           <button onclick="zoomImgNew('${n}',${i},0.2)" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--white);padding:2px 8px;cursor:pointer;font-size:0.75rem;">+</button>
           <button onclick="resetZoomNew('${n}',${i})" style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);color:var(--gray);padding:2px 8px;cursor:pointer;font-size:0.75rem;">↺</button>
-          <button onclick="removeImg('${n}',${i})" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff6666;padding:2px 8px;cursor:pointer;font-size:0.75rem;">✕</button>
+          <button onclick="removeImg('${n}',${i})" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);color:#ff6666;padding:2px 8px;cursor:pointer;font-size:0.75rem;" title="ลบภาพ" aria-label="ลบภาพ">${ic('x')}</button>
         </div>
       </div>
       <div class="img-card-body" id="img-body-${n}-${i}">
@@ -1897,7 +1956,7 @@ function buildMissionTable() {
             <input class="mission-input" id="m-inp-${u.id}"
               value="${u.mission !== '—' ? u.mission : ''}"
               placeholder="ระบุภารกิจประจำวัน..."/>
-            <button class="mission-clear" onclick="clearMission('${u.id}')" title="ล้างภารกิจ">✕</button>
+            <button class="mission-clear" onclick="clearMission('${u.id}')" title="ล้างภารกิจ" aria-label="ล้างภารกิจ">${ic('x')}</button>
           </div>
         </td>
       </tr>`;
@@ -1974,21 +2033,21 @@ function renderZones() {
           </div>
           <input class="zone-item-input" value="${item}" placeholder="ระบุแผนการฝึกบิน..."
             oninput="updateZoneItem('${z.id}',${i},this.value);rerenderSummary('${z.id}')"/>
-          <button class="zone-item-clear" onclick="clearZoneItem('${z.id}',${i})" title="ล้างข้อความ">✕</button>
+          <button class="zone-item-clear" onclick="clearZoneItem('${z.id}',${i})" title="ล้างข้อความ" aria-label="ล้างข้อความ">${ic('x')}</button>
           <button class="zone-item-clear" onclick="removeZoneItem('${z.id}',${i})"
             style="background:rgba(100,100,100,0.1);border-color:rgba(255,255,255,0.15);color:var(--gray);"
-            title="ลบรายการ">🗑</button>
+            title="ลบรายการ" aria-label="ลบรายการ">${ic('trash')}</button>
         </div>`;
     }).join('');
 
     container.innerHTML += `
       <div class="zone-card" id="zc-${z.id}">
         <div class="zone-header">
-          <span style="color:var(--accent);font-size:1rem;">🗺️</span>
+          <span style="color:var(--accent);font-size:1rem;">${ic('map')}</span>
           <input class="zone-name-input" value="${z.name}" placeholder="ชื่อเขตพื้นที่..."
             onchange="updateZoneName('${z.id}',this.value)"/>
           <div id="zone-summary-${z.id}" style="background:rgba(0,212,255,0.12);border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:0.75rem;padding:2px 10px;white-space:nowrap;flex-shrink:0;">
-            📋 ${count} ภารกิจ
+            ${ic('clipboard')} ${count} ภารกิจ
           </div>
         </div>
         <div class="zone-body" id="zb-${z.id}">
@@ -2010,7 +2069,7 @@ function rerenderSummary(zid) {
   }
   const count = z.items.filter(item => item.trim() !== '').length;
   const sumEl = document.getElementById('zone-summary-' + zid);
-  if (sumEl) sumEl.textContent = `📋 ${count} ภารกิจ`;
+  if (sumEl) sumEl.innerHTML = `${ic('clipboard')} ${count} ภารกิจ`;
 
   // re-number all items
   let num = 1;
@@ -2182,7 +2241,7 @@ function buildDutyTable() {
             ${opts}
           </select>
         </td>
-        <td class="duty-tel-cell" id="duty-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">📞</span> ${tel}` : '—'}</td>
+        <td class="duty-tel-cell" id="duty-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}` : '—'}</td>
       </tr>`;
   });
 }
@@ -2193,7 +2252,7 @@ function dutyChanged(idx, val) {
   const tel = (i >= 0 && staffDB[i]) ? fixTel(staffDB[i].tel) : '—';
   const telEl = document.getElementById('duty-tel-' + idx);
   telEl.innerHTML = tel !== '—'
-    ? `<span style="color:#ff69b4">📞</span> ${tel}`
+    ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}`
     : '—';
   autoSaveLocal();
 }
@@ -2217,7 +2276,7 @@ function buildStandbyTable() {
             ${opts}
           </select>
         </td>
-        <td class="duty-tel-cell" id="standby-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">📞</span> ${tel}` : '—'}</td>
+        <td class="duty-tel-cell" id="standby-tel-${i}">${tel !== '—' ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}` : '—'}</td>
       </tr>`;
   });
 }
@@ -2228,7 +2287,7 @@ function standbyChanged(idx, val) {
   const tel = (i >= 0 && staffDB[i]) ? fixTel(staffDB[i].tel) : '—';
   const telEl = document.getElementById('standby-tel-' + idx);
   telEl.innerHTML = tel !== '—'
-    ? `<span style="color:#ff69b4">📞</span> ${tel}`
+    ? `<span style="color:#ff69b4">${ic('phone')}</span> ${tel}`
     : '—';
   autoSaveLocal();
 }
@@ -2279,7 +2338,9 @@ function loadCSV(input) {
 
     if (newStaff.length > 0) {
       staffDB = newStaff;
-      document.getElementById('csv-status').textContent = `✅ โหลดแล้ว ${newStaff.length} คน จาก ${file.name}`;
+      const csvSt = document.getElementById('csv-status');
+      csvSt.innerHTML = ic('check-circle');
+      csvSt.append(` โหลดแล้ว ${newStaff.length} คน จาก ${file.name}`);
       document.getElementById('csv-status').style.color = 'var(--green)';
       // Reset all slots to first person
       dutySlots.forEach(s => s.selected = 0);
@@ -2289,7 +2350,7 @@ function loadCSV(input) {
       // บันทึกลง LocalStorage ทันทีหลังโหลด CSV
       setTimeout(autoSaveLocal, 200);
     } else {
-      document.getElementById('csv-status').textContent = '❌ ไม่พบข้อมูล กรุณาตรวจสอบรูปแบบ CSV';
+      document.getElementById('csv-status').innerHTML = ic('x-circle') + ' ไม่พบข้อมูล กรุณาตรวจสอบรูปแบบ CSV';
       document.getElementById('csv-status').style.color = 'var(--red)';
     }
   };
@@ -2323,11 +2384,11 @@ function buildAircraftTable() {
         <td>
           <select class="comm-select ${commClass}" id="comm-sel-${u.id}"
             onchange="commChanged('${u.id}',this)">
-            <option value="ok"  ${u.comm==='ok' ?'selected':''}>✅ ติดต่อได้</option>
-            <option value="no"  ${u.comm==='no' ?'selected':''}>❌ ติดต่อไม่ได้</option>
+            <option value="ok"  ${u.comm==='ok' ?'selected':''}>ติดต่อได้</option>
+            <option value="no"  ${u.comm==='no' ?'selected':''}>ติดต่อไม่ได้</option>
           </select>
         </td>
-        <td><div class="ac-input-wrap"><input class="ac-input" id="ac-inp-${u.id}" value="${u.reason}" placeholder="ระบุสาเหตุ..."/><button class="ac-clear" onclick="clearReason('${u.id}')" title="ล้างข้อความ">✕</button></div></td>
+        <td><div class="ac-input-wrap"><input class="ac-input" id="ac-inp-${u.id}" value="${u.reason}" placeholder="ระบุสาเหตุ..."/><button class="ac-clear" onclick="clearReason('${u.id}')" title="ล้างข้อความ" aria-label="ล้างข้อความ">${ic('x')}</button></div></td>
       </tr>`;
   });
   updateAcSummary();
@@ -2462,13 +2523,13 @@ function initMap() {
 
   // ── LAYER CONTROL ──
   const baseLayers = {
-    '🗺️ Google Maps (ภาษาไทย)':     googleStreet,
-    '🛰️ Google Satellite (ดาวเทียม)': googleSat,
-    '🌐 Google Hybrid (ดาวเทียม+ถนน)': googleHybrid,
-    '🏔️ Google Terrain (ภูมิประเทศ)': googleTerrain,
-    '📍 OSM ภาษาไทย':                 osmTH,
-    '🌎 Esri World Imagery (ดาวเทียมคมชัด)': esriImagery,
-    '⛰️ OpenTopoMap (ภูมิประเทศ)':      openTopo,
+    [ic('map') + ' Google Maps (ภาษาไทย)']:     googleStreet,
+    [ic('satellite') + ' Google Satellite (ดาวเทียม)']: googleSat,
+    [ic('globe') + ' Google Hybrid (ดาวเทียม+ถนน)']: googleHybrid,
+    [ic('mountain') + ' Google Terrain (ภูมิประเทศ)']: googleTerrain,
+    [ic('pin') + ' OSM ภาษาไทย']:                 osmTH,
+    [ic('globe') + ' Esri World Imagery (ดาวเทียมคมชัด)']: esriImagery,
+    [ic('mountain') + ' OpenTopoMap (ภูมิประเทศ)']:      openTopo,
   };
 
   L.control.layers(baseLayers, null, {
@@ -2529,7 +2590,7 @@ function makeMarker(u) {
   return L.marker([u.lat,u.lng], { icon: L.divIcon({
     className:'',
     html:`<div class="heli-marker">
-      <div class="heli-circle" style="background:rgba(10,22,40,0.9);border-color:${c};box-shadow:0 0 10px ${c}44"><span style="font-size:16px">🚁</span></div>
+      <div class="heli-circle" style="background:rgba(10,22,40,0.9);border-color:${c};box-shadow:0 0 10px ${c}44"><span style="color:${c};display:flex">${ic('heli')}</span></div>
       <div class="heli-label" style="background:rgba(10,22,40,0.9);color:${c};border:1px solid ${c}44">${u.id}</div>
     </div>`,
     iconSize:[48,50], iconAnchor:[24,17], popupAnchor:[0,-18]
@@ -2542,13 +2603,13 @@ function makePopup(u) {
     `<option value="${l.name}" data-lat="${l.lat}" data-lng="${l.lng}" ${u.loc===l.name?'selected':''}>${l.name}</option>`
   ).join('');
   return `
-    <div class="popup-title">🚁 ${u.name}</div>
+    <div class="popup-title">${ic('heli')} ${u.name}</div>
     <div class="popup-row"><span class="popup-label">แบบเครื่อง</span><span class="popup-val">${u.type}</span></div>
     <div class="popup-row"><span class="popup-label">สถานภาพ</span><span class="popup-val" style="color:${c}">${u.status} — ${statusTh[u.status]}</span></div>
     <div class="popup-row"><span class="popup-label">ภารกิจ</span><span class="popup-val">${u.mission}</span></div>
     <div class="popup-row"><span class="popup-label">สาเหตุ</span><span class="popup-val" style="font-size:0.72rem">${u.reason}</span></div>
     <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,212,255,0.15);">
-      <div style="font-size:0.72rem;color:#8899aa;margin-bottom:4px;">📍 ย้ายที่ตั้ง</div>
+      <div style="font-size:0.72rem;color:#8899aa;margin-bottom:4px;">${ic('pin')} ย้ายที่ตั้ง</div>
       <select onchange="moveUnit('${u.id}',this)" style="width:100%;background:#0a1628;border:1px solid rgba(0,212,255,0.3);color:#e8f4f8;font-family:'Sarabun',sans-serif;font-size:0.82rem;padding:4px 8px;cursor:pointer;outline:none;">
         ${locOpts}
       </select>
@@ -2579,7 +2640,7 @@ function buildUnitList() {
         <div class="ms-unit-dot" id="mdot-${u.id}" style="background:${dc}"></div>
         <div class="ms-unit-info">
           <div class="ms-unit-name">${u.name}</div>
-          <div class="ms-unit-loc">📍 ${u.loc} — ${u.type}</div>
+          <div class="ms-unit-loc">${ic('pin')} ${u.loc} — ${u.type}</div>
         </div>
         <select class="status-select ${sc}" id="msel-${u.id}"
           onclick="event.stopPropagation()"
@@ -2627,7 +2688,7 @@ function moveUnit(id, sel) {
 
   // อัปเดต unit loc ใน sidebar
   const locText = document.querySelector(`#mitem-${id} .ms-unit-loc`);
-  if (locText) locText.textContent = `📡 ${u.type}`;
+  if (locText) locText.innerHTML = `${ic('signal')} ${u.type}`;
 
   showToast(`📍 ${u.name}\nย้ายไป ${newLoc} แล้ว`, 'cyan');
   autoSaveLocal();
@@ -2682,7 +2743,7 @@ function toggleCov(s) {
   Object.values(circles).forEach(c => { if (c.status===s) { covState[s]?map.addLayer(c.layer):map.removeLayer(c.layer); } });
   const btn = document.getElementById('btn-'+s);
   btn.classList.toggle('off', !covState[s]);
-  btn.textContent = (covState[s]?'👁 ':'🚫 ') + s + ' Coverage';
+  btn.innerHTML = ic(covState[s] ? 'eye' : 'eye-off') + ' ' + s + ' Coverage';
 }
 
 function toggleAll() {
@@ -2692,9 +2753,9 @@ function toggleAll() {
     Object.values(circles).forEach(c => { if(c.status===s){ !allOn?map.addLayer(c.layer):map.removeLayer(c.layer); } });
     const btn = document.getElementById('btn-'+s);
     btn.classList.toggle('off', allOn);
-    btn.textContent = (!allOn?'👁 ':'🚫 ') + s + ' Coverage';
+    btn.innerHTML = ic(!allOn ? 'eye' : 'eye-off') + ' ' + s + ' Coverage';
   });
-  document.getElementById('btn-all').textContent = allOn?'👁 เปิดทั้งหมด':'🚫 ปิดทั้งหมด';
+  document.getElementById('btn-all').innerHTML = allOn ? ic('eye') + ' เปิดทั้งหมด' : ic('eye-off') + ' ปิดทั้งหมด';
 }
 
 // Init aircraft table on load
@@ -2706,7 +2767,7 @@ let lastServerSync = 0;
 
 function setServerStatus(msg, color) {
   const el = document.getElementById('server-status');
-  if (el) el.innerHTML = `☁️ <span style="color:${color}">${msg}</span>`;
+  if (el) el.innerHTML = `${ic('cloud')} <span style="color:${color}">${msg}</span>`;
 }
 
 async function saveToServer(data) {
@@ -3040,20 +3101,21 @@ function showToast(msg, color = 'green', filename = null) {
   `;
 
   const lines = msg.split('\n').join('<br>');
-  toast.innerHTML = `<div>${lines}</div>`;
+  toast.innerHTML = `<div>${iconize(lines)}</div>`;
 
   // ถ้ามี filename → เพิ่มปุ่มเปิด Downloads folder
   if (filename) {
     const hint = document.createElement('div');
     hint.style.cssText = `margin-top:10px;padding-top:8px;border-top:1px solid ${c.border};font-size:0.78rem;color:#8899aa;`;
-    hint.innerHTML = `📂 ไฟล์อยู่ใน <strong style="color:${c.text}">Downloads</strong> ของเครื่องคุณ<br>
+    hint.innerHTML = `${ic('folder-open')} ไฟล์อยู่ใน <strong style="color:${c.text}">Downloads</strong> ของเครื่องคุณ<br>
       <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;opacity:0.8;">${filename}</span>`;
     toast.appendChild(hint);
   }
 
   // ปุ่มปิด
   const closeBtn = document.createElement('button');
-  closeBtn.textContent = '✕';
+  closeBtn.innerHTML = ic('x');
+  closeBtn.setAttribute('aria-label', 'ปิดการแจ้งเตือน');
   closeBtn.style.cssText = `
     position:absolute; top:8px; right:10px;
     background:none; border:none; color:${c.text};
@@ -3247,7 +3309,7 @@ function exportWord(fromSave = false) {
 
   if (fromSave) {
     const btn = document.getElementById('btn-save');
-    if (btn) { btn.textContent = '✅ บันทึกแล้ว!'; setTimeout(() => { btn.textContent = '💾 บันทึก'; }, 2000); }
+    if (btn) { btn.innerHTML = ic('check-circle') + ' บันทึกแล้ว!'; setTimeout(() => { btn.innerHTML = ic('save') + ' บันทึก'; }, 2000); }
   }
 }
 
@@ -3275,7 +3337,7 @@ async function captureAllPages() {
   overlay.className = 'cap-overlay';
   overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;font-family:'Sarabun',sans-serif;color:#e8f4f8;";
   overlay.innerHTML = `
-    <div style="font-size:1.2rem;font-weight:700;color:#00d4ff;">📸 กำลังแคปหน้าจอ...</div>
+    <div style="font-size:1.2rem;font-weight:700;color:#00d4ff;">${ic('camera')} กำลังแคปหน้าจอ...</div>
     <div id="cap-status" style="font-size:0.9rem;color:#aaa;">เตรียมการ...</div>
     <div style="width:300px;background:#1a1a1a;height:8px;border-radius:4px;overflow:hidden;">
       <div id="cap-bar" style="height:100%;background:linear-gradient(90deg,#00d4ff,#00ff88);width:0%;transition:width 0.3s;border-radius:4px;"></div>
@@ -3284,7 +3346,7 @@ async function captureAllPages() {
   document.body.appendChild(overlay);
 
   const setStatus = (txt, pct) => {
-    document.getElementById('cap-status').textContent = txt;
+    document.getElementById('cap-status').innerHTML = iconize(txt);
     document.getElementById('cap-bar').style.width = pct + '%';
   };
 
@@ -3752,7 +3814,7 @@ function icaoRenderPill() {
   const ph = icaoState.phase;
   pill.dataset.phase = ph;
   pill.classList.toggle('on', ph !== 'NORMAL');
-  pill.textContent = ph === 'NORMAL' ? '' : `🚨 ${ph} ${icaoElapsed()}`;
+  pill.innerHTML = ph === 'NORMAL' ? '' : `${ic('siren')} ${ph} ${icaoElapsed()}`;
   pill.title = ph === 'NORMAL' ? '' : `${ICAO_PHASES[ph].th}${icaoState.fields.callsign ? ' — ' + icaoState.fields.callsign : ''} (คลิกเพื่อดูรายละเอียด)`;
 }
 

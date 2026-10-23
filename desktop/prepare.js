@@ -47,7 +47,7 @@ const replacements = [
   [/https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/html2canvas\/1\.4\.1\/html2canvas\.min\.js/, 'vendor/html2canvas.min.js'],
   [/https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/jspdf\/2\.5\.1\/jspdf\.umd\.min\.js/, 'vendor/jspdf.umd.min.js'],
   [/https:\/\/fonts\.googleapis\.com\/css2\?[^'")]*/g, 'vendor/fonts/fonts.css'],
-  [/☁️ กำลังเชื่อมต่อ\.\.\./, '💻 ออฟไลน์ — เก็บข้อมูลในเครื่อง'],
+  [/<use href="#i-cloud"\/><\/svg> กำลังเชื่อมต่อ\.\.\./, '<use href="#i-monitor"/></svg> ออฟไลน์ — เก็บข้อมูลในเครื่อง'],
 ];
 for (const [re, to] of replacements) {
   if (!re.test(html)) throw new Error(`prepare.js: ไม่พบรูปแบบ ${re} ใน index.html`);
